@@ -106,17 +106,17 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       Text(
                         'Forget Password?',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 20,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 18,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF424242),
                           ),
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Continue your spiritual journey',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: Get.width / 30,
                           color: Color(0xff4D5563),
                           fontWeight: FontWeight.w600,
                         ),
@@ -126,8 +126,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       Text(
                         'Email or Phone Number',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -153,12 +153,12 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         alignment: Alignment.center,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
+                          children: [
                             Text(
                               "By entering your number you agree to our",
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 10,
+                                fontSize: Get.width / 36,
                               ),
                             ),
                             Text(
@@ -166,7 +166,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               style: TextStyle(
                                 color: Colors.black,
                                 decoration: TextDecoration.underline,
-                                fontSize: 10,
+                                fontSize: Get.width / 36,
                               ),
                             ),
                           ],

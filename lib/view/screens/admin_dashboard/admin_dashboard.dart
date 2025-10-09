@@ -78,8 +78,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               Text(
                                 'Admin',
                                 style: GoogleFonts.poppins(
-                                  textStyle: const TextStyle(
-                                    fontSize: 20,
+                                  textStyle: TextStyle(
+                                    fontSize: Get.width / 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
                                   ),
@@ -89,7 +89,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 'Farsan Business Hub',
                                 style: GoogleFonts.poppins(
                                   textStyle: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: Get.width / 26,
                                     color: Colors.grey.shade600,
                                   ),
                                 ),
@@ -154,8 +154,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         Text(
                           'Welcome back, Admin!',
                           style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              fontSize: 18,
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                             ),
@@ -166,7 +166,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           'Manage your farsan business with ease',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
-                              fontSize: 12,
+                              fontSize: Get.width / 30,
                               color: Colors.grey.shade600,
                             ),
                           ),
@@ -266,8 +266,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Text(
                   title,
                   style: GoogleFonts.poppins(
-                    textStyle: const TextStyle(
-                      fontSize: 16,
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 22.5,
                       fontWeight: FontWeight.w500,
                       color: Color(0xff4B4B4B),
                     ),

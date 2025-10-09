@@ -122,17 +122,17 @@ class _SetNewPasswordState extends State<SetNewPassword> {
                       Text(
                         'Set New Password',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 20,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 18,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF424242),
                           ),
                         ),
                       ),
-                      const Text(
+                      Text(
                         'The password must be different than before',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: Get.width / 30,
                           color: Color(0xff4D5563),
                           fontWeight: FontWeight.w600,
                         ),
@@ -142,8 +142,8 @@ class _SetNewPasswordState extends State<SetNewPassword> {
                       Text(
                         'Create your new password',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -174,8 +174,8 @@ class _SetNewPasswordState extends State<SetNewPassword> {
                       Text(
                         'Confirm your new password',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -186,8 +186,7 @@ class _SetNewPasswordState extends State<SetNewPassword> {
                         hint: 'Confirm password',
                         image: "asset/images/loginscreen/lock_icon.png",
                         isPassword: _isPasswordHidden2,
-                        controller:
-                            confirmPasswordController, // ✅ use correct controller
+                        controller: confirmPasswordController,
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isPasswordHidden2
@@ -214,12 +213,12 @@ class _SetNewPasswordState extends State<SetNewPassword> {
                         alignment: Alignment.center,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
+                          children: [
                             Text(
                               "By entering your number you agree to our",
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 10,
+                                fontSize: Get.width / 36,
                               ),
                             ),
                             Text(
@@ -227,7 +226,7 @@ class _SetNewPasswordState extends State<SetNewPassword> {
                               style: TextStyle(
                                 color: Colors.black,
                                 decoration: TextDecoration.underline,
-                                fontSize: 10,
+                                fontSize: Get.width / 36,
                               ),
                             ),
                           ],

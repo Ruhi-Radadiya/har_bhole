@@ -104,18 +104,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       Text(
                         'Enter OTP to verify',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 20,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 18,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF424242),
                           ),
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const Text(
+                      Text(
                         'A one-time password(OTP) has been sent\nto your registered email or phone number',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: Get.width / 30,
                           color: Color(0xff4D5563),
                           fontWeight: FontWeight.w500,
                         ),
@@ -145,9 +145,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           inactiveBorderWidth: 0.5,
                           activeBorderWidth: 1,
                         ),
-                        textStyle: const TextStyle(
+                        textStyle: TextStyle(
                           color: Colors.black,
-                          fontSize: 18,
+                          fontSize: Get.width / 20,
                         ),
                         enableActiveFill: true,
                       ),
@@ -159,7 +159,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           Text(
                             "Didn't get a code?",
                             style: TextStyle(
-                              fontSize: 10.5,
+                              fontSize: Get.width / 34.5,
                               color: Color(0xff000000),
                             ),
                           ),
@@ -167,10 +167,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             onTap: () {
                               // TODO: Add resend OTP functionality
                             },
-                            child: const Text(
+                            child: Text(
                               " Resend it",
                               style: TextStyle(
-                                fontSize: 10.5,
+                                fontSize: Get.width / 34.5,
                                 color: Color(0xffF77457),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -206,15 +206,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       ),
                       SizedBox(height: Get.height / 50),
 
-                      const Text(
+                      Text(
                         "By entering your number you agree to our",
-                        style: TextStyle(color: Colors.black, fontSize: 10),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: Get.width / 36,
+                        ),
                       ),
-                      const Text(
+                      Text(
                         'Terms & Privacy policy',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 10,
+                          fontSize: Get.width / 36,
                           decoration: TextDecoration.underline,
                         ),
                       ),

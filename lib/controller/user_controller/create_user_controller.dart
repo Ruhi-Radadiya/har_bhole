@@ -11,7 +11,7 @@ class CreateUserController extends GetxController {
   final UserController userController = Get.find<UserController>();
   final _storage = GetStorage();
 
-  // Designation options
+  // Designation dropdown options
   final List<String> designationOptions = [
     'Manager',
     'Supervisor',
@@ -30,34 +30,34 @@ class CreateUserController extends GetxController {
     'Consultant',
   ];
 
+  // Observables
   var isLoading = false.obs;
-
-  TextEditingController userCodeController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController contactController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController joiningDateController = TextEditingController();
-  TextEditingController salaryController = TextEditingController();
-  TextEditingController bankNameController = TextEditingController();
-  TextEditingController accountNumberController = TextEditingController();
-  TextEditingController ifscCodeController = TextEditingController();
-  TextEditingController aadharNumberController = TextEditingController();
-
-  // Selected values
   var selectedDesignation = ''.obs;
   var selectedJoiningDate = DateTime.now().obs;
   var userImagePath = ''.obs;
   var chequebookImagePath = ''.obs;
   var imagePdfPath = ''.obs;
 
+  // Controllers
+  final userCodeController = TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final contactController = TextEditingController();
+  final addressController = TextEditingController();
+  final joiningDateController = TextEditingController();
+  final salaryController = TextEditingController();
+  final bankNameController = TextEditingController();
+  final accountNumberController = TextEditingController();
+  final ifscCodeController = TextEditingController();
+  final aadharNumberController = TextEditingController();
+
   // Image files
   File? userImageFile;
   File? chequebookImageFile;
   File? imagePdfFile;
 
-  // Store image paths permanently
+  // Keys for persistent image storage
   final String _userImageKey = 'user_image_path';
   final String _chequebookImageKey = 'chequebook_image_path';
 
@@ -68,7 +68,7 @@ class CreateUserController extends GetxController {
     userCodeController.text = generateUserCode();
   }
 
-  // Load stored data
+  // Load stored image paths
   void _loadStoredData() {
     userImagePath.value = _storage.read(_userImageKey) ?? '';
     chequebookImagePath.value = _storage.read(_chequebookImageKey) ?? '';
@@ -82,42 +82,26 @@ class CreateUserController extends GetxController {
 
   // Validation methods
   String? validateRequired(String? value, String fieldName) {
-    if (value == null || value.isEmpty) {
-      return '$fieldName is required';
-    }
+    if (value == null || value.isEmpty) return '$fieldName is required';
     return null;
   }
 
   String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email is required';
-    }
-    if (!GetUtils.isEmail(value)) {
-      return 'Please enter a valid email';
-    }
-    if (userController.isEmailExists(value)) {
-      return 'Email already exists';
-    }
+    if (value == null || value.isEmpty) return 'Email is required';
+    if (!GetUtils.isEmail(value)) return 'Please enter a valid email';
+    if (userController.isEmailExists(value)) return 'Email already exists';
     return null;
   }
 
   String? validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Contact number is required';
-    }
-    if (value.length != 10) {
-      return 'Contact number must be 10 digits';
-    }
+    if (value == null || value.isEmpty) return 'Contact number is required';
+    if (value.length != 10) return 'Contact number must be 10 digits';
     return null;
   }
 
   String? validateAadhar(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Aadhar number is required';
-    }
-    if (value.length != 12) {
-      return 'Aadhar number must be 12 digits';
-    }
+    if (value == null || value.isEmpty) return 'Aadhar number is required';
+    if (value.length != 12) return 'Aadhar number must be 12 digits';
     return null;
   }
 
@@ -137,13 +121,13 @@ class CreateUserController extends GetxController {
         aadharNumberController.text.isNotEmpty;
   }
 
-  // Generate user code
+  // Generate user code like EMP001, EMP002, etc.
   String generateUserCode() {
     final count = userController.totalUsersCount + 1;
     return 'EMP${count.toString().padLeft(3, '0')}';
   }
 
-  // Select joining date
+  // Select joining date using date picker
   Future<void> selectJoiningDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -151,30 +135,32 @@ class CreateUserController extends GetxController {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (picked != null && picked != selectedJoiningDate.value) {
+
+    if (picked != null) {
       selectedJoiningDate.value = picked;
       joiningDateController.text =
           "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
     }
   }
 
-  // Set user image with permanent storage
+  // Save selected user image
   void setUserImage(String path) {
     userImagePath.value = path;
     userImageFile = File(path);
     _saveImagePaths();
   }
 
-  void imagePdf(String path) {
-    imagePdfPath.value = path;
-    imagePdfFile = File(path);
-  }
-
-  // Set chequebook image with permanent storage
+  // Save selected cheque image
   void setChequebookImage(String path) {
     chequebookImagePath.value = path;
     chequebookImageFile = File(path);
     _saveImagePaths();
+  }
+
+  // Save selected PDF
+  void imagePdf(String path) {
+    imagePdfPath.value = path;
+    imagePdfFile = File(path);
   }
 
   // Submit form
@@ -195,7 +181,7 @@ class CreateUserController extends GetxController {
         validateAadhar(aadharNumberController.text) != null) {
       Get.snackbar(
         'Error',
-        'Please correct the validation errors',
+        'Please correct validation errors',
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -206,7 +192,6 @@ class CreateUserController extends GetxController {
     try {
       isLoading.value = true;
 
-      // In your submitForm method, update the newUser creation:
       final newUser = UserModel(
         userCode: userCodeController.text.isEmpty
             ? generateUserCode()
@@ -226,8 +211,9 @@ class CreateUserController extends GetxController {
         userImage: userImagePath.value,
         chequebookImage: chequebookImagePath.value,
         createdAt: DateTime.now(),
-        isActive: true, // Set as active by default
+        isActive: true,
       );
+
       userController.addUser(newUser);
 
       Get.snackbar(
@@ -253,7 +239,7 @@ class CreateUserController extends GetxController {
     }
   }
 
-  // Clear form
+  // Clear all form fields
   void clearForm() {
     nameController.clear();
     emailController.clear();
@@ -266,6 +252,7 @@ class CreateUserController extends GetxController {
     accountNumberController.clear();
     ifscCodeController.clear();
     aadharNumberController.clear();
+
     selectedDesignation.value = '';
     userImagePath.value = '';
     chequebookImagePath.value = '';
@@ -276,21 +263,21 @@ class CreateUserController extends GetxController {
     _storage.remove(_userImageKey);
     _storage.remove(_chequebookImageKey);
   }
-
-  @override
-  void onClose() {
-    userCodeController.dispose();
-    nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    contactController.dispose();
-    addressController.dispose();
-    joiningDateController.dispose();
-    salaryController.dispose();
-    bankNameController.dispose();
-    accountNumberController.dispose();
-    ifscCodeController.dispose();
-    aadharNumberController.dispose();
-    super.onClose();
-  }
 }
+
+// @override
+// void onClose() {
+//   userCodeController.dispose();
+//   nameController.dispose();
+//   emailController.dispose();
+//   passwordController.dispose();
+//   contactController.dispose();
+//   addressController.dispose();
+//   joiningDateController.dispose();
+//   salaryController.dispose();
+//   bankNameController.dispose();
+//   accountNumberController.dispose();
+//   ifscCodeController.dispose();
+//   aadharNumberController.dispose();
+//   super.onClose();
+// }

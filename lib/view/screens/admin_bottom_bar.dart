@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:har_bhole/controller/navigation_controller/user_dashboard_navigation_controller.dart';
-import 'package:har_bhole/view/screens/admin_dashboard/admin_dashboard.dart';
 import 'package:har_bhole/view/screens/b2b/b2b.dart';
 import 'package:har_bhole/view/screens/order/order.dart';
 import 'package:har_bhole/view/screens/stock/stock.dart';
+
+import 'admin_dashboard/admin_dashboard.dart';
 
 class AdminBottomBarScreen extends StatefulWidget {
   const AdminBottomBarScreen({super.key});
@@ -34,9 +35,9 @@ class _AdminBottomBarScreenState extends State<AdminBottomBarScreen> {
           selectedItemColor: Color(0xffF78520),
           unselectedItemColor: Color(0xff9EA4B0),
           currentIndex: controller.bottomNavigationIndex.value,
-          selectedLabelStyle: const TextStyle(
+          selectedLabelStyle: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 13,
+            fontSize: Get.width / 28,
           ),
           unselectedLabelStyle: const TextStyle(fontSize: 12),
           onTap: (value) {

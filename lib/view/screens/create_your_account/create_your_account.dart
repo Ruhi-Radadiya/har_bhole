@@ -101,11 +101,11 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                 Image.asset(
                   "asset/images/loginscreen/om_har_bhole_logo.png",
                   height: Get.height / 14,
-                  errorBuilder: (context, error, stackTrace) => const Text(
+                  errorBuilder: (context, error, stackTrace) => Text(
                     'OM Har Bhole Logo',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: Get.width / 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -135,17 +135,17 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                       Text(
                         'Create your account',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 20,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 18,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF424242),
                           ),
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Create your Sweet Moments & Savory Bites',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: Get.width / 30,
                           color: Color(0xff4D5563),
                           fontWeight: FontWeight.w600,
                         ),
@@ -156,8 +156,8 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                       Text(
                         "Username",
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -176,8 +176,8 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                       Text(
                         "Email",
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -196,8 +196,8 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                       Text(
                         "Mobile No",
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -216,8 +216,8 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                       Text(
                         "Password",
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -249,8 +249,8 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                       Text(
                         "Confirm Password",
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 22.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF424242),
                           ),
@@ -290,11 +290,11 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                               borderRadius: BorderRadius.circular(4.0),
                             ),
                           ),
-                          const Text(
+                          Text(
                             'Remember me',
                             style: TextStyle(
                               color: Color(0xff000000),
-                              fontSize: 11,
+                              fontSize: Get.width / 33,
                             ),
                           ),
                         ],
@@ -310,18 +310,21 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             "Already have an account? ",
-                            style: TextStyle(color: Colors.black, fontSize: 12),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: Get.width / 30,
+                            ),
                           ),
                           GestureDetector(
                             onTap: () => Get.toNamed(Routes.loginScreen),
-                            child: const Text(
+                            child: Text(
                               'Sign in',
                               style: TextStyle(
                                 color: Color(0xffF77457),
                                 fontWeight: FontWeight.w600,
-                                fontSize: 12,
+                                fontSize: Get.width / 30,
                               ),
                             ),
                           ),

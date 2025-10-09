@@ -47,11 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 Image.asset(
                   "asset/images/loginscreen/om_har_bhole_logo.png",
                   height: Get.height / 14,
-                  errorBuilder: (context, error, stackTrace) => const Text(
+                  errorBuilder: (context, error, stackTrace) => Text(
                     'OM Har Bhole Logo',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: Get.width / 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -84,16 +84,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           'Login',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
-                              fontSize: 20,
+                              fontSize: Get.width / 18,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF424242),
                             ),
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Login to Sweet Moments & Savory Bites',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: Get.width / 30,
                             color: Color(0xff4D5563),
                             fontWeight: FontWeight.w600,
                           ),
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           'Email or username',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
-                              fontSize: 16,
+                              fontSize: Get.width / 22.5,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF424242),
                             ),
@@ -113,14 +113,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         CustomTextField(
                           controller: emailController,
                           hint: 'Enter your email',
-                          icon: Icons.person,
+                          image: "asset/icons/textfield_icon.png",
                         ),
                         SizedBox(height: Get.height / 40),
                         Text(
                           'Password',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
-                              fontSize: 16,
+                              fontSize: Get.width / 22.5,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF424242),
                             ),
@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: Get.height / 100),
                         CustomTextField(
                           hint: 'Enter your password',
-                          image: "asset/images/loginscreen/lock_icon.png",
+                          image: "asset/icons/password_lock_icon.png",
                           isPassword: _isPasswordHidden,
                           controller: passwordController,
                           suffixIcon: IconButton(
@@ -167,11 +167,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 SizedBox(width: Get.width / 50),
-                                const Text(
+                                Text(
                                   'Remember me',
                                   style: TextStyle(
                                     color: Color(0xff000000),
-                                    fontSize: 11,
+                                    fontSize: Get.width / 33,
                                   ),
                                 ),
                               ],
@@ -180,12 +180,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 Get.toNamed(Routes.forgetPasswordScreen);
                               },
-                              child: const Text(
+                              child: Text(
                                 'Forgot password?',
                                 style: TextStyle(
                                   color: Color(0xffF77457),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 11,
+                                  fontSize: Get.width / 33,
                                 ),
                               ),
                             ),
@@ -232,23 +232,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
+                            Text(
                               "Don't have an account? ",
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 12,
+                                fontSize: Get.width / 30,
                               ),
                             ),
                             GestureDetector(
                               onTap: () {
                                 Get.toNamed(Routes.createYourAccount);
                               },
-                              child: const Text(
+                              child: Text(
                                 'Sign up',
                                 style: TextStyle(
                                   color: Color(0xffF77457),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 12,
+                                  fontSize: Get.width / 30,
                                 ),
                               ),
                             ),
@@ -303,7 +303,10 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: EdgeInsets.symmetric(horizontal: Get.width / 25),
           child: Text(
             text,
-            style: const TextStyle(color: Color(0xff000000), fontSize: 13),
+            style: TextStyle(
+              color: Color(0xff000000),
+              fontSize: Get.width / 28,
+            ),
           ),
         ),
         const Expanded(child: Divider(color: Colors.grey, thickness: 1)),

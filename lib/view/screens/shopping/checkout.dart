@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../main.dart';
+
 class CartItem {
   String imageUrl;
   String name;
   String weight;
-  double price;
-  double originalPrice;
+  double price; // selling price
+  double originalPrice; // cross/struck price or MRP
   RxInt quantity;
 
   CartItem({
@@ -21,85 +23,7 @@ class CartItem {
   }) : quantity = quantity.obs;
 }
 
-class OrderCartController extends GetxController {
-  RxList<CartItem> cartItems = <CartItem>[].obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    cartItems.assignAll([
-      CartItem(
-        imageUrl: 'asset/images/home/khaman.png',
-        name: 'Khaman',
-        weight: '1kg',
-        price: 200,
-        originalPrice: 400,
-        quantity: 2,
-      ),
-      CartItem(
-        imageUrl: 'asset/images/home/khaman.png',
-        name: 'Samosa',
-        weight: '500g',
-        price: 100,
-        originalPrice: 200,
-        quantity: 2,
-      ),
-      CartItem(
-        imageUrl: 'asset/images/home/khaman.png',
-        name: 'Mix Farsan',
-        weight: '500g',
-        price: 200,
-        originalPrice: 300,
-        quantity: 1,
-      ),
-    ]);
-  }
-
-  void addItem(CartItem newItem) {
-    var existingItem = cartItems.firstWhereOrNull(
-      (item) => item.name == newItem.name && item.weight == newItem.weight,
-    );
-    if (existingItem != null) {
-      existingItem.quantity.value += newItem.quantity.value;
-    } else {
-      cartItems.add(newItem);
-    }
-  }
-
-  void removeItem(CartItem item) {
-    cartItems.remove(item);
-  }
-
-  void increaseQuantity(CartItem item) {
-    item.quantity.value++;
-  }
-
-  void decreaseQuantity(CartItem item) {
-    if (item.quantity.value > 1) {
-      item.quantity.value--;
-    } else {
-      removeItem(item);
-    }
-  }
-
-  double get calculatedSubtotal => cartItems.fold(
-    0.0,
-    (sum, item) => sum + (item.price * item.quantity.value),
-  );
-
-  double get displayDiscount => 200.0;
-
-  double get deliveryCharges => 0.0;
-  double get platformFee => 5.0;
-
-  double get basePriceForItemsDisplay {
-    return 500.0;
-  }
-
-  double get grandTotal {
-    return 300.0;
-  }
-}
+// --------------------- UI ---------------------
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -109,11 +33,7 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  final OrderCartController orderCartController = Get.put(
-    OrderCartController(),
-  );
-
-  int _selectedPaymentMethod = 0;
+  int _selectedPaymentMethod = 2; // default: Cash on Delivery
 
   @override
   Widget build(BuildContext context) {
@@ -126,32 +46,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
+        title: Text(
           'Checkout',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: Get.width / 18,
           ),
         ),
         centerTitle: true,
       ),
       body: Column(
         children: [
+          // content
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: Get.width / 20),
               child: Obx(() {
+                final items = orderCartController.cartItems;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Divider(thickness: 0.5),
+
+                    // Address row (matches image)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
                           Icons.location_on,
-                          color: Color(0xff67BF86),
+                          color: const Color(0xff67BF86),
                           size: 28,
                         ),
                         SizedBox(width: 10),
@@ -166,19 +90,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   Text(
                                     'Delivery Address',
                                     style: GoogleFonts.poppins(
-                                      textStyle: const TextStyle(
-                                        fontSize: 16,
+                                      textStyle: TextStyle(
+                                        fontSize: Get.width / 22.5,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                    'Change',
-                                    style: GoogleFonts.poppins(
-                                      textStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.deepOrange,
+                                  GestureDetector(
+                                    onTap: () {
+                                      // implement address change navigation if needed
+                                    },
+                                    child: Text(
+                                      'Change',
+                                      style: GoogleFonts.poppins(
+                                        textStyle: TextStyle(
+                                          fontSize: Get.width / 26,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.deepOrange,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -189,7 +118,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 child: Text(
                                   'Rajesh Kumar\nA-304, Sunrise Apartments, Sector 15\nNoida, Uttar Pradesh - 201301\nPhone: +91 98765 43210',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: Get.width / 26,
                                     color: Colors.grey.shade600,
                                   ),
                                 ),
@@ -200,65 +129,57 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ],
                     ),
                     Divider(thickness: 0.5),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Order Summery',
                           style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              fontSize: 17,
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 21,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                         Text(
-                          '${orderCartController.cartItems.length} item',
+                          '${orderCartController.totalItemsCount} item',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: Get.width / 26,
                             color: Colors.grey.shade600,
                           ),
                         ),
                       ],
                     ),
+
                     Divider(thickness: 0.5),
                     SizedBox(height: Get.height / 80),
-                    ...orderCartController.cartItems
-                        .map((item) => _buildCheckoutCartItemCard(item))
-                        .toList(),
-                    const Divider(height: 10, color: Colors.grey),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: Get.height / 80),
-                      child: Text(
-                        'Payment Method',
-                        style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
+
+                    // Items list
+                    if (items.isEmpty)
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 30),
+                        child: Center(
+                          child: Text(
+                            "No items in cart",
+                            style: GoogleFonts.poppins(
+                              fontSize: Get.width / 22,
+                              color: Colors.grey,
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      )
+                    else
+                      ...items.map((item) => _buildCheckoutCartItemCard(item)),
 
-                    _buildPaymentMethodTile(
-                      title: 'UPI (PhonePe, Gpay, Paytm )',
-                      value: 0,
-                    ),
-                    _buildPaymentMethodTile(
-                      title: 'Credit/Debit Card',
-                      value: 1,
-                    ),
-                    _buildPaymentMethodTile(
-                      title: 'Cash on Delivery',
-                      value: 2,
-                    ),
+                    const Divider(height: 10, color: Colors.grey),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: Get.height / 80),
                       child: Text(
                         'Price Detail',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 17,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 21,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -266,7 +187,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
 
                     _buildSummaryRow(
-                      'Price(${orderCartController.cartItems.length} items)',
+                      'Price(${orderCartController.totalItemsCount} items)',
                       '₹${orderCartController.basePriceForItemsDisplay.toStringAsFixed(0)}',
                     ),
                     _buildSummaryRow(
@@ -276,7 +197,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                     _buildSummaryRow(
                       'Delivery Charges',
-                      'Free',
+                      orderCartController.deliveryCharges == 0.0
+                          ? 'Free'
+                          : '₹${orderCartController.deliveryCharges.toStringAsFixed(0)}',
                       valueColor: const Color(0xff67BF86),
                     ),
                     _buildSummaryRow(
@@ -284,25 +207,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       '₹${orderCartController.platformFee.toStringAsFixed(0)}',
                       valueColor: const Color(0xff67BF86),
                     ),
+
                     Divider(thickness: 0.5),
                     SizedBox(height: Get.height / 80),
+
+                    // Total Amount row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Total Amount',
                           style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              fontSize: 17,
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 21,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                         Text(
-                          '₹${orderCartController.grandTotal.toStringAsFixed(0)}', // Direct 300 from image
+                          '₹${orderCartController.grandTotal.toStringAsFixed(0)}',
                           style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              fontSize: 17,
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 21,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
                             ),
@@ -311,49 +237,91 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ],
                     ),
 
+                    // Save message
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
                         'You will save ₹${orderCartController.displayDiscount.toStringAsFixed(0)} on this order',
                         style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 13,
-                            color: Color(0xff67BF86),
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 28,
+                            color: const Color(0xff67BF86),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
+
                     SizedBox(height: Get.height / 60),
-                    Column(
+
+                    // Delivery ETA row
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.local_shipping,
-                              size: 24,
-                              color: const Color(0xff67BF86),
+                        Icon(
+                          Icons.local_shipping,
+                          size: 24,
+                          color: const Color(0xff67BF86),
+                        ),
+                        SizedBox(width: Get.width / 40),
+                        Text(
+                          'Expected Delivery\n3-5 business days',
+                          style: GoogleFonts.poppins(
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 25,
+                              fontWeight: FontWeight.w500,
                             ),
-                            SizedBox(width: Get.width / 40),
-                            Text(
-                              'Expected Delivery\n3-5 business days',
-                              style: GoogleFonts.poppins(
-                                textStyle: const TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                     SizedBox(height: Get.height / 40),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: Get.height / 80),
+                      child: Text(
+                        'Payment Method',
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 21,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _buildPaymentMethodTile(
+                      context: context,
+                      title: "Pay on delivery",
+                      subtitle: "UPI / Cash",
+                      leadingIcon: Icons.wallet_outlined, // Placeholder icon
+                      value: 1,
+                      selectedValue: _selectedPaymentMethod,
+                      onTap: () => setState(() => _selectedPaymentMethod = 1),
+                    ),
+                    _buildPaymentMethodTile(
+                      context: context,
+                      title: "Net Banking",
+                      subtitle: "UPI / Cash",
+                      leadingIcon: Icons.account_balance, // Placeholder icon
+                      value: 2,
+                      selectedValue: _selectedPaymentMethod,
+                      onTap: () => setState(() => _selectedPaymentMethod = 2),
+                    ),
+                    _buildPaymentMethodTile(
+                      context: context,
+                      title: "HDFC Bank",
+                      subtitle: "UPI / Cash",
+                      leadingIcon: Icons.credit_card, // Placeholder icon
+                      value: 3,
+                      selectedValue: _selectedPaymentMethod,
+                      onTap: () => setState(() => _selectedPaymentMethod = 3),
+                    ),
                   ],
                 );
               }),
             ),
           ),
+
+          // Bottom bar with total and place order button
           Container(
             padding: EdgeInsets.symmetric(
               horizontal: Get.width / 25,
@@ -369,74 +337,146 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ],
             ),
-            child: Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '₹${orderCartController.grandTotal.toStringAsFixed(0)}',
-                      style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+            child: Obx(() {
+              final total = orderCartController.grandTotal;
+              return Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '₹${total.toStringAsFixed(0)}',
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      'View Price details',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        decoration: TextDecoration.underline,
+                      GestureDetector(
+                        onTap: () => _showPriceDetailsSheet(context),
+                        child: Text(
+                          'View Price details',
+                          style: TextStyle(
+                            fontSize: Get.width / 30,
+                            color: Colors.grey.shade600,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: SizedBox(
-                    height: Get.height / 15,
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(
-                        CupertinoIcons.bag_fill,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      label: const Text(
-                        'Place Order',
-                        style: TextStyle(
-                          fontSize: 13,
+                    ],
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: SizedBox(
+                      height: Get.height / 15,
+                      child: ElevatedButton.icon(
+                        onPressed: orderCartController.cartItems.isEmpty
+                            ? null
+                            : () => _onPlaceOrderPressed(),
+                        icon: const Icon(
+                          CupertinoIcons.bag_fill,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          size: 18,
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffF78520),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
+                        label: Text(
+                          'Place Order',
+                          style: TextStyle(
+                            fontSize: Get.width / 28,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        elevation: 0,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffF78520),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            }),
           ),
+
           Padding(
             padding: EdgeInsets.all(Get.width / 35),
             child: Text(
               'By placing this order, you agree to our Terms & Conditions',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+              style: TextStyle(
+                fontSize: Get.width / 36,
+                color: Colors.grey.shade500,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _onPlaceOrderPressed() {
+    final total = orderCartController.grandTotal;
+    Get.to(() => OrderSuccessScreen(totalAmount: total))?.then((_) {
+      orderCartController.cartItems.clear();
+    });
+  }
+
+  void _showPriceDetailsSheet(BuildContext ctx) {
+    showModalBottomSheet(
+      context: ctx,
+      builder: (context) {
+        return Obx(() {
+          final c = orderCartController;
+          return Padding(
+            padding: EdgeInsets.all(Get.width / 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Price Details',
+                  style: GoogleFonts.poppins(
+                    fontSize: Get.width / 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: Get.height / 60),
+                _buildSummaryRow(
+                  'Price (${c.totalItemsCount} items)',
+                  '₹${c.basePriceForItemsDisplay.toStringAsFixed(0)}',
+                ),
+                _buildSummaryRow(
+                  'Discount',
+                  '-₹${c.displayDiscount.toStringAsFixed(0)}',
+                  valueColor: const Color(0xff67BF86),
+                ),
+                _buildSummaryRow(
+                  'Delivery Charges',
+                  c.deliveryCharges == 0
+                      ? 'Free'
+                      : '₹${c.deliveryCharges.toStringAsFixed(0)}',
+                ),
+                _buildSummaryRow(
+                  'Platform Fee',
+                  '₹${c.platformFee.toStringAsFixed(0)}',
+                ),
+                const Divider(),
+                _buildSummaryRow(
+                  'Total Amount',
+                  '₹${c.grandTotal.toStringAsFixed(0)}',
+                  isBold: true,
+                ),
+                SizedBox(height: Get.height / 40),
+              ],
+            ),
+          );
+        });
+      },
     );
   }
 
@@ -467,34 +507,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: Get.width / 22.5,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   'Tasty & Freshly',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: Get.width / 30,
                     fontWeight: FontWeight.bold,
-
-                    color: Color(0xff6B7180),
+                    color: const Color(0xff6B7180),
                   ),
                 ),
                 Text(
                   item.weight,
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: TextStyle(
+                    fontSize: Get.width / 30,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xff6B7180),
+                    color: const Color(0xff6B7180),
                   ),
                 ),
                 SizedBox(height: Get.height / 100),
                 Text(
                   '₹${item.price.toStringAsFixed(0)}',
                   style: GoogleFonts.poppins(
-                    textStyle: const TextStyle(
-                      fontSize: 18,
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 20,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
@@ -503,34 +542,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ],
             ),
           ),
-          Align(
-            alignment: AlignmentGeometry.bottomRight,
-            child: Obx(
-              () => Row(
-                children: [
-                  _buildQuantityButton(
-                    Icons.remove,
-                    onPressed: () => orderCartController.decreaseQuantity(item),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      item.quantity.value.toString(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+
+          // Quantity controls (reactive)
+          Obx(() {
+            return Row(
+              children: [
+                _buildQuantityButton(
+                  Icons.remove,
+                  onPressed: () => orderCartController.decreaseQuantity(item),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    item.quantity.value.toString(),
+                    style: TextStyle(
+                      fontSize: Get.width / 26,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  _buildQuantityButton(
-                    Icons.add,
-                    isAdd: true,
-                    onPressed: () => orderCartController.increaseQuantity(item),
-                  ),
-                ],
-              ),
-            ),
-          ),
+                ),
+                _buildQuantityButton(
+                  Icons.add,
+                  isAdd: true,
+                  onPressed: () => orderCartController.increaseQuantity(item),
+                ),
+              ],
+            );
+          }),
         ],
       ),
     );
@@ -555,7 +593,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {Color? valueColor}) {
+  Widget _buildSummaryRow(
+    String label,
+    String value, {
+    Color? valueColor,
+    bool isBold = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
@@ -564,10 +607,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Text(
             label,
             style: GoogleFonts.poppins(
-              textStyle: const TextStyle(
-                fontSize: 15,
+              textStyle: TextStyle(
+                fontSize: Get.width / 24,
                 fontWeight: FontWeight.w500,
-                color: Color(0xff5D686E),
+                color: const Color(0xff5D686E),
               ),
             ),
           ),
@@ -575,8 +618,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             value,
             style: GoogleFonts.poppins(
               textStyle: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontSize: Get.width / 24,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
                 color: valueColor ?? Colors.black87,
               ),
             ),
@@ -586,44 +629,134 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildPaymentMethodTile({required String title, required int value}) {
+  Widget _buildPaymentMethodTile({
+    required BuildContext context,
+    required String title,
+    required String? subtitle,
+    required IconData leadingIcon,
+    required int value,
+    required int selectedValue,
+    required void Function() onTap,
+  }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10.0),
       decoration: BoxDecoration(
-        color: const Color(0xffFAF7F6),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(15.0),
-        border: Border.all(
-          color: _selectedPaymentMethod == value
-              ? Color(0xffF7663E)
-              : Colors.transparent,
-          width: 1.5,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(15.0),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
+            child: Row(
+              children: [
+                Icon(leadingIcon, size: 24, color: Colors.black87),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: screenWidth / 26,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      if (subtitle != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2.0),
+                          child: Text(
+                            subtitle!,
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                fontSize: screenWidth / 30,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios, size: Get.width / 28),
+              ],
+            ),
+          ),
         ),
       ),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(0),
-        onTap: () {
-          setState(() {
-            _selectedPaymentMethod = value;
-          });
-        },
-        leading: Radio<int>(
-          value: value,
-          groupValue: _selectedPaymentMethod,
-          onChanged: (int? newValue) {
-            setState(() {
-              _selectedPaymentMethod = newValue!;
-            });
-          },
-          activeColor: Color(0xffF7663E),
-        ),
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
+    );
+  }
+}
+
+class OrderSuccessScreen extends StatelessWidget {
+  final double totalAmount;
+  const OrderSuccessScreen({super.key, required this.totalAmount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: Get.width / 12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle_outline, color: Colors.green, size: 120),
+              SizedBox(height: Get.height / 40),
+              Text(
+                "Order Placed!",
+                style: GoogleFonts.poppins(
+                  fontSize: Get.width / 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: Get.height / 80),
+              Text(
+                "Your order has been placed successfully.\nTotal: ₹${totalAmount.toStringAsFixed(0)}",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: Get.width / 28,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+              SizedBox(height: Get.height / 30),
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffF78520),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  "Continue Shopping",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
         ),
       ),

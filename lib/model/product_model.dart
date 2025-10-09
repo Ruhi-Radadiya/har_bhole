@@ -1,94 +1,87 @@
-// models/product_model.dart
-class Product {
-  String id;
-  String productCode;
-  String productName;
-  String category;
-  String description;
-  double mrp;
-  double sellingPrice;
-  int stockQuantity;
-  double netWeight;
-  String stockStatus;
-  String? manufacturingDate;
-  String? expiryDate;
-  String ingredients;
-  bool isActive;
-  String imageUrl;
-  DateTime createdAt;
+class NutritionalInfo {
+  final int energyKcal;
+  final int proteinG;
+  final int totalFatG;
+  final int carbohydrateG;
+  final int totalSugarG;
+  final int saturatedFatG;
+  final int monounsaturatedFatG;
+  final int polyunsaturatedFatG;
+  final int sodiumMg;
+  final double ironMg;
+  final int calciumMg;
+  final int fiberG;
+  final int cholesterolMg;
+  final int vitaminCMg;
+  final int vitaminDMcg;
 
-  Product({
-    required this.id,
-    required this.productCode,
-    required this.productName,
-    required this.category,
-    required this.description,
-    required this.mrp,
-    required this.sellingPrice,
-    required this.stockQuantity,
-    required this.netWeight,
-    required this.stockStatus,
-    this.manufacturingDate,
-    this.expiryDate,
-    required this.ingredients,
-    required this.isActive,
-    required this.imageUrl,
-    required this.createdAt,
+  NutritionalInfo({
+    required this.energyKcal,
+    required this.proteinG,
+    required this.totalFatG,
+    required this.carbohydrateG,
+    required this.totalSugarG,
+    required this.saturatedFatG,
+    required this.monounsaturatedFatG,
+    required this.polyunsaturatedFatG,
+    required this.sodiumMg,
+    required this.ironMg,
+    required this.calciumMg,
+    required this.fiberG,
+    required this.cholesterolMg,
+    required this.vitaminCMg,
+    required this.vitaminDMcg,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'productCode': productCode,
-      'productName': productName,
-      'category': category,
-      'description': description,
-      'mrp': mrp,
-      'sellingPrice': sellingPrice,
-      'stockQuantity': stockQuantity,
-      'netWeight': netWeight,
-      'stockStatus': stockStatus,
-      'manufacturingDate': manufacturingDate,
-      'expiryDate': expiryDate,
-      'ingredients': ingredients,
-      'isActive': isActive,
-      'imageUrl': imageUrl,
-      'createdAt': createdAt.toIso8601String(),
-    };
+  factory NutritionalInfo.fromJson(Map<String, dynamic> json) {
+    return NutritionalInfo(
+      energyKcal: json['energy_kcal'],
+      proteinG: json['protein_g'],
+      totalFatG: json['total_fat_g'],
+      carbohydrateG: json['carbohydrate_g'],
+      totalSugarG: json['total_sugar_g'],
+      saturatedFatG: json['saturated_fat_g'],
+      monounsaturatedFatG: json['monounsaturated_fat_g'],
+      polyunsaturatedFatG: json['polyunsaturated_fat_g'],
+      sodiumMg: json['sodium_mg'],
+      ironMg: (json['iron_mg'] as num).toDouble(),
+      calciumMg: json['calcium_mg'],
+      fiberG: json['fiber_g'],
+      cholesterolMg: json['cholesterol_mg'],
+      vitaminCMg: json['vitamin_c_mg'],
+      vitaminDMcg: json['vitamin_d_mcg'],
+    );
   }
+}
+
+class Product {
+  final String productId;
+  final String productName;
+  final String variationValue;
+  final String status;
+  final String productImage;
+  final String categoryName;
+  final NutritionalInfo nutritionalInfo;
+
+  Product({
+    required this.productId,
+    required this.productName,
+    required this.variationValue,
+    required this.status,
+    required this.productImage,
+    required this.categoryName,
+    required this.nutritionalInfo,
+  });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      productCode: json['productCode'] ?? '',
-      productName: json['productName'] ?? '',
-      category: json['category'] ?? '',
-      description: json['description'] ?? '',
-      mrp:
-          (json['mrp'] is int
-              ? (json['mrp'] as int).toDouble()
-              : json['mrp']) ??
-          0.0,
-      sellingPrice:
-          (json['sellingPrice'] is int
-              ? (json['sellingPrice'] as int).toDouble()
-              : json['sellingPrice']) ??
-          0.0,
-      stockQuantity: json['stockQuantity'] ?? 0,
-      netWeight:
-          (json['netWeight'] is int
-              ? (json['netWeight'] as int).toDouble()
-              : json['netWeight']) ??
-          0.0,
-      stockStatus: json['stockStatus'] ?? 'In Stock',
-      manufacturingDate: json['manufacturingDate'],
-      expiryDate: json['expiryDate'],
-      ingredients: json['ingredients'] ?? '',
-      isActive: json['isActive'] ?? true,
-      imageUrl: json['imageUrl'] ?? 'asset/images/home/samosa.png',
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
+      productId: json['product_id'],
+      productName: json['product_name'],
+      variationValue: json['variation_value'],
+      status: json['status'],
+      productImage: json['product_image'],
+      categoryName: json['category_name'],
+      nutritionalInfo: NutritionalInfo.fromJson(json['nutritional_info']),
     );
   }
 }

@@ -158,23 +158,23 @@ class ShoppingCardScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
+        title: Text(
           'Shopping Cart',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: Get.width / 18,
           ),
         ),
         centerTitle: true,
       ),
       body: Obx(
         () => controller.cartItems.isEmpty
-            ? const Center(
+            ? Center(
                 child: Text(
                   "Your cart is empty",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: Get.width / 22.5,
                     color: Colors.grey,
                     fontWeight: FontWeight.w500,
                   ),
@@ -193,8 +193,8 @@ class ShoppingCardScreen extends StatelessWidget {
                           Text(
                             'Your Shopping Cart',
                             style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                fontSize: 17,
+                              textStyle: TextStyle(
+                                fontSize: Get.width / 21,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -202,7 +202,7 @@ class ShoppingCardScreen extends StatelessWidget {
                           Text(
                             '${controller.cartItems.length} Item(s) in your basket',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: Get.width / 28,
                               color: Colors.grey.shade600,
                             ),
                           ),
@@ -233,10 +233,10 @@ class ShoppingCardScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text(
+                            Text(
                               'Order Summary',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: Get.width / 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -277,10 +277,10 @@ class ShoppingCardScreen extends StatelessWidget {
                                   ),
                                   elevation: 0,
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Proceed to Checkout',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: Get.width / 26,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -297,10 +297,10 @@ class ShoppingCardScreen extends StatelessWidget {
                                   CupertinoIcons.bag_fill,
                                   color: Colors.black,
                                 ),
-                                label: const Text(
+                                label: Text(
                                   'Continue Shopping',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: Get.width / 26,
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -371,23 +371,23 @@ class ShoppingCardScreen extends StatelessWidget {
                     children: [
                       Text(
                         item.name,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: Get.width / 22.5,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Tasty & Freshly',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: Get.width / 30,
                           color: Color(0xff6B7180),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         item.weight,
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: TextStyle(
+                          fontSize: Get.width / 30,
                           fontWeight: FontWeight.bold,
                           color: Color(0xff6B7180),
                         ),
@@ -405,8 +405,8 @@ class ShoppingCardScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: Text(
                             item.quantity.value.toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: TextStyle(
+                              fontSize: Get.width / 26,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -440,8 +440,8 @@ class ShoppingCardScreen extends StatelessWidget {
                     Text(
                       '₹${item.price.toStringAsFixed(0)}',
                       style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                          fontSize: 16,
+                        textStyle: TextStyle(
+                          fontSize: Get.width / 22.5,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
@@ -449,8 +449,8 @@ class ShoppingCardScreen extends StatelessWidget {
                     ),
                     Text(
                       '₹${item.originalPrice.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: TextStyle(
+                        fontSize: Get.width / 30,
                         color: Color(0xff9EA4B0),
                         decoration: TextDecoration.lineThrough,
                         fontWeight: FontWeight.bold,
@@ -500,7 +500,7 @@ class ShoppingCardScreen extends StatelessWidget {
             label,
             style: GoogleFonts.poppins(
               textStyle: TextStyle(
-                fontSize: isGrandTotal ? 18 : 15,
+                fontSize: isGrandTotal ? Get.width / 20 : Get.width / 24,
                 fontWeight: isGrandTotal ? FontWeight.w600 : FontWeight.w500,
                 color: isGrandTotal ? Colors.black : Color(0xff5D686E),
               ),
@@ -510,7 +510,7 @@ class ShoppingCardScreen extends StatelessWidget {
             value,
             style: GoogleFonts.poppins(
               textStyle: TextStyle(
-                fontSize: isGrandTotal ? 18 : 15,
+                fontSize: isGrandTotal ? Get.width / 20 : Get.width / 24,
                 fontWeight: isGrandTotal ? FontWeight.w600 : FontWeight.w500,
                 color:
                     valueColor ?? (isGrandTotal ? Colors.red : Colors.black87),
