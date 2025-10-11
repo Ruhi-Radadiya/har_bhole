@@ -35,27 +35,23 @@ class NutritionalInfo {
 
   factory NutritionalInfo.fromJson(Map<String, dynamic> json) {
     return NutritionalInfo(
-      energyKcal: json['energy_kcal'] ?? 0,
-      proteinG: json['protein_g'] ?? 0,
-      totalFatG: json['total_fat_g'] ?? 0,
-      carbohydrateG: json['carbohydrate_g'] ?? 0,
-      totalSugarG: json['total_sugar_g'] ?? 0,
-      saturatedFatG: json['saturated_fat_g'] ?? 0,
-      monounsaturatedFatG: json['monounsaturated_fat_g'] ?? 0,
-      polyunsaturatedFatG: json['polyunsaturated_fat_g'] ?? 0,
-      sodiumMg: json['sodium_mg'] != null
-          ? double.tryParse(json['sodium_mg'].toString())?.toInt() ?? 0
-          : 0,
-      ironMg: json['iron_mg'] != null
-          ? double.tryParse(json['iron_mg'].toString()) ?? 0.0
-          : 0.0,
-      calciumMg: json['calcium_mg'] != null
-          ? double.tryParse(json['calcium_mg'].toString())?.toInt() ?? 0
-          : 0,
-      fiberG: json['fiber_g'] ?? 0,
-      cholesterolMg: json['cholesterol_mg'] ?? 0,
-      vitaminCMg: json['vitamin_c_mg'] ?? 0,
-      vitaminDMcg: json['vitamin_d_mcg'] ?? 0,
+      energyKcal: (json['energy_kcal'] as num?)?.toInt() ?? 0,
+      proteinG: (json['protein_g'] as num?)?.toInt() ?? 0,
+      totalFatG: (json['total_fat_g'] as num?)?.toInt() ?? 0,
+      carbohydrateG: (json['carbohydrate_g'] as num?)?.toInt() ?? 0,
+      totalSugarG: (json['total_sugar_g'] as num?)?.toInt() ?? 0,
+      saturatedFatG: (json['saturated_fat_g'] as num?)?.toInt() ?? 0,
+      monounsaturatedFatG:
+          (json['monounsaturated_fat_g'] as num?)?.toInt() ?? 0,
+      polyunsaturatedFatG:
+          (json['polyunsaturated_fat_g'] as num?)?.toInt() ?? 0,
+      sodiumMg: (json['sodium_mg'] as num?)?.toInt() ?? 0,
+      ironMg: (json['iron_mg'] as num?)?.toDouble() ?? 0.0,
+      calciumMg: (json['calcium_mg'] as num?)?.toInt() ?? 0,
+      fiberG: (json['fiber_g'] as num?)?.toInt() ?? 0,
+      cholesterolMg: (json['cholesterol_mg'] as num?)?.toInt() ?? 0,
+      vitaminCMg: (json['vitamin_c_mg'] as num?)?.toInt() ?? 0,
+      vitaminDMcg: (json['vitamin_d_mcg'] as num?)?.toInt() ?? 0,
     );
   }
 }

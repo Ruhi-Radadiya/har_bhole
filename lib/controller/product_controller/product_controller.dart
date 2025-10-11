@@ -41,15 +41,24 @@ class ProductController extends GetxController {
 
         if (jsonResponse['success'] == true && jsonResponse['items'] != null) {
           final List<dynamic> items = jsonResponse['items'];
-          productList.value = items.map((e) => Product.fromJson(e)).toList();
+          final allProducts = items.map((e) => Product.fromJson(e)).toList();
 
-          // ✅ Populate filteredProducts by default
+          // ✅ Keep only unique products by productName (or productId if available)
+          final Map<String, Product> uniqueProducts = {};
+          for (var p in allProducts) {
+            uniqueProducts[p.productName] = p; // or use p.productId
+          }
+
+          productList.value = uniqueProducts.values.toList();
+
+          // Populate filteredProducts by default
           filteredProducts.value = List<Product>.from(productList);
         } else {
           errorMessage.value = jsonResponse['message'] ?? 'No products found';
         }
       } else {
         errorMessage.value = 'Failed to load products: ${response.statusCode}';
+        print('Failed to load products: ${response.statusCode}');
       }
     } catch (e) {
       errorMessage.value = 'Error: $e';
@@ -66,12 +75,8 @@ class ProductController extends GetxController {
     } else {
       final lowerQuery = query.toLowerCase().trim();
       filteredProducts.value = productList.where((p) {
-        final words = p.productName.toLowerCase().split(
-          ' ',
-        ); // split name into words
-        return words.any(
-          (word) => word.startsWith(lowerQuery),
-        ); // match words starting with query
+        final words = p.productName.toLowerCase().split(' ');
+        return words.any((word) => word.startsWith(lowerQuery));
       }).toList();
     }
   }

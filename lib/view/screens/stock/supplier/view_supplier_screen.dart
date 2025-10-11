@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../main.dart';
+import '../../../../model/supplier_model/supplier_model.dart';
 import '../../../component/textfield.dart';
 
 class ViewSupplierScreen extends StatelessWidget {
-  const ViewSupplierScreen({super.key});
+  ViewSupplierScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Fetch suppliers when screen opens
+    supplierController.fetchSuppliers();
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Column(
@@ -38,146 +42,166 @@ class ViewSupplierScreen extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         constraints: BoxConstraints(minWidth: Get.width / 15),
                       ),
+                      SizedBox(width: Get.width / 100),
+                      Text(
+                        'Supplier Details',
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 20,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xffF78520),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(Get.width / 30),
+              child: Obx(() {
+                if (supplierController.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xffF78520)),
+                  );
+                }
 
-                child: Container(
-                  padding: EdgeInsets.all(Get.width / 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
+                if (supplierController.suppliersList.isEmpty) {
+                  return const Center(child: Text("No suppliers found"));
+                }
+
+                return SingleChildScrollView(
+                  padding: EdgeInsets.all(Get.width / 30),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            child: Container(
-                              padding: const EdgeInsets.all(7),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Color(0xffF78520)),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'Edit',
-                                style: TextStyle(
-                                  color: Color(0xffF78520),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: Get.width / 36,
-                                ),
-                              ),
+                    children: supplierController.suppliersList.map<Widget>((
+                      Supplier supplier,
+                    ) {
+                      return Container(
+                        margin: EdgeInsets.only(bottom: Get.height / 30),
+                        padding: EdgeInsets.all(Get.width / 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
                             ),
-                          ),
-                          SizedBox(width: Get.width / 100),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Color(0xffF78520)),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              'cancel',
-                              style: TextStyle(
-                                color: Color(0xffF78520),
-                                fontWeight: FontWeight.bold,
-                                fontSize: Get.width / 36,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Get.height / 40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildFilterField(
-                            label: "Statue",
-                            child: _buildFilterDropdown(label: "Alll Statue"),
-                          ),
-                          _buildFilterField(
-                            label: "City",
-                            child: _buildFilterDropdown(label: "All City"),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Get.height / 40),
-                      CustomDropdownField(
-                        label: "Code",
-                        items: [1, 2, 3],
-                        value: "+91 95663 54236",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
-                        hint: "SUP002",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Name", hint: "Ramesh Kumar"),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Phone Number",
-                        hint: "+91 95634 32654",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Email Id ",
-                        hint: "rameshkumar@gmail.com",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Location",
-                        hint: "Mumbai, Maharashtra, India",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Payment Terms", hint: "Net 85"),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Credit Limit",
-                        hint: "₹75,000.00",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Statue", hint: "Active"),
-                      SizedBox(height: Get.height / 60),
-                      SizedBox(
-                        width: double.infinity,
-                        height: Get.height / 18,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffF78520),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "Add Suppliers",
-                            style: GoogleFonts.poppins(
-                              fontSize: Get.width / 22.5,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          ],
                         ),
-                      ),
-                    ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GestureDetector(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(7),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Color(0xffF78520),
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      'Edit',
+                                      style: TextStyle(
+                                        color: Color(0xffF78520),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: Get.width / 36,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: Get.width / 100),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color(0xffF78520),
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    'cancel',
+                                    style: TextStyle(
+                                      color: Color(0xffF78520),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: Get.width / 36,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: Get.height / 40),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildFilterField(
+                                  label: "Statue",
+                                  child: _buildFilterDropdown(
+                                    label: supplier.status ?? "N/A",
+                                  ),
+                                ),
+                                _buildFilterField(
+                                  label: "City",
+                                  child: _buildFilterDropdown(
+                                    label: supplier.city ?? "N/A",
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: Get.height / 40),
+                            CustomTextField(
+                              label: "Code",
+                              hint: supplier.supplierCode ?? "-",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: "Name",
+                              hint: supplier.supplierName ?? "-",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: "Phone Number",
+                              hint: supplier.phone ?? "-",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: "Email Id",
+                              hint: supplier.email ?? "-",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: "Location",
+                              hint:
+                                  "${supplier.address ?? "-"}, ${supplier.city ?? "-"}, ${supplier.state ?? "-"}",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: "Payment Terms",
+                              hint: supplier.paymentTerms ?? "-",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: "Credit Limit",
+                              hint: "₹${supplier.creditLimit ?? "0"}",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: "Statue",
+                              hint: supplier.status ?? "-",
+                            ),
+                            SizedBox(height: Get.height / 60),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
-                ),
-              ),
+                );
+              }),
             ),
             SizedBox(height: Get.height / 20),
           ],

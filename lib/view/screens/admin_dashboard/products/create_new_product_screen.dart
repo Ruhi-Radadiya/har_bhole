@@ -1,45 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
 import '../../../component/textfield.dart';
 
-class CreateProductScreen extends StatelessWidget {
+class CreateProductScreen extends StatefulWidget {
+  CreateProductScreen({super.key});
+
+  @override
+  State<CreateProductScreen> createState() => _CreateProductScreenState();
+}
+
+class _CreateProductScreenState extends State<CreateProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Example controllers
-  final TextEditingController productCodeController = TextEditingController();
-  final TextEditingController productNameController = TextEditingController();
-  final TextEditingController basePriceController = TextEditingController();
-  final TextEditingController stockController = TextEditingController();
-  final TextEditingController netWeightController = TextEditingController();
-  final TextEditingController sellingPriceController = TextEditingController();
-  final TextEditingController manufacturingDateController =
-      TextEditingController();
-  final TextEditingController expiryDateController = TextEditingController();
-  final TextEditingController ingredientsListController =
-      TextEditingController();
+  final List<String> categories = ["0", "1", "2"];
 
-  final RxBool isActive = true.obs;
-
-  final List<String> categories = ["Snack", "Sweet", "Farsan"];
-  var selectedManufacturingDate = DateTime.now().obs;
-  var selectedExpiryDate = DateTime.now().obs;
-
-  final RxString selectedCategory = "".obs;
-  final RxString selectedType = "".obs;
-  final RxString selectedCollection = "".obs;
   Future<void> selectManufacturingDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedManufacturingDate.value,
+      initialDate: createProductController.selectedManufacturingDate.value,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
 
     if (picked != null) {
-      selectedManufacturingDate.value = picked;
-      manufacturingDateController.text =
+      createProductController.selectedManufacturingDate.value = picked;
+      createProductController.manufacturingDateController.text =
           "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
     }
   }
@@ -47,25 +35,26 @@ class CreateProductScreen extends StatelessWidget {
   Future<void> selectExpiryDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedExpiryDate.value,
+      initialDate: createProductController.selectedExpiryDate.value,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
 
     if (picked != null) {
-      selectedExpiryDate.value = picked;
-      expiryDateController.text =
+      createProductController.selectedExpiryDate.value = picked;
+      createProductController.expiryDateController.text =
           "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
     }
   }
 
-  CreateProductScreen({super.key});
+  void _toggleTag(String tag) {
+    createProductController.toggleTag(tag);
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -106,23 +95,31 @@ class CreateProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: "Product Code (8-digit)",
                         hint: "Enter Product Code",
-                        controller: productCodeController,
+                        controller:
+                            createProductController.productCodeController,
                         validator: (v) => v!.isEmpty ? "Required" : null,
                       ),
                       CustomTextField(
                         label: "Product Name",
                         hint: "Enter Product Name",
-                        controller: productNameController,
+                        controller:
+                            createProductController.productNameController,
                         validator: (v) => v!.isEmpty ? "Required" : null,
                       ),
                       Obx(
                         () => CustomDropdownField<String>(
                           label: "Category",
-                          value: selectedCategory.value.isEmpty
+                          value:
+                              createProductController
+                                  .selectedCategory
+                                  .value
+                                  .isEmpty
                               ? null
-                              : selectedCategory.value,
+                              : createProductController.selectedCategory.value,
                           items: categories,
-                          onChanged: (val) => selectedCategory.value = val!,
+                          onChanged: (val) =>
+                              createProductController.selectedCategory.value =
+                                  val!,
                           getLabel: (item) => item,
                         ),
                       ),
@@ -138,7 +135,7 @@ class CreateProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: "MRP (₹)",
                         hint: "0.00",
-                        controller: basePriceController,
+                        controller: createProductController.basePriceController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -146,7 +143,8 @@ class CreateProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: "Selling Prince(₹)",
                         hint: "Enter Stock",
-                        controller: sellingPriceController,
+                        controller:
+                            createProductController.sellingPriceController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -154,7 +152,7 @@ class CreateProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: "Stock Quantity",
                         hint: "0",
-                        controller: stockController,
+                        controller: createProductController.stockController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -162,7 +160,7 @@ class CreateProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: "Net Weight (g)",
                         hint: "0.00",
-                        controller: netWeightController,
+                        controller: createProductController.netWeightController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -202,14 +200,16 @@ class CreateProductScreen extends StatelessWidget {
                       SizedBox(height: Get.height / 60),
                       CustomDateField(
                         label: "Manufacturing date",
-                        controller: manufacturingDateController,
+                        controller:
+                            createProductController.manufacturingDateController,
                         onTap: () => selectManufacturingDate(context),
                         hint: "Select Date",
                       ),
                       SizedBox(height: Get.height / 60),
                       CustomDateField(
                         label: "Expiry date",
-                        controller: expiryDateController,
+                        controller:
+                            createProductController.expiryDateController,
                         onTap: () => selectExpiryDate(context),
                         hint: "Select Date",
                       ),
@@ -219,6 +219,8 @@ class CreateProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: "Ingredients List",
                         hint: "Enter Ingredients list (Separate with Commas)",
+                        controller:
+                            createProductController.ingredientsListController,
                       ),
                       SizedBox(height: Get.height / 60),
                       Row(
@@ -236,140 +238,126 @@ class CreateProductScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Energy(kcal)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.energyController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Protein(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.proteinController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Total Fat(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.totalFatController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Carbohydrate(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller:
+                            createProductController.carbohydrateController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Total Sugar(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller:
+                            createProductController.totalSugarController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Saturated Fat(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller:
+                            createProductController.saturatedFatController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Monounsaturated Fat(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController
+                            .monounsaturatedFatController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Polyunsaturated Fat(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController
+                            .polyunsaturatedFatController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Sodium(mg)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.sodiumController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Iron(mg)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.ironController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Calcium(mg)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.calciumController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Fiber(g)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.fiberController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Cholesterol(mg)",
-                        hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Vitamin C(mg)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.vitaminCController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Vitamin D(mcg)",
                         hint: "Enter Value",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
-                        onChanged: (val) {},
+                        controller: createProductController.vitaminDController,
+                        keyboardType: TextInputType.number,
                       ),
+                      SizedBox(height: Get.height / 60),
+                      CustomTextField(
+                        label: "Cholesterol(mg)",
+                        hint: "Enter Value",
+                        controller:
+                            createProductController.cholesterolController,
+                        keyboardType: TextInputType.number,
+                      ),
+                      SizedBox(height: Get.height / 60),
+                      _sectionTitle("Product Tags"),
+                      SizedBox(height: Get.height / 60),
+                      _buildProductTagFlow(
+                        tags: createProductController.productTags,
+                        selectedTags: createProductController.selectedTags,
+                        onTagTap: (tag) =>
+                            createProductController.toggleTag(tag),
+                      ),
+
                       SizedBox(height: Get.height / 60),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -386,39 +374,31 @@ class CreateProductScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Variation Name",
                         hint: "e.g., size, color",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
+
                         onChanged: (val) {},
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Variation Value",
                         hint: "e.g., large, Red",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
+
                         onChanged: (val) {},
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Price Adjustment (₹)",
                         hint: "0.00",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
+
                         onChanged: (val) {},
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "SKU",
                         hint: "SKU",
-                        items: [1, 2, 3],
-                        value: (),
-                        getLabel: (item) => item.toString(),
+
                         onChanged: (val) {},
                       ),
                       SizedBox(height: Get.height / 60),
@@ -452,20 +432,46 @@ class CreateProductScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: Get.height / 60),
-
+                      Row(
+                        children: [
+                          Obx(
+                            () => Checkbox(
+                              value: createProductController.isActive.value,
+                              onChanged: (value) {
+                                createProductController.isActive.value = value!;
+                              },
+                              activeColor: Color(0xffF78520),
+                            ),
+                          ),
+                          Text(
+                            "Product is Active",
+                            style: GoogleFonts.poppins(
+                              fontSize: Get.width / 25,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: Get.height / 60),
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffF78520),
+                            backgroundColor: const Color(0xffF78520),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              // handle submit
+                              final success = await createProductController
+                                  .createProduct();
+                              if (success) {
+                                _formKey.currentState!.reset();
+                                createProductController.clearFields();
+                                Get.back(); // ✅ go back after success
+                              }
                             }
                           },
                           child: Text(
@@ -487,6 +493,66 @@ class CreateProductScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProductTagFlow({
+    required List<String> tags,
+    required RxSet<String> selectedTags,
+    Function(String tag)? onTagTap,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double spacing = 8.0;
+        final double totalSpacing = spacing * 2; // 3 items => 2 spaces
+        final double tagWidth = (constraints.maxWidth - totalSpacing) / 3;
+        const double tagHeight = 40.0;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: tags.map((tag) {
+            // Wrap each tag in Obx instead of the whole LayoutBuilder
+            return Obx(() {
+              final isSelected = selectedTags.contains(tag);
+              final theme = ThemeData.light();
+
+              return GestureDetector(
+                onTap: onTagTap != null ? () => onTagTap(tag) : null,
+                child: Container(
+                  width: tagWidth,
+                  height: tagHeight,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? theme.primaryColor.withOpacity(0.1)
+                        : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    tag,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: isSelected ? theme.primaryColor : Colors.black87,
+                    ),
+                  ),
+                ),
+              );
+            });
+          }).toList(),
+        );
+      },
     );
   }
 

@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/view/component/textfield.dart';
 
+import '../../../../main.dart';
+
 class CreateCashbookEntryScreen extends StatefulWidget {
   const CreateCashbookEntryScreen({super.key});
 
@@ -15,21 +17,81 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _referenceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _createdByController = TextEditingController();
 
-  String? selectedUser;
   String selectedInOut = "IN";
-  String selectedPayment = "UPI";
+  String selectedPayment = "Cash";
+  int? selectedCategoryId;
+  String? attachmentFile;
 
-  // Sample user data - you can replace with your actual user data
-  final List<String> userList = [
-    "emp001",
-    "emp002",
-    "emp003",
-    "emp004",
-    "emp005",
+  // Example users for created_by (replace with actual API/fetch logic)
+  final List<Map<String, dynamic>> usersList = [
+    {"id": 1, "name": "Admin"},
+    {"id": 2, "name": "User1"},
+    {"id": 3, "name": "User2"},
   ];
+  int? selectedCreatedBy;
 
-  final List<String> paymentMethods = ["UPI", "Cash", "NetBanking", "Card"];
+  @override
+  void initState() {
+    super.initState();
+    cashEntryController.fetchCategories();
+    if (usersList.isNotEmpty) selectedCreatedBy = usersList.first['id'];
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _dateController.text =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      });
+    }
+  }
+
+  void _saveEntry() async {
+    if (_amountController.text.isEmpty ||
+        _dateController.text.isEmpty ||
+        selectedCategoryId == null ||
+        selectedCreatedBy == null) {
+      Get.snackbar(
+        'Error',
+        'Please fill all required fields',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    await cashEntryController.addCashEntry(
+      entryDate: _dateController.text,
+      entryType: selectedInOut == "IN" ? "Income" : "Expense",
+      amount: _amountController.text,
+      categoryId: selectedCategoryId!,
+      paymentMethod: selectedPayment,
+      referenceNo: _referenceController.text,
+      description: _descriptionController.text,
+      attachment: attachmentFile ?? "",
+      createdBy: selectedCreatedBy!,
+    );
+
+    Get.snackbar(
+      'Success',
+      cashEntryController.responseMessage.value,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+
+    Get.back();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,53 +99,37 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
             Container(
-              padding: EdgeInsets.only(
-                left: Get.width / 25,
-                right: Get.width / 25,
-                bottom: Get.height / 100,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: Get.width / 25),
               decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
+              child: Row(
                 children: [
-                  SizedBox(height: Get.height / 100),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.black),
-                        onPressed: () => Get.back(),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(minWidth: Get.width / 15),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            'Create Cashbook Entry',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: Get.width / 18,
-                              ),
-                            ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
+                    onPressed: () => Get.back(),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'Create Cashbook Entry',
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: Get.width / 18,
                           ),
                         ),
                       ),
-                      SizedBox(width: Get.width / 15),
-                    ],
+                    ),
                   ),
+                  SizedBox(width: Get.width / 15),
                 ],
               ),
             ),
-
-            // Main Content
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 17),
@@ -103,74 +149,48 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Date Field
+                      // Entry Date
                       CustomDateField(
                         label: "Date",
-                        controller: TextEditingController(),
-                        onTap: () => _selectDate(),
+                        controller: _dateController,
+                        onTap: _selectDate,
                         hint: "Select Date",
                       ),
                       SizedBox(height: Get.height / 50),
 
-                      // User Dropdown and IN/OUT Toggle
-                      Row(
-                        children: [
-                          // User Dropdown
-                          Expanded(
-                            flex: 2,
-                            child: CustomDropdownField(
-                              label: "User",
-                              items: userList,
-                              value: selectedUser,
-                              getLabel: (item) => item.toString(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedUser = value;
-                                });
-                              },
-                            ),
-                          ),
-
-                          SizedBox(width: Get.width / 20),
-
-                          // IN/OUT Toggle
-                          Expanded(
-                            flex: 1,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Type',
-                                  style: GoogleFonts.poppins(
-                                    textStyle: TextStyle(
-                                      fontSize: Get.width / 26,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xff000000),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: Get.height / 150),
-                                Row(
-                                  children: [
-                                    _buildInOutToggle(
-                                      'IN',
-                                      selectedInOut == "IN",
-                                    ),
-                                    SizedBox(width: Get.width / 40),
-                                    _buildInOutToggle(
-                                      'OUT',
-                                      selectedInOut == "OUT",
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
+                      // Category Dropdown
+                      Obx(() {
+                        return CustomDropdownField<int>(
+                          label: "Category",
+                          items: cashEntryController.categories
+                              .map((e) => e['id'] as int)
+                              .toList(),
+                          value: selectedCategoryId,
+                          getLabel: (id) {
+                            final cat = cashEntryController.categories
+                                .firstWhere((c) => c['id'] == id);
+                            return cat['name'] ?? 'Unknown';
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCategoryId = value;
+                            });
+                          },
+                        );
+                      }),
                       SizedBox(height: Get.height / 50),
 
+                      // Entry Type Toggle (IN/OUT)
+                      Row(
+                        children: [
+                          _buildInOutToggle('IN', selectedInOut == "IN"),
+                          SizedBox(width: Get.width / 20),
+                          _buildInOutToggle('OUT', selectedInOut == "OUT"),
+                        ],
+                      ),
+                      SizedBox(height: Get.height / 50),
+
+                      // Amount
                       CustomTextField(
                         label: 'Amount',
                         hint: 'Enter your Amount',
@@ -179,79 +199,94 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                       ),
                       SizedBox(height: Get.height / 50),
 
-                      // Payment Method
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Payment Method',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 26,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xff000000),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: Get.height / 150),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: paymentMethods.map((method) {
-                              return _buildPaymentChip(
+                      // Payment Method Chips
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: ["UPI", "Cash", "NetBanking", "Card"]
+                            .map(
+                              (method) => _buildPaymentChip(
                                 method,
                                 selectedPayment == method,
-                              );
-                            }).toList(),
-                          ),
-                        ],
+                              ),
+                            )
+                            .toList(),
                       ),
-
                       SizedBox(height: Get.height / 50),
 
+                      // Reference No
                       CustomTextField(
                         label: 'Reference No',
                         hint: 'Optional Reference',
                         controller: _referenceController,
                       ),
-
                       SizedBox(height: Get.height / 50),
+
+                      // Description
                       CustomTextField(
                         label: 'Description',
                         hint: 'Note',
                         controller: _descriptionController,
                         maxLines: 6,
                       ),
-                      // Attachment Field
+                      SizedBox(height: Get.height / 50),
+
+                      // Created By Dropdown
+                      CustomDropdownField<int>(
+                        label: "Created By",
+                        items: usersList.map((e) => e['id'] as int).toList(),
+                        value: selectedCreatedBy,
+                        getLabel: (id) {
+                          final user = usersList.firstWhere(
+                            (u) => u['id'] == id,
+                          );
+                          return user['name'] ?? 'Unknown';
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCreatedBy = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: Get.height / 50),
+
+                      // Attachment Upload
                       UploadFileField(
                         label: "Attachment (image/pdf)",
                         onFileSelected: (path) {
-                          print('Selected file: $path');
+                          attachmentFile = path;
                         },
                       ),
                       SizedBox(height: Get.height / 30),
 
                       // Save Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: Get.height / 18,
-                        child: ElevatedButton(
-                          onPressed: _saveEntry,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: mainOrange,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            'Save Entry',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 22.5,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                      Obx(
+                        () => SizedBox(
+                          width: double.infinity,
+                          height: Get.height / 18,
+                          child: ElevatedButton(
+                            onPressed: cashEntryController.isLoading.value
+                                ? null
+                                : _saveEntry,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: mainOrange,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
                               ),
+                              elevation: 0,
                             ),
+                            child: cashEntryController.isLoading.value
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : Text(
+                                    'Save Entry',
+                                    style: GoogleFonts.poppins(
+                                      textStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -338,78 +373,12 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
     );
   }
 
-  String _getCurrentDate() {
-    final now = DateTime.now();
-    return "${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}";
-  }
-
-  Future<void> _selectDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      // Handle date selection
-      print('Selected date: $picked');
-    }
-  }
-
-  void _saveEntry() {
-    // Validate and save the entry
-    if (_amountController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter amount',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (selectedUser == null) {
-      Get.snackbar(
-        'Error',
-        'Please select a user',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    // Save logic here
-    final entryData = {
-      'date': _getCurrentDate(),
-      'user': selectedUser,
-      'type': selectedInOut,
-      'amount': _amountController.text,
-      'paymentMethod': selectedPayment,
-      'reference': _referenceController.text,
-      'description': _descriptionController.text,
-    };
-
-    print('Saving entry: $entryData');
-
-    Get.snackbar(
-      'Success',
-      'Cashbook entry saved successfully',
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-
-    // Clear form or navigate back
-    Get.back();
-  }
-
   @override
   void dispose() {
     _amountController.dispose();
     _referenceController.dispose();
     _descriptionController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 }

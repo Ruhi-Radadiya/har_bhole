@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
+import '../../../../model/home_page_models/premium_collection_model.dart';
 import '../../../../routes/routes.dart';
+import '../../../component/textfield.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -122,7 +125,7 @@ class CategoriesScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'All Categories',
+                        'All Products',
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 20,
@@ -144,7 +147,6 @@ class CategoriesScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: Get.height / 50),
-
                   Container(
                     padding: EdgeInsets.all(Get.width / 30),
                     decoration: BoxDecoration(
@@ -152,7 +154,7 @@ class CategoriesScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15.0),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 5,
                           offset: const Offset(0, 3),
                         ),
@@ -160,54 +162,79 @@ class CategoriesScreen extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        // Search Field
-                        Container(
-                          height: Get.height / 20,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search Categories',
-                              hintStyle: TextStyle(
-                                color: Colors.grey.shade500,
-                                fontSize: Get.width / 26,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: Colors.grey.shade500,
-                                size: 20,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: Get.height / 80,
-                                horizontal: Get.width / 40,
-                              ),
-                            ),
-                          ),
+                        CustomTextField(
+                          hint: "Search Products",
+                          icon: Icons.search,
+                          onChanged: (value) {
+                            premiumCollectionController.searchCategories(value);
+                          },
                         ),
                         SizedBox(height: Get.height / 80),
                         const Divider(height: 1, color: Color(0xffF2F3F5)),
-                        _buildCategoryTile(
-                          title: 'Namkeen',
-                          subtitle: 'Crispy and Savory Namkeen',
-                          status: 'Active',
-                          statusColor: Color(0xffDCE1D7),
-                          statusTextColor: Color(0xff4E6B37),
-                        ),
-                        const Divider(height: 1, color: Color(0xffF2F3F5)),
-                        _buildCategoryTile(
-                          title: 'Sweet',
-                          subtitle: 'Delicious traditional sweets',
-                          status: 'INActive',
-                          statusColor: Color(0xffEFCFD2),
-                          statusTextColor: Color(0xffAD111E),
-                        ),
+                        Obx(() {
+                          if (premiumCollectionController.isLoading.value) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (premiumCollectionController
+                              .errorMessage
+                              .isNotEmpty) {
+                            return Center(
+                              child: Text(
+                                premiumCollectionController.errorMessage.value,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            );
+                          }
+
+                          if (premiumCollectionController
+                              .filteredCategories
+                              .isEmpty) {
+                            return const Center(
+                              child: Text('No categories found'),
+                            );
+                          }
+
+                          return Column(
+                            children: List.generate(
+                              premiumCollectionController
+                                  .filteredCategories
+                                  .length,
+                              (index) {
+                                final item = premiumCollectionController
+                                    .filteredCategories[index];
+
+                                // Convert status string/int properly
+                                final bool isActive = item.status == 1;
+
+                                return Column(
+                                  children: [
+                                    _buildCategoryTile(
+                                      premiumCollectionController
+                                          .filteredCategories[index],
+                                    ),
+
+                                    if (index !=
+                                        premiumCollectionController
+                                                .filteredCategories
+                                                .length -
+                                            1)
+                                      const Divider(
+                                        height: 1,
+                                        color: Color(0xffF2F3F5),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ).toList(),
+                          );
+                        }),
                       ],
                     ),
                   ),
-                  SizedBox(height: Get.height / 40),
+                  SizedBox(height: Get.height / 15),
                 ],
               ),
             ),
@@ -217,60 +244,72 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryTile({
-    required String title,
-    required String subtitle,
-    required String status,
-    required Color statusColor,
-    required Color statusTextColor,
-  }) {
+  Widget _buildCategoryTile(PremiumCollectionModel item) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Get.height / 80),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(
-                width: Get.width / 8,
-                height: Get.width / 8,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(15.0),
-                  image: DecorationImage(
-                    image: AssetImage('asset/images/about/jalebi.png'),
-                    fit: BoxFit.cover,
+          Flexible(
+            child: Row(
+              children: [
+                Container(
+                  width: Get.width / 8,
+                  height: Get.width / 8,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(15.0),
+                    image: const DecorationImage(
+                      image: AssetImage('asset/images/about/jalebi.png'),
+                      fit: BoxFit.cover,
+                    ),
+                    // item.categoryImage != null &&
+                    //     item.categoryImage.isNotEmpty
+                    // ? DecorationImage(
+                    //     image: NetworkImage(item.categoryImage),
+                    //     fit: BoxFit.cover,
+                    //   )
+                    // : const DecorationImage(
+                    //     image: AssetImage('asset/images/about/jalebi.png'),
+                    //     fit: BoxFit.cover,
+                    //   ),
                   ),
                 ),
-              ),
-              SizedBox(width: Get.width / 30),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      textStyle: TextStyle(
-                        fontSize: Get.width / 24,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.poppins(
-                      textStyle: TextStyle(
-                        fontSize: Get.width / 34.5,
-                        color: Colors.grey.shade600,
+                SizedBox(width: Get.width / 30),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.categoryName,
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 24,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
                         overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                    ),
+                      Text(
+                        item.description,
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 34.5,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -281,16 +320,20 @@ class CategoriesScreen extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor,
+                  color: item.status == 1
+                      ? const Color(0xffDCE1D7)
+                      : const Color(0xffEFCFD2),
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: Text(
-                  status,
+                  item.status == 1 ? "Active" : "Inactive",
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
                       fontSize: Get.width / 36,
                       fontWeight: FontWeight.bold,
-                      color: statusTextColor,
+                      color: item.status == 1
+                          ? const Color(0xff4E6B37)
+                          : const Color(0xffAD111E),
                     ),
                   ),
                 ),
@@ -305,7 +348,7 @@ class CategoriesScreen extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
                       fontSize: Get.width / 36,
-                      color: Color(0xff2A86D1),
+                      color: const Color(0xff2A86D1),
                       fontWeight: FontWeight.w600,
                     ),
                   ),

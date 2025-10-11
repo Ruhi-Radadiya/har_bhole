@@ -1,222 +1,265 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
+import '../../../../model/finished_goods_stock/finished_goods_stock_model.dart';
 import '../../../component/textfield.dart';
 
-class ViewNewFinishedProductScreen extends StatelessWidget {
-  ViewNewFinishedProductScreen({super.key});
+class ViewNewFinishedProductScreen extends StatefulWidget {
+  const ViewNewFinishedProductScreen({super.key});
 
-  final List<Map<String, String>> infoData = [
-    {'count': '10', 'label': 'Total item'},
-    {'count': '10', 'label': 'In Stock'},
-    {'count': '00', 'label': 'Out of Stock'},
-  ];
+  @override
+  State<ViewNewFinishedProductScreen> createState() =>
+      _ViewNewFinishedProductScreenState();
+}
+
+class _ViewNewFinishedProductScreenState
+    extends State<ViewNewFinishedProductScreen> {
+  List<Map<String, String>> getInfoData() {
+    final allItems = finishedGoodsStockController.finishedGoodsList;
+
+    final totalItem = allItems.length;
+
+    int inStockCount = 0;
+    int outOfStockCount = 0;
+
+    for (var item in allItems) {
+      // Make sure currentQuantity is valid
+      final qtyStr = item.currentQuantity ?? '0';
+      final qty = int.tryParse(qtyStr.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+      if (qty > 0) {
+        inStockCount++;
+      } else {
+        outOfStockCount++;
+      }
+    }
+
+    return [
+      {'count': totalItem.toString(), 'label': 'Total item'},
+      {'count': inStockCount.toString(), 'label': 'In Stock'},
+      {'count': outOfStockCount.toString(), 'label': 'Out of Stock'},
+    ];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch once when screen is initialized
+    finishedGoodsStockController.fetchFinishedGoodsStock();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          SizedBox(height: Get.height / 30),
-          Container(
-            padding: EdgeInsets.only(
-              left: Get.width / 25,
-              right: Get.width / 25,
-              bottom: Get.height / 100,
-            ),
-            decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
-              children: [
-                SizedBox(height: Get.height / 100),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Color(0xffF78520),
-                      ),
-                      onPressed: () => Get.back(),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(minWidth: Get.width / 15),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(Get.width / 30),
-              child: Column(
-                children: [
-                  _buildInfoGrid(infoData),
-                  SizedBox(height: Get.height / 30),
+      body: Obx(() {
+        if (finishedGoodsStockController.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xffF78520)),
+          );
+        }
 
-                  Container(
-                    padding: EdgeInsets.all(Get.width / 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
+        if (finishedGoodsStockController.finishedGoodsList.isEmpty) {
+          return const Center(child: Text("No finished goods found"));
+        }
+
+        return Column(
+          children: [
+            SizedBox(height: Get.height / 30),
+            Container(
+              padding: EdgeInsets.only(
+                left: Get.width / 25,
+                right: Get.width / 25,
+                bottom: Get.height / 100,
+              ),
+              decoration: const BoxDecoration(color: Colors.white),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xffF78520),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Edit/Cancel Buttons Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Finished Goods',
-                              style: GoogleFonts.poppins(
-                                textStyle: TextStyle(
-                                  fontSize: Get.width / 22.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xffF78520),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(7),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Color(0xffF78520),
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      'Edit',
-                                      style: TextStyle(
-                                        color: Color(0xffF78520),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: Get.width / 36,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: Get.width / 100),
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Color(0xffF78520),
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    'cancel',
-                                    style: TextStyle(
-                                      color: Color(0xffF78520),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: Get.width / 36,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: Get.height / 50),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildFilterField(
-                              label: "Category",
-                              child: _buildFilterDropdown(
-                                label: "All categories",
-                              ),
-                            ),
-                            _buildFilterField(
-                              label: "Status",
-                              child: _buildFilterDropdown(label: "All Statue"),
-                            ),
-                            _buildFilterField(
-                              label: "Stock Status",
-                              child: _buildFilterDropdown(label: "All Stock"),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: Get.height / 50),
-                        CustomTextField(
-                          label: 'Code',
-                          hint: 'RMD01',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: 'RMD01'),
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Name',
-                          hint: 'Maida',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: 'Maida'),
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Category',
-                          hint: 'Namkeen',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        _buildCurrentStockField(),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Cost/Unit',
-                          hint: '210.00',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: '210.00'),
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Unit',
-                          hint: 'Pack',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: '₹ 30.00'),
-                        ),
-                        _buildPagination(),
-                        SizedBox(height: Get.height / 100),
-                        SizedBox(
-                          width: double.infinity,
-                          height: Get.height / 18,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffF78520),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {},
-                            child: Text(
-                              "Add Movement",
-                              style: GoogleFonts.poppins(
-                                fontSize: Get.width / 22.5,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    onPressed: () => Get.back(),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(minWidth: Get.width / 15),
+                  ),
+                  SizedBox(width: Get.width / 100),
+                  Text(
+                    'Finished Goods',
+                    style: GoogleFonts.poppins(
+                      textStyle: TextStyle(
+                        fontSize: Get.width / 20,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xffF78520),
+                      ),
                     ),
                   ),
-                  SizedBox(height: Get.height / 20),
                 ],
               ),
             ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(Get.width / 30),
+                child: Column(
+                  children: [
+                    _buildInfoGrid(getInfoData()),
+                    SizedBox(height: Get.height / 30),
+                    ...finishedGoodsStockController.finishedGoodsList.map(
+                      (product) => _buildProductCard(product),
+                    ),
+
+                    SizedBox(height: Get.height / 20),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildProductCard(FinishedGoodsStockModel product) {
+    return Container(
+      margin: EdgeInsets.only(bottom: Get.height / 30),
+      padding: EdgeInsets.all(Get.width / 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title + Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Finished Goods',
+                style: GoogleFonts.poppins(
+                  textStyle: TextStyle(
+                    fontSize: Get.width / 22.5,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xffF78520),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Color(0xffF78520)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Edit',
+                        style: TextStyle(
+                          color: Color(0xffF78520),
+                          fontWeight: FontWeight.bold,
+                          fontSize: Get.width / 36,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: Get.width / 100),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xffF78520)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'cancel',
+                      style: TextStyle(
+                        color: Color(0xffF78520),
+                        fontWeight: FontWeight.bold,
+                        fontSize: Get.width / 36,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: Get.height / 50),
+
+          // Dropdown Filters (same as before)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildFilterField(
+                label: "Category",
+                child: _buildFilterDropdown(label: "All categories"),
+              ),
+              _buildFilterField(
+                label: "Status",
+                child: _buildFilterDropdown(label: "All Status"),
+              ),
+              _buildFilterField(
+                label: "Stock Status",
+                child: _buildFilterDropdown(label: "All Stock"),
+              ),
+            ],
+          ),
+          SizedBox(height: Get.height / 50),
+
+          // Product Data Fields
+          CustomTextField(
+            label: 'Code',
+            hint: product.productCode ?? '-',
+            isReadOnly: true,
+            controller: TextEditingController(text: product.productCode ?? '-'),
+          ),
+          SizedBox(height: Get.height / 60),
+          CustomTextField(
+            label: 'Name',
+            hint: product.productName ?? '-',
+            isReadOnly: true,
+            controller: TextEditingController(text: product.productName ?? '-'),
+          ),
+          SizedBox(height: Get.height / 60),
+          CustomTextField(
+            label: 'Category',
+            hint: product.categoryName ?? '-',
+            isReadOnly: true,
+          ),
+          SizedBox(height: Get.height / 60),
+          _buildCurrentStockField(product.currentQuantity ?? '0'),
+          SizedBox(height: Get.height / 60),
+          CustomTextField(
+            label: 'Cost/Unit',
+            hint: product.producedTotalWeightGrams ?? '0',
+            isReadOnly: true,
+            controller: TextEditingController(
+              text: product.producedTotalWeightGrams ?? '0',
+            ),
+          ),
+          SizedBox(height: Get.height / 60),
+          CustomTextField(
+            label: 'Unit',
+            hint: product.unitOfMeasure ?? '-',
+            isReadOnly: true,
+          ),
+          _buildPagination(),
+          SizedBox(height: Get.height / 100),
         ],
       ),
     );
   }
+
+  // ───────────── Helpers ──────────────
 
   Widget _buildFilterDropdown({required String label}) {
     return Container(
@@ -288,8 +331,7 @@ class ViewNewFinishedProductScreen extends StatelessWidget {
   }
 
   Widget _buildInfoCard(String count, String label) {
-    double size = Get.width / 3.5; // square dimension
-
+    double size = Get.width / 3.5;
     return Container(
       width: size,
       height: size,
@@ -298,7 +340,7 @@ class ViewNewFinishedProductScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.09),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -332,7 +374,7 @@ class ViewNewFinishedProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentStockField() {
+  Widget _buildCurrentStockField(String stockQty) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -341,7 +383,7 @@ class ViewNewFinishedProductScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: Get.width / 26,
             fontWeight: FontWeight.w500,
-            color: Color(0xff000000),
+            color: Colors.black,
           ),
         ),
         SizedBox(height: Get.height / 150),
@@ -356,7 +398,7 @@ class ViewNewFinishedProductScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '100',
+                stockQty,
                 style: GoogleFonts.poppins(
                   textStyle: TextStyle(
                     color: Colors.black,
@@ -383,73 +425,44 @@ class ViewNewFinishedProductScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffFAF7F6),
-            ),
-            child: const Icon(
-              Icons.keyboard_double_arrow_left,
-              size: 19,
-              color: Colors.black,
-            ),
-          ),
+          _pageBtn(icon: Icons.keyboard_double_arrow_left),
           SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Color(0xffF78520),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '1',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Get.width / 30,
-              ),
-            ),
-          ),
+          _pageCircle('1', true),
           SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Color(0xffF78520),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '2',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Get.width / 30,
-              ),
-            ),
-          ),
+          _pageCircle('2', true),
           SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffFAF7F6),
-            ),
-            child: const Icon(
-              Icons.keyboard_double_arrow_right,
-              size: 19,
-              color: Colors.black,
-            ),
-          ),
+          _pageBtn(icon: Icons.keyboard_double_arrow_right),
         ],
       ),
     );
   }
+
+  Widget _pageBtn({required IconData icon}) => Container(
+    width: Get.width / 13,
+    height: Get.width / 13,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: const Color(0xffFAF7F6),
+    ),
+    child: Icon(icon, size: 19, color: Colors.black),
+  );
+
+  Widget _pageCircle(String number, bool active) => Container(
+    width: Get.width / 13,
+    height: Get.width / 13,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: active ? const Color(0xffF78520) : const Color(0xffFAF7F6),
+      shape: BoxShape.circle,
+    ),
+    child: Text(
+      number,
+      style: GoogleFonts.poppins(
+        color: active ? Colors.white : Colors.black,
+        fontWeight: FontWeight.bold,
+        fontSize: Get.width / 30,
+      ),
+    ),
+  );
 }

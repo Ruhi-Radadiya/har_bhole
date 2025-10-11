@@ -30,6 +30,17 @@ class ViewAllRawMaterial extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   constraints: BoxConstraints(minWidth: Get.width / 15),
                 ),
+                SizedBox(width: Get.width / 100),
+                Text(
+                  'Raw Material',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 20,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xffF78520),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
