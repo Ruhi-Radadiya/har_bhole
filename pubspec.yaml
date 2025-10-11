@@ -40,6 +40,8 @@ dependencies:
   pin_code_fields: any
   image_picker: ^1.2.0
   http: any
+  fluttertoast: any
+  infinite_scroll_pagination: ^5.1.1
 
 dev_dependencies:
   flutter_test:

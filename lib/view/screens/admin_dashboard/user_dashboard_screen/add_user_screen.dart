@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:har_bhole/main.dart';
 
-import '../../../../controller/user_controller/user_controller.dart';
+import '../../../../main.dart';
 import '../../../component/textfield.dart';
 
 class CreateNewUserScreen extends StatelessWidget {
   CreateNewUserScreen({super.key});
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  UserController userController = Get.put(UserController());
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -40,7 +37,7 @@ class CreateNewUserScreen extends StatelessWidget {
         ),
         body: Obx(
           () => SingleChildScrollView(
-            padding: EdgeInsets.all(Get.width / 30),
+            padding: EdgeInsets.all(Get.width / 25),
             child: Column(
               children: [
                 Container(
@@ -62,48 +59,41 @@ class CreateNewUserScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         CustomTextField(
-                          label: 'User Code',
-                          hint: 'emp004',
+                          label: 'User Code *',
+                          hint: 'U001',
                           controller: createUserController.userCodeController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Name *',
-                          hint: 'Enter your full Name',
+                          hint: 'Enter your full name',
                           controller: createUserController.nameController,
-                          keyboardType: TextInputType.name,
-                          validator: (value) => createUserController
-                              .validateRequired(value, 'Name'),
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
-                          label: 'Email Address *',
-                          hint: 'Enter your Email Address',
+                          label: 'Email *',
+                          hint: 'Enter email',
                           controller: createUserController.emailController,
                           keyboardType: TextInputType.emailAddress,
-                          validator: createUserController.validateEmail,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Password *',
-                          hint: 'Enter your Password',
+                          hint: 'Enter password',
                           controller: createUserController.passwordController,
                           isPassword: true,
-                          validator: (value) => createUserController
-                              .validateRequired(value, 'Password'),
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
-                          label: 'Contact Number *',
-                          hint: 'Enter your Contact Number',
+                          label: 'Contact *',
+                          hint: 'Enter phone number',
                           controller: createUserController.contactController,
                           keyboardType: TextInputType.phone,
-                          validator: createUserController.validatePhone,
                         ),
                         SizedBox(height: Get.height / 60),
                         Obx(
                           () => CustomDropdownField<String>(
-                            label: "Designation",
+                            label: 'Designation *',
                             items: createUserController.designationOptions,
                             value:
                                 createUserController
@@ -118,85 +108,76 @@ class CreateNewUserScreen extends StatelessWidget {
                             onChanged: (value) {
                               createUserController.selectedDesignation.value =
                                   value!;
-                              print("Selected Designation: $value");
                             },
                           ),
                         ),
-
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Address *',
-                          hint: 'Enter your Address',
+                          hint: 'Enter address',
                           controller: createUserController.addressController,
-                          keyboardType: TextInputType.streetAddress,
-                          validator: (value) => createUserController
-                              .validateRequired(value, 'Address'),
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomDateField(
-                          label: "Joining Date *",
+                          label: 'Joining Date *',
                           controller:
                               createUserController.joiningDateController,
-                          onTap: () =>
-                              createUserController.selectJoiningDate(context),
-                          hint: "Select Date",
+                          hint: 'Select Date',
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              final formattedDate =
+                                  "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+                              createUserController.joiningDateController.text =
+                                  formattedDate;
+                              createUserController.joiningDate.value =
+                                  formattedDate;
+                            }
+                          },
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Salary *',
                           hint: '0.00',
-                          controller: createUserController.salaryController,
                           keyboardType: TextInputType.number,
-                          validator: (value) => createUserController
-                              .validateRequired(value, 'Salary'),
+                          controller: createUserController.salaryController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Bank Name *',
-                          hint: 'Enter your Bank Name',
                           controller: createUserController.bankNameController,
-                          validator: (value) => createUserController
-                              .validateRequired(value, 'Bank Name'),
+
+                          hint: 'Enter bank name',
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
+                          hint: 'Enter account number',
                           label: 'Account Number *',
-                          hint: 'Enter your Account Number',
                           controller:
                               createUserController.accountNumberController,
                           keyboardType: TextInputType.number,
-                          validator: (value) => createUserController
-                              .validateRequired(value, 'Account Number'),
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
+                          hint: 'Enter IFSC code',
                           label: 'IFSC Code *',
-                          hint: 'Enter your IFSC Code',
                           controller: createUserController.ifscCodeController,
-                          validator: (value) => createUserController
-                              .validateRequired(value, 'IFSC Code'),
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
+                          hint: 'Enter Aadhar number',
                           label: 'Aadhar Number *',
-                          hint: 'Enter your Aadhar Number',
                           controller:
                               createUserController.aadharNumberController,
                           keyboardType: TextInputType.number,
-                          validator: createUserController.validateAadhar,
                         ),
-                        SizedBox(height: Get.height / 60),
-                        UploadFileField(
-                          label: 'User Image',
-                          onFileSelected: createUserController.setUserImage,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        UploadFileField(
-                          label: 'Chequebook Image',
-                          onFileSelected:
-                              createUserController.setChequebookImage,
-                        ),
-                        SizedBox(height: Get.height / 60),
+                        SizedBox(height: Get.height / 40),
                         SizedBox(
                           width: double.infinity,
                           height: Get.height / 18,
@@ -211,9 +192,8 @@ class CreateNewUserScreen extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xffF78520),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              elevation: 0,
                             ),
                             child: createUserController.isLoading.value
                                 ? const CircularProgressIndicator(

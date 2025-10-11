@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
 import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
@@ -11,49 +12,36 @@ class CustomerDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      body: Column(
-        children: [
-          SizedBox(height: Get.height / 30),
-          Container(
-            padding: EdgeInsets.only(
-              left: Get.width / 25,
-              right: Get.width / 25,
-              bottom: Get.height / 100,
-            ),
-            decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
-              children: [
-                SizedBox(height: Get.height / 100),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Color(0xffF78520),
-                      ),
-                      onPressed: () => Get.back(),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(minWidth: Get.width / 15),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(Get.width / 30),
-              child: Column(
-                children: [
-                  Container(
+      backgroundColor: Colors.white,
+      body: Obx(() {
+        if (customerDetailController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (customerDetailController.customerList.isEmpty) {
+          return const Center(child: Text("No customers found"));
+        }
+
+        return Column(
+          children: [
+            SizedBox(height: Get.height / 30),
+            _buildTopBar(),
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.all(Get.width / 30),
+                itemCount: customerDetailController.customerList.length,
+                itemBuilder: (context, index) {
+                  final customer = customerDetailController.customerList[index];
+
+                  return Container(
+                    margin: EdgeInsets.only(bottom: Get.height / 40),
                     padding: EdgeInsets.all(Get.width / 20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -133,7 +121,6 @@ class CustomerDetailScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                                 SizedBox(width: Get.width / 100),
                                 Container(
                                   padding: const EdgeInsets.all(8),
@@ -159,54 +146,58 @@ class CustomerDetailScreen extends StatelessWidget {
                         SizedBox(height: Get.height / 50),
                         CustomTextField(
                           label: 'ID',
-                          hint: '1',
+                          hint: customer.id,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Name',
-                          hint: 'xyz',
+                          hint: customer.name,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Email',
-                          hint: 'testt@gmail.com',
+                          hint: customer.email,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Mobile',
-                          hint: '+91 98752 36952',
+                          hint: customer.mobile,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'City',
-                          hint: 'Surat',
+                          hint: customer.city,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
-                          label: 'Registered ',
-                          hint: 'sep, 13 2025',
+                          label: 'Registered',
+                          hint: customer.createdAt,
                           isReadOnly: true,
                         ),
-                        SizedBox(height: Get.height / 60),
-                        _buildPagination(),
-                        SizedBox(height: Get.height / 60),
+
+                        SizedBox(height: Get.height / 50),
+
+                        /// View button
                         SizedBox(
                           width: double.infinity,
                           height: Get.height / 18,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffF78520),
+                              backgroundColor: const Color(0xffF78520),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                             onPressed: () {
-                              Get.toNamed(Routes.viewCustomerDetailScreen);
+                              Get.toNamed(
+                                Routes.viewCustomerDetailScreen,
+                                arguments: customer,
+                              );
                             },
                             child: Text(
                               "View",
@@ -220,87 +211,32 @@ class CustomerDetailScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: Get.height / 20),
-                ],
+                  );
+                },
               ),
             ),
-          ),
-        ],
-      ),
+            SizedBox(height: Get.height / 20),
+          ],
+        );
+      }),
     );
   }
 
-  Widget _buildPagination() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: Get.height / 50),
+  Widget _buildTopBar() {
+    return Container(
+      padding: EdgeInsets.only(
+        left: Get.width / 25,
+        right: Get.width / 25,
+        bottom: Get.height / 100,
+      ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffFAF7F6),
-            ),
-            child: const Icon(
-              Icons.keyboard_double_arrow_left,
-              size: 19,
-              color: Colors.black,
-            ),
-          ),
-          SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Color(0xffF78520),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '1',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Get.width / 30,
-              ),
-            ),
-          ),
-          SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Color(0xffF78520),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '2',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Get.width / 30,
-              ),
-            ),
-          ),
-          SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffFAF7F6),
-            ),
-            child: const Icon(
-              Icons.keyboard_double_arrow_right,
-              size: 19,
-              color: Colors.black,
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xffF78520)),
+            onPressed: () => Get.back(),
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(minWidth: Get.width / 15),
           ),
         ],
       ),

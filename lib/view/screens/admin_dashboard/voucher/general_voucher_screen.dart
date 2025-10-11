@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/routes/routes.dart';
 import 'package:har_bhole/view/component/textfield.dart';
 
+import '../../../../main.dart';
+
 class GeneralVouchersScreen extends StatelessWidget {
   const GeneralVouchersScreen({super.key});
 
@@ -127,9 +129,7 @@ class GeneralVouchersScreen extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            /* View All Logic */
-                          },
+                          onTap: () {},
                           child: Text(
                             'View All',
                             style: GoogleFonts.poppins(
@@ -144,172 +144,96 @@ class GeneralVouchersScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: Get.height / 50),
-                    Container(
-                      padding: EdgeInsets.all(Get.width / 28),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          // Search Field
-                          CustomTextField(
-                            hint: "Reference / Description",
-                            icon: Icons.search,
-                          ),
-                          SizedBox(height: Get.height / 50),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildFilterField(
-                                label: "Type",
-                                child: _buildFilterDropdown(label: "All"),
-                              ),
-                              _buildFilterField(
-                                label: "Status",
-                                child: _buildFilterDropdown(label: "All"),
-                              ),
-                              _buildFilterField(
-                                label: "From",
-                                child: _buildDateFilter(date: "25/09/2024"),
-                              ),
-                              _buildFilterField(
-                                label: "To",
-                                child: _buildDateFilter(date: "25/09/2024"),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: Get.height / 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "OHB/PAY/0002",
-                                    style: TextStyle(
-                                      fontSize: Get.width / 26,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    "₹6,010.00",
-                                    style: TextStyle(
-                                      fontSize: Get.width / 28,
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xffDCE1D7),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(Get.width / 28),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              hint: "Reference / Description",
+                              icon: Icons.search,
+                              onChanged: (val) {
+                                vouchersController.searchVouchers(val);
+                              },
+                            ),
+                            SizedBox(height: Get.height / 50),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildFilterField(
+                                  label: "Type",
+                                  child: _buildFilterDropdown(label: "All"),
+                                ),
+                                _buildFilterField(
+                                  label: "Status",
+                                  child: _buildFilterDropdown(label: "All"),
+                                ),
+                                _buildFilterField(
+                                  label: "From",
+                                  child: _buildDateFilter(date: "25/09/2024"),
+                                ),
+                                _buildFilterField(
+                                  label: "To",
+                                  child: _buildDateFilter(date: "25/09/2024"),
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: Obx(() {
+                                if (vouchersController.isLoading.value) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (vouchersController
+                                    .filteredVouchers
+                                    .isEmpty) {
+                                  return Center(
                                     child: Text(
-                                      "Approved",
-                                      style: TextStyle(
-                                        fontSize: Get.width / 33,
-                                        color: Color(0xff4E6B37),
-                                      ),
+                                      vouchersController
+                                              .errorMessage
+                                              .value
+                                              .isEmpty
+                                          ? "No vouchers found"
+                                          : vouchersController
+                                                .errorMessage
+                                                .value,
                                     ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Get.toNamed(Routes.viewVouchers);
+                                  );
+                                } else {
+                                  return ListView.builder(
+                                    itemCount: vouchersController
+                                        .filteredVouchers
+                                        .length,
+                                    itemBuilder: (context, index) {
+                                      final v = vouchersController
+                                          .filteredVouchers[index];
+                                      return voucherRow(
+                                        voucherCode:
+                                            v.voucherNo ?? v.voucherCode ?? '',
+                                        amount: "₹${v.amount}",
+                                        status: v.status ?? 'Pending',
+                                        onViewDetails: () {
+                                          Get.toNamed(Routes.viewVouchers);
+                                        },
+                                      );
                                     },
-                                    child: Text(
-                                      "View Details",
-                                      style: TextStyle(
-                                        fontSize: Get.width / 30,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: Get.height / 50),
-                          const Divider(height: 1, color: Colors.grey),
-                          SizedBox(height: Get.height / 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "OHB/PAY/0002",
-                                    style: TextStyle(
-                                      fontSize: Get.width / 26,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    "₹6,010.00",
-                                    style: TextStyle(
-                                      fontSize: Get.width / 28,
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xffDCE1D7),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    child: Text(
-                                      "Approved",
-                                      style: TextStyle(
-                                        fontSize: Get.width / 33,
-                                        color: Color(0xff4E6B37),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  GestureDetector(
-                                    onTap: () {},
-                                    child: Text(
-                                      "View Details",
-                                      style: TextStyle(
-                                        fontSize: Get.width / 30,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: Get.height / 50),
-                        ],
+                                  );
+                                }
+                              }),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -319,6 +243,85 @@ class GeneralVouchersScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget voucherRow({
+    required String voucherCode,
+    required String amount,
+    required String status,
+    required VoidCallback onViewDetails,
+  }) {
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.all(Get.height / 80),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    voucherCode,
+                    style: TextStyle(
+                      fontSize: Get.width / 26,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    amount,
+                    style: TextStyle(
+                      fontSize: Get.width / 28,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: status.toLowerCase() == "approved"
+                          ? const Color(0xffDCE1D7)
+                          : Colors.orange.shade100,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text(
+                      status,
+                      style: TextStyle(
+                        fontSize: Get.width / 33,
+                        color: status.toLowerCase() == "approved"
+                            ? const Color(0xff4E6B37)
+                            : Colors.orange,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Get.height / 200),
+                  GestureDetector(
+                    onTap: onViewDetails,
+                    child: Text(
+                      "View Details",
+                      style: TextStyle(
+                        fontSize: Get.width / 30,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: Get.height / 50),
+        const Divider(height: 1, color: Colors.grey),
+      ],
     );
   }
 

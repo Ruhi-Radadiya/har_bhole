@@ -2,20 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../main.dart';
 import '../../../component/textfield.dart';
 
 class ViewAllSemiFinishedMaterial extends StatelessWidget {
-  ViewAllSemiFinishedMaterial({super.key});
+  const ViewAllSemiFinishedMaterial({super.key});
   final Color mainOrange = const Color(0xffF78520);
   final Color inStockGreen = const Color(0xff4F6B1F);
   final Color lowStockYellow = const Color(0xffFFC107);
   final Color outOfStockRed = const Color(0xffFF3B30);
-  final List<Map<String, String>> infoData = [
-    {'count': '13', 'label': 'Total item'},
-    {'count': '13', 'label': 'In Stock'},
-    {'count': '13', 'label': 'Low Stock'},
-    {'count': '13', 'label': 'Out Of Stock'},
-  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,11 +50,8 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
               padding: EdgeInsets.all(Get.width / 30),
               child: Column(
                 children: [
-                  // --- Info Cards ---
-                  _buildInfoGrid(infoData),
+                  _buildInfoGridFromApi(),
                   SizedBox(height: Get.height / 30),
-
-                  // --- Raw Materials Container ---
                   Container(
                     padding: EdgeInsets.all(Get.width / 20),
                     decoration: BoxDecoration(
@@ -66,7 +59,7 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -75,7 +68,6 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Edit/Cancel Buttons Row
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -156,66 +148,88 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
                         ),
 
                         SizedBox(height: Get.height / 50),
+                        Obx(() {
+                          if (semiFinishedController.isLoading.value) {
+                            return CircularProgressIndicator();
+                          }
 
-                        CustomTextField(
-                          label: 'Code',
-                          hint: 'RMD01',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-
-                        CustomTextField(
-                          label: 'Name',
-                          hint: 'Maida',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-
-                        CustomTextField(
-                          label: 'Category',
-                          hint: 'Batter Mixes',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        _buildCurrentStockField(),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Current Stock',
-                          hint: '0kg',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Unit',
-                          hint: 'kg',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Output Type',
-                          hint: 'box',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Box Weight (kg)',
-                          hint: '354,345.000',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Box Dimensions',
-                          hint: '353535',
-                          isReadOnly: true,
-                        ),
+                          return Column(
+                            children: semiFinishedController.materials.map((
+                              material,
+                            ) {
+                              return Column(
+                                children: [
+                                  CustomTextField(
+                                    label: 'Code',
+                                    hint: material.itemCode,
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Name',
+                                    hint: material.itemName,
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Category',
+                                    hint: material.categoryId,
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'BOM',
+                                    hint:
+                                        '${material.bomItems.length.toString()} items',
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Current Stock',
+                                    hint:
+                                        '${material.currentQuantity} ${material.unitOfMeasure}',
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Unit',
+                                    hint: material.unitOfMeasure,
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Output Type',
+                                    hint: material.outputType,
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Box Weight (kg)',
+                                    hint: '${material.boxWeight}',
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Box Dimensions',
+                                    hint: material.boxDimensions,
+                                    isReadOnly: true,
+                                  ),
+                                  SizedBox(height: Get.height / 50),
+                                  const Divider(),
+                                  SizedBox(height: Get.height / 50),
+                                ],
+                              );
+                            }).toList(),
+                          );
+                        }),
                       ],
                     ),
                   ),
-                  SizedBox(height: Get.height / 20),
                 ],
               ),
             ),
           ),
+          SizedBox(height: Get.height / 20),
         ],
       ),
     );
@@ -269,6 +283,50 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildInfoGridFromApi() {
+    int parseQty(String? qty) {
+      if (qty == null) return 0;
+      // Parse string like "12.000" to int
+      return (double.tryParse(qty) ?? 0).toInt();
+    }
+
+    return Obx(() {
+      final infoData = [
+        {
+          'count': semiFinishedController.materials.length.toString(),
+          'label': 'Total item',
+        },
+        {
+          'count': semiFinishedController.materials
+              .where((item) => parseQty(item.currentQuantity as String?) > 0)
+              .length
+              .toString(),
+          'label': 'In Stock',
+        },
+        {
+          'count': semiFinishedController.materials
+              .where(
+                (item) =>
+                    parseQty(item.currentQuantity as String?) > 0 &&
+                    parseQty(item.currentQuantity as String?) < 5,
+              )
+              .length
+              .toString(),
+          'label': 'Low Stock',
+        },
+        {
+          'count': semiFinishedController.materials
+              .where((item) => parseQty(item.currentQuantity as String?) == 0)
+              .length
+              .toString(),
+          'label': 'Out Of Stock',
+        },
+      ];
+
+      return _buildInfoGrid(infoData);
+    });
   }
 
   Widget _buildInfoGrid(List<Map<String, String>> data) {
@@ -332,51 +390,6 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildCurrentStockField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'BOM',
-          style: TextStyle(
-            fontSize: Get.width / 26,
-            fontWeight: FontWeight.w500,
-            color: Color(0xff000000),
-          ),
-        ),
-        SizedBox(height: Get.height / 150),
-        Container(
-          height: Get.height / 20,
-          padding: EdgeInsets.symmetric(horizontal: Get.width / 25),
-          decoration: BoxDecoration(
-            color: const Color(0xffF3F7FC),
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '2 Item', // Static Value
-                style: GoogleFonts.poppins(
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: Get.width / 30,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.keyboard_arrow_down,
-                color: Color(0xff858585),
-                size: 20,
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: Get.height / 50),
-      ],
     );
   }
 }

@@ -465,7 +465,7 @@ class CustomDropdownField<T> extends StatelessWidget {
   }
 }
 
-class CustomDateField extends StatelessWidget {
+class CustomDateField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final VoidCallback onTap;
@@ -482,6 +482,20 @@ class CustomDateField extends StatelessWidget {
   });
 
   @override
+  State<CustomDateField> createState() => _CustomDateFieldState();
+}
+
+class _CustomDateFieldState extends State<CustomDateField> {
+  @override
+  void initState() {
+    super.initState();
+    // Whenever the controller text changes, rebuild the widget
+    widget.controller.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = Get.width;
     final screenHeight = Get.height;
@@ -489,9 +503,9 @@ class CustomDateField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (label.isNotEmpty) ...[
+        if (widget.label.isNotEmpty) ...[
           Text(
-            label,
+            widget.label,
             style: GoogleFonts.poppins(
               textStyle: TextStyle(
                 fontSize: screenWidth / 26,
@@ -503,12 +517,12 @@ class CustomDateField extends StatelessWidget {
           SizedBox(height: screenHeight / 150),
         ],
         GestureDetector(
-          onTap: onTap,
+          onTap: widget.onTap,
           child: Container(
-            height: screenHeight / 20 + screenHeight / 80, // same as textfield
+            height: screenHeight / 20 + screenHeight / 80,
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 25),
             decoration: BoxDecoration(
-              color: fillColor ?? const Color(0xffFAF7F6),
+              color: widget.fillColor ?? const Color(0xffFAF7F6),
               borderRadius: BorderRadius.circular(12.0),
               border: Border.all(color: Colors.transparent),
             ),
@@ -518,12 +532,12 @@ class CustomDateField extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      controller.text.isEmpty
-                          ? (hint ?? "Select Date")
-                          : controller.text,
+                      widget.controller.text.isEmpty
+                          ? (widget.hint ?? "Select Date")
+                          : widget.controller.text,
                       style: TextStyle(
                         fontSize: screenWidth / 30,
-                        color: controller.text.isEmpty
+                        color: widget.controller.text.isEmpty
                             ? const Color(0xff858585)
                             : Colors.black,
                         height: 1.2,
@@ -533,7 +547,7 @@ class CustomDateField extends StatelessWidget {
                 ),
                 Icon(
                   Icons.calendar_today,
-                  color: Color(0xffC0C5CF),
+                  color: const Color(0xffC0C5CF),
                   size: Get.width / 18,
                 ),
               ],

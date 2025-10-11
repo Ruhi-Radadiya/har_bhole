@@ -1,17 +1,32 @@
-import 'dart:io';
+import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 
-import '../../model/user_model.dart';
-import 'user_controller.dart';
+import '../users_controller/dashboard_users_controller.dart';
 
 class CreateUserController extends GetxController {
-  final UserController userController = Get.find<UserController>();
-  final _storage = GetStorage();
+  final isLoading = false.obs;
 
-  // Designation dropdown options
+  // Controllers
+  final userCodeController = TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final contactController = TextEditingController();
+  final addressController = TextEditingController();
+  final designationController = TextEditingController();
+  final joiningDateController = TextEditingController();
+  final salaryController = TextEditingController();
+  final bankNameController = TextEditingController();
+  final accountNumberController = TextEditingController();
+  final ifscCodeController = TextEditingController();
+  final aadharNumberController = TextEditingController();
+
+  // Designation options
   final List<String> designationOptions = [
     'Manager',
     'Supervisor',
@@ -30,217 +45,162 @@ class CreateUserController extends GetxController {
     'Consultant',
   ];
 
-  // Observables
-  var isLoading = false.obs;
   var selectedDesignation = ''.obs;
-  var selectedJoiningDate = DateTime.now().obs;
-  var userImagePath = ''.obs;
-  var chequebookImagePath = ''.obs;
-  var imagePdfPath = ''.obs;
+  final joiningDate = ''.obs;
 
-  // Controllers
-  final userCodeController = TextEditingController();
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final contactController = TextEditingController();
-  final addressController = TextEditingController();
-  final joiningDateController = TextEditingController();
-  final salaryController = TextEditingController();
-  final bankNameController = TextEditingController();
-  final accountNumberController = TextEditingController();
-  final ifscCodeController = TextEditingController();
-  final aadharNumberController = TextEditingController();
+  // API endpoint
+  final String apiUrl =
+      "https://harbhole.eihlims.com/Api/user_api.php?action=add";
 
-  // Image files
-  File? userImageFile;
-  File? chequebookImageFile;
-  File? imagePdfFile;
-
-  // Keys for persistent image storage
-  final String _userImageKey = 'user_image_path';
-  final String _chequebookImageKey = 'chequebook_image_path';
-
-  @override
-  void onInit() {
-    super.onInit();
-    _loadStoredData();
-    userCodeController.text = generateUserCode();
-  }
-
-  // Load stored image paths
-  void _loadStoredData() {
-    userImagePath.value = _storage.read(_userImageKey) ?? '';
-    chequebookImagePath.value = _storage.read(_chequebookImageKey) ?? '';
-  }
-
-  // Save image paths permanently
-  void _saveImagePaths() {
-    _storage.write(_userImageKey, userImagePath.value);
-    _storage.write(_chequebookImageKey, chequebookImagePath.value);
-  }
-
-  // Validation methods
-  String? validateRequired(String? value, String fieldName) {
-    if (value == null || value.isEmpty) return '$fieldName is required';
-    return null;
-  }
-
-  String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) return 'Email is required';
-    if (!GetUtils.isEmail(value)) return 'Please enter a valid email';
-    if (userController.isEmailExists(value)) return 'Email already exists';
-    return null;
-  }
-
-  String? validatePhone(String? value) {
-    if (value == null || value.isEmpty) return 'Contact number is required';
-    if (value.length != 10) return 'Contact number must be 10 digits';
-    return null;
-  }
-
-  String? validateAadhar(String? value) {
-    if (value == null || value.isEmpty) return 'Aadhar number is required';
-    if (value.length != 12) return 'Aadhar number must be 12 digits';
-    return null;
-  }
-
-  // Check if all required fields are filled
-  bool get isFormValid {
-    return nameController.text.isNotEmpty &&
-        emailController.text.isNotEmpty &&
-        passwordController.text.isNotEmpty &&
-        contactController.text.isNotEmpty &&
-        selectedDesignation.value.isNotEmpty &&
-        addressController.text.isNotEmpty &&
-        joiningDateController.text.isNotEmpty &&
-        salaryController.text.isNotEmpty &&
-        bankNameController.text.isNotEmpty &&
-        accountNumberController.text.isNotEmpty &&
-        ifscCodeController.text.isNotEmpty &&
-        aadharNumberController.text.isNotEmpty;
-  }
-
-  // Generate user code like EMP001, EMP002, etc.
-  String generateUserCode() {
-    final count = userController.totalUsersCount + 1;
-    return 'EMP${count.toString().padLeft(3, '0')}';
-  }
-
-  // Select joining date using date picker
-  Future<void> selectJoiningDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedJoiningDate.value,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+  // 🧩 Toast helper
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      backgroundColor: Colors.black87,
+      textColor: Colors.white,
+      gravity: ToastGravity.BOTTOM,
+      toastLength: Toast.LENGTH_SHORT,
     );
+  }
 
-    if (picked != null) {
-      selectedJoiningDate.value = picked;
-      joiningDateController.text =
-          "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+  // ✅ Validate all required fields before API call
+  bool validateForm() {
+    if (userCodeController.text.isEmpty) {
+      showToast('User code is required');
+      return false;
     }
+    if (nameController.text.isEmpty) {
+      showToast('Name is required');
+      return false;
+    }
+    if (emailController.text.isEmpty) {
+      showToast('Email is required');
+      return false;
+    }
+    if (!GetUtils.isEmail(emailController.text)) {
+      showToast('Enter a valid email');
+      return false;
+    }
+    if (passwordController.text.isEmpty) {
+      showToast('Password is required');
+      return false;
+    }
+    if (contactController.text.isEmpty) {
+      showToast('Contact number is required');
+      return false;
+    }
+    if (contactController.text.length != 10) {
+      showToast('Contact number must be 10 digits');
+      return false;
+    }
+    if (addressController.text.isEmpty) {
+      showToast('Address is required');
+      return false;
+    }
+    if (selectedDesignation.value.isEmpty) {
+      showToast('Please select a designation');
+      return false;
+    }
+    if (joiningDateController.text.isEmpty) {
+      showToast('Joining date is required');
+      return false;
+    }
+    if (salaryController.text.isEmpty) {
+      showToast('Salary is required');
+      return false;
+    }
+    if (bankNameController.text.isEmpty) {
+      showToast('Bank name is required');
+      return false;
+    }
+    if (accountNumberController.text.isEmpty) {
+      showToast('Account number is required');
+      return false;
+    }
+    if (ifscCodeController.text.isEmpty) {
+      showToast('IFSC code is required');
+      return false;
+    }
+    if (aadharNumberController.text.isEmpty) {
+      showToast('Aadhar number is required');
+      return false;
+    }
+    if (aadharNumberController.text.length != 12) {
+      showToast('Aadhar number must be 12 digits');
+      return false;
+    }
+    return true;
   }
 
-  // Save selected user image
-  void setUserImage(String path) {
-    userImagePath.value = path;
-    userImageFile = File(path);
-    _saveImagePaths();
-  }
-
-  // Save selected cheque image
-  void setChequebookImage(String path) {
-    chequebookImagePath.value = path;
-    chequebookImageFile = File(path);
-    _saveImagePaths();
-  }
-
-  // Save selected PDF
-  void imagePdf(String path) {
-    imagePdfPath.value = path;
-    imagePdfFile = File(path);
-  }
-
-  // Submit form
+  // 🚀 Function to send POST request
   Future<void> submitForm() async {
-    if (!isFormValid) {
-      Get.snackbar(
-        'Error',
-        'Please fill all required fields',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (validateEmail(emailController.text) != null ||
-        validatePhone(contactController.text) != null ||
-        validateAadhar(aadharNumberController.text) != null) {
-      Get.snackbar(
-        'Error',
-        'Please correct validation errors',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       isLoading.value = true;
 
-      final newUser = UserModel(
-        userCode: userCodeController.text.isEmpty
-            ? generateUserCode()
-            : userCodeController.text,
-        name: nameController.text,
-        email: emailController.text,
-        password: passwordController.text,
-        contact: contactController.text,
-        designation: selectedDesignation.value,
-        address: addressController.text,
-        joiningDate: joiningDateController.text,
-        salary: salaryController.text,
-        bankName: bankNameController.text,
-        accountNumber: accountNumberController.text,
-        ifscCode: ifscCodeController.text,
-        aadharNumber: aadharNumberController.text,
-        userImage: userImagePath.value,
-        chequebookImage: chequebookImagePath.value,
-        createdAt: DateTime.now(),
-        isActive: true,
-      );
+      final Map<String, dynamic> body = {
+        "action": "add",
+        "user_code": userCodeController.text,
+        "user_name": nameController.text,
+        "user_email": emailController.text,
+        "user_password": passwordController.text,
+        "user_phone": contactController.text,
+        "user_address": addressController.text,
+        "designation": selectedDesignation.value,
+        "joining_date": joiningDateController.text,
+        "salary": salaryController.text,
+        "bank_name": bankNameController.text,
+        "account_number": accountNumberController.text,
+        "ifsc_code": ifscCodeController.text,
+        "aadhar_number": aadharNumberController.text,
+        "ui_prefs": jsonEncode({"appTheme": "light", "colorTheme": "orange"}),
+      };
 
-      userController.addUser(newUser);
+      final response = await http.post(Uri.parse(apiUrl), body: body);
 
-      Get.snackbar(
-        'Success',
-        'User created successfully',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      log('Response Body: ${response.body}');
+      final data = jsonDecode(response.body);
 
-      clearForm();
-      Get.back();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (data['success'] == true) {
+          showToast('✅ User created successfully!');
+          clearForm();
+
+          // Refresh dashboard users
+          await DashboardUsersController.instance.fetchUsers();
+
+          // Print the newly added user
+          final allUsers = DashboardUsersController.instance.allUsers;
+
+          if (allUsers.isNotEmpty) {
+            final latestUser = allUsers.last; // newest user
+            print(
+              'New User Added: ${latestUser.userName}, '
+              '${latestUser.userEmail}, ${latestUser.userPhone}',
+            );
+          }
+
+          Get.back();
+        } else {
+          showToast('❌ ${data['message'] ?? 'Failed to create user'}');
+          log('Error: ${data['message']}');
+        }
+      } else {
+        showToast('❌ Failed to create user (${response.statusCode})');
+      }
+
+      log('Response: ${response.body}');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to create user: $e',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      showToast('⚠️ Something went wrong: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  // Clear all form fields
+  // 🧹 Clear all form data
   void clearForm() {
+    userCodeController.clear();
     nameController.clear();
     emailController.clear();
     passwordController.clear();
@@ -252,32 +212,6 @@ class CreateUserController extends GetxController {
     accountNumberController.clear();
     ifscCodeController.clear();
     aadharNumberController.clear();
-
     selectedDesignation.value = '';
-    userImagePath.value = '';
-    chequebookImagePath.value = '';
-    userImageFile = null;
-    chequebookImageFile = null;
-
-    userCodeController.text = generateUserCode();
-    _storage.remove(_userImageKey);
-    _storage.remove(_chequebookImageKey);
   }
 }
-
-// @override
-// void onClose() {
-//   userCodeController.dispose();
-//   nameController.dispose();
-//   emailController.dispose();
-//   passwordController.dispose();
-//   contactController.dispose();
-//   addressController.dispose();
-//   joiningDateController.dispose();
-//   salaryController.dispose();
-//   bankNameController.dispose();
-//   accountNumberController.dispose();
-//   ifscCodeController.dispose();
-//   aadharNumberController.dispose();
-//   super.onClose();
-// }

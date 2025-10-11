@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -33,22 +34,24 @@ class DashboardUsersController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final items = data['items'] as List;
+
+        // Safely get items, default to empty list
+        final items = (data['items'] ?? []) as List<dynamic>;
+
         allUsers.value = items
             .map((e) => DashboardUserModel.fromJson(e))
             .toList();
 
-        // Example logic for recent users: last 3 added users
         recentUsers.value = allUsers.reversed.take(3).toList();
 
-        // Stats
         totalUsersCount.value = allUsers.length;
         activeUsersCount.value = allUsers
             .where((u) => u.userEmail != null)
-            .length; // Example
+            .length;
         inactiveUsersCount.value = allUsers
             .where((u) => u.userEmail == null)
-            .length; // Example
+            .length;
+
         newUsersThisMonth.value = allUsers
             .where(
               (u) =>
@@ -60,12 +63,12 @@ class DashboardUsersController extends GetxController {
       }
     } catch (e) {
       Get.snackbar("Error", e.toString());
+      log("Error: $e");
     } finally {
       isLoading(false);
     }
   }
 
-  // Optional: Search function
   void searchUsers(String query) {
     if (query.isEmpty) {
       recentUsers.value = allUsers.reversed.take(3).toList();

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-import '../../model/product_model.dart';
+import '../../model/product_model/product_model.dart';
 
 class ProductController extends GetxController {
   static ProductController get instance => Get.find();
@@ -12,6 +12,7 @@ class ProductController extends GetxController {
   RxList<Product> productList = <Product>[].obs;
   RxBool isLoading = false.obs;
   RxString errorMessage = ''.obs;
+  RxList<Product> filteredProducts = <Product>[].obs;
 
   // API URL
   final String apiUrl =
@@ -30,42 +31,48 @@ class ProductController extends GetxController {
 
       final response = await http.get(Uri.parse(apiUrl));
 
-      // Check if response is empty
-      if (response.body.isEmpty) {
-        errorMessage.value = 'Empty response from server';
-        print('Empty response from API');
-        return;
-      }
-
-      // Try parsing JSON
-      Map<String, dynamic> jsonResponse;
-      try {
-        jsonResponse = jsonDecode(response.body);
-      } catch (jsonError) {
-        errorMessage.value = 'Invalid JSON: $jsonError';
-        print('Invalid JSON: ${response.body}');
-        return;
-      }
-
-      // Check HTTP status code
       if (response.statusCode == 200) {
+        if (response.body.isEmpty) {
+          errorMessage.value = 'Empty response from server';
+          return;
+        }
+
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
         if (jsonResponse['success'] == true && jsonResponse['items'] != null) {
           final List<dynamic> items = jsonResponse['items'];
           productList.value = items.map((e) => Product.fromJson(e)).toList();
+
+          // ✅ Populate filteredProducts by default
+          filteredProducts.value = List<Product>.from(productList);
         } else {
           errorMessage.value = jsonResponse['message'] ?? 'No products found';
-          print('No products found or success=false');
         }
       } else {
         errorMessage.value = 'Failed to load products: ${response.statusCode}';
-        print('Failed to load products: ${response.statusCode}');
-        print('Response body: ${response.body}');
       }
     } catch (e) {
       errorMessage.value = 'Error: $e';
-      print('Error: $e');
+      print('Error fetching products: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void searchProducts(String query) {
+    if (query.isEmpty) {
+      // Reset to all products
+      filteredProducts.value = productList;
+    } else {
+      final lowerQuery = query.toLowerCase().trim();
+      filteredProducts.value = productList.where((p) {
+        final words = p.productName.toLowerCase().split(
+          ' ',
+        ); // split name into words
+        return words.any(
+          (word) => word.startsWith(lowerQuery),
+        ); // match words starting with query
+      }).toList();
     }
   }
 }

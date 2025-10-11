@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 import 'package:har_bhole/view/component/textfield.dart';
 
 import '../../../../routes/routes.dart';
@@ -244,74 +245,106 @@ class CashbookScreen extends StatelessWidget {
                             ],
                           ),
                           SizedBox(height: Get.height / 30),
-                          Container(
-                            padding: EdgeInsets.all(Get.width / 30),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12.0),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Netbanking",
-                                      style: TextStyle(
-                                        fontSize: Get.width / 26,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                          Obx(() {
+                            if (cashbookController.entries.isEmpty) {
+                              return const Center(
+                                child: Text("No entries found"),
+                              );
+                            }
+
+                            return Column(
+                              children: cashbookController.entries.map((entry) {
+                                return Container(
+                                  padding: EdgeInsets.all(Get.width / 30),
+                                  margin: EdgeInsets.only(
+                                    bottom: Get.height / 50,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
                                     ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      "₹100.00",
-                                      style: TextStyle(
-                                        fontSize: Get.width / 28,
-                                        color: Colors.grey.shade700,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Left column: Payment method & amount
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            entry.paymentMethod.isNotEmpty
+                                                ? entry.paymentMethod
+                                                : "Unknown",
+                                            style: TextStyle(
+                                              fontSize: Get.width / 26,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            "₹${entry.amount}",
+                                            style: TextStyle(
+                                              fontSize: Get.width / 28,
+                                              color: Colors.grey.shade700,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 4,
+
+                                      // Right column: Status & View Details
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Color(0xffDCE1D7),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            child: Text(
+                                              "Approved", // You can map actual status if API provides
+                                              style: TextStyle(
+                                                fontSize: Get.width / 33,
+                                                color: Color(0xff4E6B37),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (entry.attachment.isNotEmpty) {
+                                                // Open the PDF or navigate to a detail screen
+                                                Get.toNamed(
+                                                  Routes.viewNetbanking,
+                                                  arguments: entry,
+                                                );
+                                              }
+                                            },
+                                            child: Text(
+                                              "View Details",
+                                              style: TextStyle(
+                                                fontSize: Get.width / 30,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: Color(0xffDCE1D7),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      child: Text(
-                                        "Approved",
-                                        style: TextStyle(
-                                          fontSize: Get.width / 33,
-                                          color: Color(0xff4E6B37),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Get.toNamed(Routes.viewNetbanking);
-                                      },
-                                      child: Text(
-                                        "View Details",
-                                        style: TextStyle(
-                                          fontSize: Get.width / 30,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          }),
                         ],
                       ),
                     ),

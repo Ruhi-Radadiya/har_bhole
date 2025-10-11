@@ -191,7 +191,7 @@ class Routes {
     GetPage(name: viewAllSupplier, page: () => const ViewSupplierScreen()),
     GetPage(name: orderAnalytics, page: () => const OrderAnalytics()),
     GetPage(name: orderAnalyticsInvoice, page: () => OrderAnalyticsInvoice()),
-    GetPage(name: allOrders, page: () => const AllOrders()),
+    GetPage(name: allOrders, page: () => AllOrders()),
     GetPage(
       name: allOrdersDetailScreen,
       page: () => const AllOrdersDetailScreen(),

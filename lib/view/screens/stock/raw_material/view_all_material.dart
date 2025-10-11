@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
 import '../../../component/textfield.dart';
 
@@ -9,13 +10,6 @@ class ViewAllRawMaterial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> infoData = [
-      {'count': '13', 'label': 'Total item'},
-      {'count': '13', 'label': 'In Stock'},
-      {'count': '13', 'label': 'Low Stock'},
-      {'count': '13', 'label': 'Out Of Stock'},
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -44,11 +38,8 @@ class ViewAllRawMaterial extends StatelessWidget {
               padding: EdgeInsets.all(Get.width / 30),
               child: Column(
                 children: [
-                  // --- Info Cards Grid ---
-                  _buildInfoGrid(infoData),
+                  _buildInfoGridFromApi(),
                   SizedBox(height: Get.height / 30),
-
-                  // --- Raw Materials Container ---
                   Container(
                     padding: EdgeInsets.all(Get.width / 20),
                     decoration: BoxDecoration(
@@ -56,7 +47,7 @@ class ViewAllRawMaterial extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -112,51 +103,103 @@ class ViewAllRawMaterial extends StatelessWidget {
                         ),
                         SizedBox(height: Get.height / 50),
 
-                        // Code & Name Fields
-                        CustomTextField(
-                          label: 'Code',
-                          hint: 'RMD01',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: 'RMD01'),
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Name',
-                          hint: 'Maida',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: 'Maida'),
-                        ),
-                        SizedBox(height: Get.height / 60),
+                        Obx(() {
+                          if (rawMaterialController.isLoading.value) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
 
-                        // Stock Chip
-                        _buildChipField('Stock', 'In Stock', Color(0xff4F6B1F)),
-                        SizedBox(height: Get.height / 60),
+                          if (rawMaterialController.materialList.isEmpty) {
+                            return const Center(
+                              child: Text("No Raw Materials Found"),
+                            );
+                          }
 
-                        // Current Stock Dropdown
-                        _buildCurrentStockField(),
-                        SizedBox(height: Get.height / 60),
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount:
+                                rawMaterialController.materialList.length,
+                            itemBuilder: (context, index) {
+                              final item =
+                                  rawMaterialController.materialList[index];
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomTextField(
+                                    label: 'Code',
+                                    hint: item.stockId ?? '',
+                                    isReadOnly: true,
+                                    controller: TextEditingController(
+                                      text: item.stockId ?? '',
+                                    ),
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Name',
+                                    hint: item.materialName ?? '',
+                                    isReadOnly: true,
+                                    controller: TextEditingController(
+                                      text: item.materialName ?? '',
+                                    ),
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  _buildChipField(
+                                    'Stock',
+                                    item.currentQuantity ?? '',
+                                    double.tryParse(
+                                              item.currentQuantity?.replaceAll(
+                                                    ',',
+                                                    '',
+                                                  ) ??
+                                                  '0',
+                                            )! >
+                                            0
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
 
-                        // Cost & Total
-                        CustomTextField(
-                          label: 'Cost/Unit',
-                          hint: '210.00',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: '210.00'),
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Total Value',
-                          hint: '30.00',
-                          isReadOnly: true,
-                          controller: TextEditingController(text: '₹ 30.00'),
-                        ),
-                        SizedBox(height: Get.height / 60),
+                                  SizedBox(height: Get.height / 60),
 
-                        // Status Chip
-                        _buildChipField('Status', 'Active', Color(0xff4F6B1F)),
-                        SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Cost/Unit',
+                                    hint: item.costPerUnit.toString(),
+                                    isReadOnly: true,
+                                    controller: TextEditingController(
+                                      text: item.costPerUnit.toString(),
+                                    ),
+                                  ),
+                                  SizedBox(height: Get.height / 60),
+                                  CustomTextField(
+                                    label: 'Total Value',
+                                    hint: '₹${item.totalValue}',
+                                    isReadOnly: true,
+                                    controller: TextEditingController(
+                                      text: '₹${item.totalValue}',
+                                    ),
+                                  ),
+                                  SizedBox(height: Get.height / 60),
 
-                        // Pagination
+                                  _buildChipField(
+                                    'Status',
+                                    item.status ?? '',
+                                    (item.status?.trim().toLowerCase() ==
+                                            'active')
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
+
+                                  SizedBox(height: Get.height / 60),
+
+                                  const Divider(),
+                                  SizedBox(height: Get.height / 60),
+                                ],
+                              );
+                            },
+                          );
+                        }),
+
                         _buildPagination(),
 
                         // Recent Movements
@@ -243,6 +286,49 @@ class ViewAllRawMaterial extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildInfoGridFromApi() {
+    double parseQty(String? qty) {
+      if (qty == null) return 0;
+      return double.tryParse(qty) ?? 0; // parse string like "4.000"
+    }
+
+    return Obx(() {
+      final infoData = [
+        {
+          'count': rawMaterialController.materialList.length.toString(),
+          'label': 'Total item',
+        },
+        {
+          'count': rawMaterialController.materialList
+              .where((item) => parseQty(item.currentQuantity) > 0)
+              .length
+              .toString(),
+          'label': 'In Stock',
+        },
+        {
+          'count': rawMaterialController.materialList
+              .where(
+                (item) =>
+                    parseQty(item.currentQuantity) > 0 &&
+                    parseQty(item.currentQuantity) < 5,
+              )
+              .length
+              .toString(),
+          'label': 'Low Stock',
+        },
+        {
+          'count': rawMaterialController.materialList
+              .where((item) => parseQty(item.currentQuantity) == 0)
+              .length
+              .toString(),
+          'label': 'Out Of Stock',
+        },
+      ];
+
+      return _buildInfoGrid(infoData);
+    });
   }
 
   // --- Reusable Widgets ---
@@ -334,7 +420,7 @@ class ViewAllRawMaterial extends StatelessWidget {
   }
 
   Widget _buildInfoCard(String count, String label) {
-    double size = Get.width / 3.5; // square dimension
+    double size = Get.width / 3.5;
 
     return Container(
       width: size,
@@ -409,50 +495,6 @@ class ViewAllRawMaterial extends StatelessWidget {
                 color: color,
               ),
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCurrentStockField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Current Stock',
-          style: TextStyle(
-            fontSize: Get.width / 26,
-            fontWeight: FontWeight.w500,
-            color: Color(0xff000000),
-          ),
-        ),
-        SizedBox(height: Get.height / 150),
-        Container(
-          height: Get.height / 20,
-          padding: EdgeInsets.symmetric(horizontal: Get.width / 25),
-          decoration: BoxDecoration(
-            color: const Color(0xffF3F7FC),
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '-3 pcs',
-                style: GoogleFonts.poppins(
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: Get.width / 30,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.keyboard_arrow_down,
-                color: Color(0xff858585),
-                size: 20,
-              ),
-            ],
           ),
         ),
       ],
