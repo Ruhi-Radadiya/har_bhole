@@ -125,7 +125,7 @@ class ViewSupplierScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
-                                    'cancel',
+                                    'Delete',
                                     style: TextStyle(
                                       color: Color(0xffF78520),
                                       fontWeight: FontWeight.bold,
@@ -142,13 +142,13 @@ class ViewSupplierScreen extends StatelessWidget {
                                 _buildFilterField(
                                   label: "Statue",
                                   child: _buildFilterDropdown(
-                                    label: supplier.status ?? "N/A",
+                                    label: supplier.status,
                                   ),
                                 ),
                                 _buildFilterField(
                                   label: "City",
                                   child: _buildFilterDropdown(
-                                    label: supplier.city ?? "N/A",
+                                    label: supplier.city,
                                   ),
                                 ),
                               ],
@@ -161,38 +161,38 @@ class ViewSupplierScreen extends StatelessWidget {
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
                               label: "Name",
-                              hint: supplier.supplierName ?? "-",
+                              hint: supplier.supplierName,
                             ),
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
                               label: "Phone Number",
-                              hint: supplier.phone ?? "-",
+                              hint: supplier.phone,
                             ),
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
                               label: "Email Id",
-                              hint: supplier.email ?? "-",
+                              hint: supplier.email,
                             ),
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
                               label: "Location",
                               hint:
-                                  "${supplier.address ?? "-"}, ${supplier.city ?? "-"}, ${supplier.state ?? "-"}",
+                                  "${supplier.address}, ${supplier.city}, ${supplier.state}",
                             ),
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
                               label: "Payment Terms",
-                              hint: supplier.paymentTerms ?? "-",
+                              hint: supplier.paymentTerms,
                             ),
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
                               label: "Credit Limit",
-                              hint: "₹${supplier.creditLimit ?? "0"}",
+                              hint: "₹${supplier.creditLimit}",
                             ),
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
                               label: "Statue",
-                              hint: supplier.status ?? "-",
+                              hint: supplier.status,
                             ),
                             SizedBox(height: Get.height / 60),
                           ],

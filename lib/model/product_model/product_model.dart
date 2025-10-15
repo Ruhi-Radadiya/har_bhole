@@ -59,10 +59,12 @@ class NutritionalInfo {
 class Product {
   final String productId;
   final String productName;
-  final String variationValue; // can be empty string if null
-  final String status; // can default to '0' if null
-  final String productImage; // can use placeholder if null
+  final String variationValue;
+  final String status;
+  final String productImage;
   final String categoryName;
+  final double sellingPrice; // <-- add
+  final int stockQuantity; // <-- add
   final NutritionalInfo nutritionalInfo;
 
   Product({
@@ -72,10 +74,24 @@ class Product {
     required this.status,
     required this.productImage,
     required this.categoryName,
+    required this.sellingPrice,
+    required this.stockQuantity,
     required this.nutritionalInfo,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic val) {
+      if (val == null) return 0.0;
+      if (val is num) return val.toDouble();
+      return double.tryParse(val.toString()) ?? 0.0;
+    }
+
+    int parseInt(dynamic val) {
+      if (val == null) return 0;
+      if (val is int) return val;
+      return int.tryParse(val.toString()) ?? 0;
+    }
+
     return Product(
       productId: json['product_id']?.toString() ?? '',
       productName: json['product_name']?.toString() ?? '',
@@ -84,6 +100,8 @@ class Product {
       productImage:
           json['product_image']?.toString() ?? 'asset/images/home/khaman.png',
       categoryName: json['category_name']?.toString() ?? '',
+      sellingPrice: parseDouble(json['selling_price']),
+      stockQuantity: parseInt(json['stock_quantity']),
       nutritionalInfo: (json['nutritional_info'] is Map<String, dynamic>)
           ? NutritionalInfo.fromJson(json['nutritional_info'])
           : NutritionalInfo.fromJson({}),

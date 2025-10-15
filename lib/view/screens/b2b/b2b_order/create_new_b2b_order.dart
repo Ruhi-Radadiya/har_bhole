@@ -127,6 +127,7 @@ class CreateNewB2BOrder extends StatelessWidget {
                         SizedBox(height: Get.height / 60),
                         _sectionTitle("Order Items"),
                         SizedBox(height: Get.height / 60),
+
                         CustomTextField(
                           label: "Product",
                           hint: "Select Product",
@@ -134,6 +135,7 @@ class CreateNewB2BOrder extends StatelessWidget {
                               createB2BOrderController.productController,
                         ),
                         SizedBox(height: Get.height / 60),
+
                         CustomTextField(
                           label: "Variation",
                           hint: "Select Variation",
@@ -141,6 +143,7 @@ class CreateNewB2BOrder extends StatelessWidget {
                               createB2BOrderController.variationController,
                         ),
                         SizedBox(height: Get.height / 60),
+
                         CustomTextField(
                           label: "Quantity",
                           hint: "0",
@@ -150,6 +153,7 @@ class CreateNewB2BOrder extends StatelessWidget {
                           onChanged: (_) => _updateTotal(),
                         ),
                         SizedBox(height: Get.height / 60),
+
                         CustomTextField(
                           label: "Price",
                           hint: "0.00",
@@ -158,20 +162,13 @@ class CreateNewB2BOrder extends StatelessWidget {
                           onChanged: (_) => _updateTotal(),
                         ),
                         SizedBox(height: Get.height / 60),
+
                         CustomTextField(
                           label: "Total",
                           hint: "0.00",
                           controller: createB2BOrderController.totalController,
                           keyboardType: TextInputType.number,
                           isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: "GST",
-                          hint: "₹336.00",
-                          controller: createB2BOrderController.gstController,
-                          keyboardType: TextInputType.number,
-                          onChanged: (_) => _updateTotal(),
                         ),
                         SizedBox(height: Get.height / 60),
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../main.dart';
 import '../../../../model/product_model/product_model.dart';
 import '../../../component/textfield.dart';
 
@@ -171,10 +172,28 @@ class ProductDetailsScreen extends StatelessWidget {
                                 height: Get.height / 18,
                                 width: double.infinity,
                                 child: OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    bool confirmed = await Get.defaultDialog(
+                                      title: "Confirm Delete",
+                                      middleText:
+                                          "Are you sure you want to delete this product?",
+                                      textConfirm: "Yes",
+                                      textCancel: "No",
+                                      onConfirm: () => Get.back(result: true),
+                                      onCancel: () => Get.back(result: false),
+                                    );
+
+                                    if (confirmed == true) {
+                                      await deleteProductController
+                                          .deleteProduct(product.productId);
+                                      // Optionally refresh the product list after deletion
+                                      productController.fetchProducts();
+                                      Get.back(); // Go back to product list screen
+                                    }
+                                  },
                                   style: OutlinedButton.styleFrom(
                                     side: BorderSide(
-                                      color: mainOrange,
+                                      color: const Color(0xffF78520),
                                       width: 1,
                                     ),
                                     shape: RoundedRectangleBorder(

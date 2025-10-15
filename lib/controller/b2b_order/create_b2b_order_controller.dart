@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class CreateB2BOrderController extends GetxController {
-  // Controllers for all fields
   final customerNameController = TextEditingController();
   final customerEmailController = TextEditingController();
   final customerPhoneController = TextEditingController();
@@ -25,69 +23,63 @@ class CreateB2BOrderController extends GetxController {
 
   var isLoading = false.obs;
 
+  /// 🟢 This method is called when "Create Order" is tapped
   Future<void> addB2BOrder() async {
     final url = Uri.parse(
       "https://harbhole.eihlims.com/Api/b2b_orders_api.php?action=add",
     );
 
-    final body = {
+    // Build item object from the Order Items section
+    final Map<String, dynamic> orderItem = {
+      "product_id": 1, // you can replace with real product ID later
+      "product_name": productController.text,
+      "variation_id": 0,
+      "variation_name": variationController.text,
+      "variation_value": "",
+      "quantity": double.tryParse(quantityController.text) ?? 0,
+      "price": double.tryParse(priceController.text) ?? 0,
+      "total": double.tryParse(totalController.text) ?? 0,
+      "gst": double.tryParse(gstController.text) ?? 0,
+    };
+
+    // Combine everything in the final body
+    final Map<String, dynamic> body = {
       "customer_name": customerNameController.text,
       "customer_email": customerEmailController.text,
       "customer_phone": customerPhoneController.text,
       "customer_address": customerAddressController.text,
       "customer_company": customerCompanyController.text,
       "customer_gst": customerGstController.text,
-      "total_amount": double.tryParse(totalAmountController.text) ?? 0.0,
       "status": statusController.text,
       "payment_status": paymentStatusController.text,
+      "total_amount": double.tryParse(totalAmountController.text) ?? 0.0,
+      "items": [orderItem], // 👈 single item added here automatically
     };
 
     try {
       isLoading.value = true;
+
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(body),
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data["success"] == true) {
-          Get.snackbar(
-            "Success",
-            "Order added successfully!",
-            snackPosition: SnackPosition.BOTTOM,
-          );
+      final data = jsonDecode(response.body);
 
-          // Clear all fields
-          customerNameController.clear();
-          customerEmailController.clear();
-          customerPhoneController.clear();
-          customerAddressController.clear();
-          customerCompanyController.clear();
-          customerGstController.clear();
-          totalAmountController.clear();
-          productController.clear();
-          variationController.clear();
-          quantityController.clear();
-          priceController.clear();
-          totalController.clear();
-          gstController.clear();
+      if (response.statusCode == 200 && data["success"] == true) {
+        Get.snackbar(
+          "Success",
+          "Order created successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+        );
 
-          Get.back();
-          log("Order Added: $data");
-        } else {
-          Get.snackbar(
-            "Error",
-            data["message"] ?? "Failed to add order",
-            snackPosition: SnackPosition.BOTTOM,
-          );
-          log("Error************: ${data["message"]}");
-        }
+        clearAll();
+        Get.back();
       } else {
         Get.snackbar(
           "Error",
-          "Failed to add order: ${response.statusCode}",
+          data["message"] ?? "Failed to add order",
           snackPosition: SnackPosition.BOTTOM,
         );
       }
@@ -97,9 +89,24 @@ class CreateB2BOrderController extends GetxController {
         "Something went wrong: $e",
         snackPosition: SnackPosition.BOTTOM,
       );
-      log("Error: $e");
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void clearAll() {
+    customerNameController.clear();
+    customerEmailController.clear();
+    customerPhoneController.clear();
+    customerAddressController.clear();
+    customerCompanyController.clear();
+    customerGstController.clear();
+    totalAmountController.clear();
+    productController.clear();
+    variationController.clear();
+    quantityController.clear();
+    priceController.clear();
+    totalController.clear();
+    gstController.clear();
   }
 }

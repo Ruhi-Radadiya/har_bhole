@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:har_bhole/main.dart';
 
+import '../../../../main.dart';
 import '../../../../model/home_page_models/premium_collection_model.dart';
 import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
+import 'categoris_detail_screen.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -20,6 +21,7 @@ class CategoriesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // --- Header & Add Button ---
             Container(
               padding: EdgeInsets.only(
                 top: Get.height / 25,
@@ -88,10 +90,11 @@ class CategoriesScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
+                        // Navigate to create category screen
                         Get.toNamed(Routes.createCategory);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffF78520),
+                        backgroundColor: mainOrange,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
                         ),
@@ -112,11 +115,9 @@ class CategoriesScreen extends StatelessWidget {
                 ],
               ),
             ),
+
             Padding(
-              padding: EdgeInsets.only(
-                left: Get.width / 18,
-                right: Get.width / 18,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: Get.width / 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -125,7 +126,7 @@ class CategoriesScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'All Products',
+                        'All Categories',
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 20,
@@ -147,6 +148,8 @@ class CategoriesScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: Get.height / 50),
+
+                  // --- Search & List ---
                   Container(
                     padding: EdgeInsets.all(Get.width / 30),
                     decoration: BoxDecoration(
@@ -163,7 +166,7 @@ class CategoriesScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         CustomTextField(
-                          hint: "Search Products",
+                          hint: "Search Categories",
                           icon: Icons.search,
                           onChanged: (value) {
                             premiumCollectionController.searchCategories(value);
@@ -171,6 +174,7 @@ class CategoriesScreen extends StatelessWidget {
                         ),
                         SizedBox(height: Get.height / 80),
                         const Divider(height: 1, color: Color(0xffF2F3F5)),
+
                         Obx(() {
                           if (premiumCollectionController.isLoading.value) {
                             return const Center(
@@ -206,16 +210,9 @@ class CategoriesScreen extends StatelessWidget {
                                 final item = premiumCollectionController
                                     .filteredCategories[index];
 
-                                // Convert status string/int properly
-                                final bool isActive = item.status == 1;
-
                                 return Column(
                                   children: [
-                                    _buildCategoryTile(
-                                      premiumCollectionController
-                                          .filteredCategories[index],
-                                    ),
-
+                                    _buildCategoryTile(item),
                                     if (index !=
                                         premiumCollectionController
                                                 .filteredCategories
@@ -228,7 +225,7 @@ class CategoriesScreen extends StatelessWidget {
                                   ],
                                 );
                               },
-                            ).toList(),
+                            ),
                           );
                         }),
                       ],
@@ -245,12 +242,15 @@ class CategoriesScreen extends StatelessWidget {
   }
 
   Widget _buildCategoryTile(PremiumCollectionModel item) {
+    const Color mainOrange = Color(0xffF78520);
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Get.height / 80),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // --- Category Info ---
           Flexible(
             child: Row(
               children: [
@@ -264,16 +264,6 @@ class CategoriesScreen extends StatelessWidget {
                       image: AssetImage('asset/images/about/jalebi.png'),
                       fit: BoxFit.cover,
                     ),
-                    // item.categoryImage != null &&
-                    //     item.categoryImage.isNotEmpty
-                    // ? DecorationImage(
-                    //     image: NetworkImage(item.categoryImage),
-                    //     fit: BoxFit.cover,
-                    //   )
-                    // : const DecorationImage(
-                    //     image: AssetImage('asset/images/about/jalebi.png'),
-                    //     fit: BoxFit.cover,
-                    //   ),
                   ),
                 ),
                 SizedBox(width: Get.width / 30),
@@ -311,6 +301,8 @@ class CategoriesScreen extends StatelessWidget {
               ],
             ),
           ),
+
+          // --- Status & Actions ---
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -320,18 +312,18 @@ class CategoriesScreen extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: item.status == 1
+                  color: item.status == "1"
                       ? const Color(0xffDCE1D7)
                       : const Color(0xffEFCFD2),
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: Text(
-                  item.status == 1 ? "Active" : "Inactive",
+                  item.status == "1" ? "Active" : "Inactive",
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
                       fontSize: Get.width / 36,
                       fontWeight: FontWeight.bold,
-                      color: item.status == 1
+                      color: item.status == "1"
                           ? const Color(0xff4E6B37)
                           : const Color(0xffAD111E),
                     ),
@@ -341,7 +333,8 @@ class CategoriesScreen extends StatelessWidget {
               SizedBox(height: Get.height / 200),
               GestureDetector(
                 onTap: () {
-                  Get.toNamed(Routes.categoriesDetail);
+                  // Navigate to details screen with the selected category
+                  Get.to(() => CategoryDetailsScreen(), arguments: item);
                 },
                 child: Text(
                   'View Details',

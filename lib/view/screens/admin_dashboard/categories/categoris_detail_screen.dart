@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../main.dart';
+import '../../../../model/home_page_models/premium_collection_model.dart';
+
 class CategoryDetailsScreen extends StatelessWidget {
   const CategoryDetailsScreen({super.key});
 
@@ -147,29 +150,44 @@ class CategoryDetailsScreen extends StatelessWidget {
                             height: Get.height / 18,
                             width: double.infinity,
                             child: OutlinedButton(
-                              onPressed: () {
-                                /* Delete Category Logic */
+                              onPressed: () async {
+                                // Get selected category from Get.arguments
+                                final category =
+                                    Get.arguments as PremiumCollectionModel;
+                                final categoryId = category.categoryId;
+
+                                // Call delete
+                                bool success = await deleteCategoryController
+                                    .deleteCategory(categoryId);
+
+                                if (success) {
+                                  // Remove deleted category from the list (optional)
+
+                                  premiumCollectionController.premiumCollection
+                                      .removeWhere(
+                                        (cat) => cat.categoryId == categoryId,
+                                      );
+                                  premiumCollectionController.filteredCategories
+                                      .removeWhere(
+                                        (cat) => cat.categoryId == categoryId,
+                                      );
+
+                                  Get.back(); // Close details screen
+                                }
                               },
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 side: const BorderSide(
-                                  color: mainOrange,
+                                  color: Color(0xffF78520),
                                   width: 1,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
-                                elevation: 0,
                               ),
                               child: Text(
                                 'Delete',
-                                style: GoogleFonts.poppins(
-                                  textStyle: TextStyle(
-                                    fontSize: Get.width / 22.5,
-                                    color: mainOrange,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                                style: TextStyle(color: Color(0xffF78520)),
                               ),
                             ),
                           ),

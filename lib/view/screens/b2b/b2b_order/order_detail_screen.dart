@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/view/component/textfield.dart';
 
+import '../../../../main.dart';
 import '../../../../model/b2b_order/b2b_order_model.dart';
 import '../../../../routes/routes.dart';
 
 class OrderDetailScreen extends StatelessWidget {
-  final B2BOrder order; // ✅ get data from API model
+  final B2BOrder order;
   const OrderDetailScreen({super.key, required this.order});
 
   @override
@@ -219,7 +220,7 @@ class OrderDetailScreen extends StatelessWidget {
                           children: [
                             _orderItem('Product', item.productName),
                             _orderItem('Price', '₹${item.price}'),
-                            _orderItem('Varients', item.variationValue),
+                            _orderItem('Variants', item.variationValue),
                             _orderItem('QTY', item.quantity),
                             const Divider(),
                           ],
@@ -229,14 +230,14 @@ class OrderDetailScreen extends StatelessWidget {
                       // fallback static items
                       Column(
                         children: [
-                          _orderItem('Product', 'Farani Petis'),
+                          _orderItem('Product', 'Farali Petis'),
                           _orderItem('Price', '₹200'),
-                          _orderItem('Varients', '-'),
+                          _orderItem('Variants', '-'),
                           _orderItem('QTY', '1'),
                           const Divider(),
                           _orderItem('Product', 'Mohanthal'),
                           _orderItem('Price', '₹100'),
-                          _orderItem('Varients', '500gm'),
+                          _orderItem('Variants', '500gm'),
                           _orderItem('QTY', '1'),
                           const Divider(),
                         ],
@@ -272,7 +273,6 @@ class OrderDetailScreen extends StatelessWidget {
                       hint: order.paymentStatus,
                     ),
                     SizedBox(height: height / 30),
-
                     SizedBox(
                       height: Get.height / 18,
                       width: double.infinity,
@@ -296,6 +296,34 @@ class OrderDetailScreen extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: height / 80),
+                    SizedBox(
+                      height: Get.height / 18,
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          bool deleted = await deleteB2BOrderController
+                              .deleteOrder(order.id);
+                          if (deleted) {
+                            Get.back(); // go back to order list
+                            b2bOrderController.fetchOrders(); // refresh list
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: Color(0xffF78520),
+                            width: 1,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(color: Color(0xffF78520)),
                         ),
                       ),
                     ),
