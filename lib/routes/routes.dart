@@ -15,6 +15,7 @@ import '../view/screens/admin_dashboard/products/products_screen.dart';
 import '../view/screens/admin_dashboard/user_dashboard_screen/add_user_screen.dart';
 import '../view/screens/admin_dashboard/user_dashboard_screen/user_dashboard_screen.dart';
 import '../view/screens/admin_dashboard/user_dashboard_screen/view_details_screen.dart';
+import '../view/screens/admin_dashboard/voucher/add_voucher.dart';
 import '../view/screens/admin_dashboard/voucher/general_voucher_screen.dart';
 import '../view/screens/admin_dashboard/voucher/view_voucher.dart';
 import '../view/screens/b2b/b2b_order/b2b_order_screen.dart';
@@ -108,6 +109,7 @@ class Routes {
   static String customerOrder = '/customer-order';
   static String viewCustomerOrder = '/view-customer-order';
   static String customerOrderInvoice = '/customer-order-invoice';
+  static String addVoucherScreen = '/add-voucher-screen';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -187,7 +189,7 @@ class Routes {
     ),
     GetPage(name: stockMovement, page: () => StockMovementEntryScreen()),
     GetPage(name: addStockMovement, page: () => AddStockMovementScreen()),
-    GetPage(name: addNewSupplier, page: () => const AddNewSupplier()),
+    GetPage(name: addNewSupplier, page: () => AddNewSupplier()),
     GetPage(name: viewAllSupplier, page: () => ViewSupplierScreen()),
     GetPage(name: orderAnalytics, page: () => const OrderAnalytics()),
     GetPage(name: orderAnalyticsInvoice, page: () => OrderAnalyticsInvoice()),
@@ -210,5 +212,6 @@ class Routes {
       name: customerOrderInvoice,
       page: () => const CustomerOrderInvoice(),
     ),
+    GetPage(name: addVoucherScreen, page: () => AddVouchersScreen()),
   ];
 }

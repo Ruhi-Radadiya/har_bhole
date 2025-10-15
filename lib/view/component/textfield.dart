@@ -202,6 +202,7 @@ class _UploadFileFieldState extends State<UploadFileField> {
 
     Get.bottomSheet(
       Container(
+        height: Get.height / 5,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: const BorderRadius.only(
@@ -468,16 +469,12 @@ class CustomDropdownField<T> extends StatelessWidget {
 class CustomDateField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
-  final VoidCallback onTap;
-  final Color? fillColor;
   final String? hint;
 
   const CustomDateField({
     super.key,
     required this.label,
     required this.controller,
-    required this.onTap,
-    this.fillColor,
     this.hint,
   });
 
@@ -486,13 +483,38 @@ class CustomDateField extends StatefulWidget {
 }
 
 class _CustomDateFieldState extends State<CustomDateField> {
-  @override
-  void initState() {
-    super.initState();
-    // Whenever the controller text changes, rebuild the widget
-    widget.controller.addListener(() {
-      if (mounted) setState(() {});
-    });
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xffF78520), // 🟠 header, selected date color
+              onPrimary: Colors.white, // white text on header
+              onSurface: Colors.black, // black text for body
+            ),
+            dialogBackgroundColor: Colors.white,
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Color(0xffF78520), // 🟠 OK/Cancel color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        widget.controller.text =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
+    }
   }
 
   @override
@@ -517,12 +539,12 @@ class _CustomDateFieldState extends State<CustomDateField> {
           SizedBox(height: screenHeight / 150),
         ],
         GestureDetector(
-          onTap: widget.onTap,
+          onTap: () => _selectDate(context),
           child: Container(
             height: screenHeight / 20 + screenHeight / 80,
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 25),
             decoration: BoxDecoration(
-              color: widget.fillColor ?? const Color(0xffFAF7F6),
+              color: const Color(0xffFAF7F6),
               borderRadius: BorderRadius.circular(12.0),
               border: Border.all(color: Colors.transparent),
             ),

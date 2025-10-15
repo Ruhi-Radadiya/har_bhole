@@ -1,81 +1,107 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class CashEntryController extends GetxController {
-  var categories = <Map<String, dynamic>>[].obs;
-  var isLoading = false.obs;
-  var responseMessage = "".obs;
+  /// Text controllers
+  final entryDateController = TextEditingController();
+  final entryTypeController = TextEditingController(); // Income/Expense
+  final amountController = TextEditingController();
+  final categoryIdController = TextEditingController();
+  final paymentMethodController = TextEditingController();
+  final referenceNoController = TextEditingController();
+  final descriptionController = TextEditingController();
 
-  // Fetch categories from API
-  Future<void> fetchCategories() async {
+  /// Attachment
+  Rx<File?> attachmentFile = Rx<File?>(null);
+
+  /// Loading state
+  RxBool isLoading = false.obs;
+
+  /// POST API - Add Cashbook Entry
+  Future<void> addCashbookEntry() async {
+    isLoading.value = true;
+
+    const String url =
+        "https://harbhole.eihlims.com/Api/cashbook_entries_api.php?action=add";
+
     try {
-      final response = await http.get(
-        Uri.parse(
-          'https://harbhole.eihlims.com/Api/cashbook_entries_api.php?action=list',
-        ),
-      );
+      final request = http.MultipartRequest('POST', Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        categories.value = data
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList();
+      // Add required fields
+      request.fields['entry_date'] = entryDateController.text;
+      request.fields['entry_type'] = entryTypeController.text;
+      request.fields['amount'] = amountController.text;
+      request.fields['category_id'] = categoryIdController.text;
+      request.fields['payment_method'] = paymentMethodController.text;
+      request.fields['reference_no'] = referenceNoController.text;
+      request.fields['description'] = descriptionController.text;
+      request.fields['created_by'] = '1';
+
+      // Attach file if selected
+      if (attachmentFile.value != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'attachment',
+            attachmentFile.value!.path,
+          ),
+        );
+      }
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      log('Cashbook Response: $responseBody');
+
+      final result = jsonDecode(responseBody);
+
+      if (response.statusCode == 200 && result['success'] == true) {
+        Get.snackbar(
+          'Success',
+          'Cashbook entry added successfully!',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        clearAllFields();
+        Get.back();
       } else {
-        print('Failed to load categories. Status: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to add cashbook entry: ${result['message'] ?? 'Unknown error'}',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
-      print('Error fetching categories: $e');
-    }
-  }
-
-  // Add cash entry API
-  Future<void> addCashEntry({
-    required String entryDate,
-    required String entryType,
-    required String amount,
-    required int categoryId,
-    required String paymentMethod,
-    String? referenceNo,
-    String? description,
-    String? attachment,
-    required int createdBy,
-  }) async {
-    try {
-      isLoading.value = true;
-
-      final Map<String, dynamic> data = {
-        "entry_date": entryDate,
-        "entry_type": entryType,
-        "amount": double.tryParse(amount) ?? 0,
-        "category_id": categoryId,
-        "payment_method": paymentMethod,
-        "reference_no": referenceNo ?? "",
-        "description": description ?? "",
-        "attachment": attachment ?? "",
-        "created_by": createdBy,
-      };
-
-      final response = await http.post(
-        Uri.parse(
-          'https://harbhole.eihlims.com/Api/cashbook_entries_api.php?action=add',
-        ),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(data),
+      log('Error adding cashbook entry: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
       );
-
-      if (response.statusCode == 200) {
-        final body = json.decode(response.body);
-        responseMessage.value = body['message'] ?? "Entry Added";
-      } else {
-        responseMessage.value =
-            "Failed to add entry. Status: ${response.statusCode}";
-      }
-    } catch (e) {
-      responseMessage.value = "Error: $e";
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Clear all fields
+  void clearAllFields() {
+    entryDateController.clear();
+    entryTypeController.clear();
+    amountController.clear();
+    categoryIdController.clear();
+    paymentMethodController.clear();
+    referenceNoController.clear();
+    descriptionController.clear();
+    attachmentFile.value = null;
   }
 }

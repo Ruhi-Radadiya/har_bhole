@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
 import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
 class AddNewSupplier extends StatelessWidget {
-  const AddNewSupplier({super.key});
+  AddNewSupplier({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,6 @@ class AddNewSupplier extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 30),
-
                 child: Container(
                   padding: EdgeInsets.all(Get.width / 20),
                   decoration: BoxDecoration(
@@ -119,7 +119,14 @@ class AddNewSupplier extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: Get.height / 40),
-                      CustomTextField(label: "Supplier Code", hint: "SUP001"),
+
+                      // Connect controllers here
+                      CustomTextField(
+                        label: "Supplier Code",
+                        hint: "SUP001",
+                        controller:
+                            addSupplierController.supplierCodeController,
+                      ),
                       Text(
                         "Unique supplier identifier",
                         style: TextStyle(
@@ -128,122 +135,155 @@ class AddNewSupplier extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: "Supplier Name",
-                        hint: "Sep 12, 2025 11:00 AM",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Contact Person",
-                        items: [1, 2, 3],
-                        value: "Primary Contact NUmber",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
-                        hint: "Primary Contact NUmber",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Phone Number",
-                        items: [1, 2, 3],
-                        value: "+91 95663 54236",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
-                        hint: "+91 95663 54236",
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Email Address",
-                        items: [1, 2, 3],
-                        value: "Supplier@gmail.com",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
-                        hint: "Supplier@gmail.com",
+                        hint: "Supplier Name",
+                        controller:
+                            addSupplierController.supplierNameController,
                       ),
                       SizedBox(height: Get.height / 60),
 
-                      CustomTextField(label: "Website", hint: "0"),
+                      CustomTextField(
+                        label: "Contact Person",
+                        hint: "Contact Person",
+                        controller:
+                            addSupplierController.contactPersonController,
+                      ),
+                      SizedBox(height: Get.height / 60),
+
+                      CustomTextField(
+                        label: "Phone Number",
+                        hint: "+91 9876543210",
+                        controller: addSupplierController.phoneController,
+                        keyboardType: TextInputType.number,
+                      ),
+                      SizedBox(height: Get.height / 60),
+
+                      CustomTextField(
+                        label: "Email Address",
+                        hint: "supplier@gmail.com",
+                        controller: addSupplierController.emailController,
+                      ),
+                      SizedBox(height: Get.height / 60),
+
+                      CustomTextField(
+                        label: "Website",
+                        hint: "https://www.website.com",
+                        controller: addSupplierController.websiteController,
+                      ),
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: "Address",
                         hint: "Complete Address",
                         maxLines: 3,
+                        controller: addSupplierController.addressController,
                       ),
                       SizedBox(height: Get.height / 60),
 
-                      CustomTextField(label: "City", hint: "0"),
+                      CustomTextField(
+                        label: "City",
+                        hint: "City",
+                        controller: addSupplierController.cityController,
+                      ),
                       SizedBox(height: Get.height / 60),
 
-                      CustomTextField(label: "state", hint: "tesr"),
+                      CustomTextField(
+                        label: "State",
+                        hint: "State",
+                        controller: addSupplierController.stateController,
+                      ),
                       SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Pin Code", hint: "123456"),
+
+                      CustomTextField(
+                        label: "Pin Code",
+                        hint: "123456",
+                        controller: addSupplierController.pinCodeController,
+                        keyboardType: TextInputType.number,
+                      ),
                       SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Country", hint: "India"),
+
+                      CustomTextField(
+                        label: "Country",
+                        hint: "India",
+                        controller: addSupplierController.countryController,
+                      ),
                       SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "GST Number", hint: "0"),
+
+                      CustomTextField(
+                        label: "GST Number",
+                        hint: "0",
+                        controller: addSupplierController.gstNumberController,
+                      ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+
+                      CustomTextField(
                         label: "PAN Number",
-                        items: ["Active", "InActive"],
-                        value: "Active",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+                        hint: "AAACB1234F",
+                        controller: addSupplierController.panNumberController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+
+                      CustomTextField(
                         label: "Payment Terms",
-                        items: ["Active", "InActive"],
-                        value: "Active",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+                        hint: "Net 30",
+                        controller:
+                            addSupplierController.paymentTermsController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Credit Limit (₹)", hint: "0.00"),
+
+                      CustomTextField(
+                        label: "Credit Limit (₹)",
+                        hint: "0.00",
+                        controller: addSupplierController.creditLimitController,
+                      ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: "Notes",
-                        hint: "Addtional note about supplier",
+                        hint: "Additional note about supplier",
                         maxLines: 3,
+                        controller: addSupplierController.notesController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Statue",
-                        items: ["Active", "InActive"],
-                        value: "Active",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+
+                      CustomTextField(
+                        label: "Status",
+                        hint: "Active",
+                        controller: addSupplierController.statusController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      SizedBox(
-                        width: double.infinity,
-                        height: Get.height / 18,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffF78520),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+
+                      // Button with API call
+                      Obx(
+                        () => SizedBox(
+                          width: double.infinity,
+                          height: Get.height / 18,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xffF78520),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "Add Movement",
-                            style: GoogleFonts.poppins(
-                              fontSize: Get.width / 22.5,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            onPressed: addSupplierController.isLoading.value
+                                ? null
+                                : () {
+                                    addSupplierController.addSupplier();
+                                  },
+                            child: addSupplierController.isLoading.value
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : Text(
+                                    "Add Movement",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: Get.width / 22.5,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),

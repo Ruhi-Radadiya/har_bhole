@@ -10,6 +10,7 @@ import 'package:har_bhole/controller/raw_material_controller/raw_material_contro
 import 'package:har_bhole/controller/semi_finished_material_controller/semi_finished_material_controller.dart';
 import 'package:har_bhole/controller/user_controller/create_user_controller.dart';
 import 'package:har_bhole/controller/user_controller/user_controller.dart';
+import 'package:har_bhole/controller/voucher_controller/add_voucher_controller.dart';
 import 'package:har_bhole/routes/routes.dart';
 
 import 'controller/b2b_order/create_b2b_order_controller.dart';
@@ -18,10 +19,13 @@ import 'controller/b2b_user_controller/create_b2b_user_controller.dart';
 import 'controller/cart_controller/order_controller.dart';
 import 'controller/cashbook_controller/cashbook_controller.dart';
 import 'controller/customer_detail_controller/customer_detail_controller.dart';
+import 'controller/finished_goods_stock_controller/add_finished_goods_stock_controller.dart';
 import 'controller/home_page_controllers/create_new_category_controller.dart';
 import 'controller/home_page_controllers/premium_collection_controller.dart';
 import 'controller/orders_controller/orders_controller.dart';
 import 'controller/product_controller/add_product_controller.dart';
+import 'controller/raw_material_controller/add_raw_material_controller.dart';
+import 'controller/supplier_controller/add_supplier_controller.dart';
 import 'controller/supplier_controller/supplier_controller.dart';
 import 'controller/users_controller/dashboard_users_controller.dart';
 import 'controller/voucher_controller/voucher_controller.dart';
@@ -65,6 +69,14 @@ CreateB2BOrderController createB2BOrderController = Get.put(
   CreateB2BOrderController(),
 );
 CashEntryController cashEntryController = Get.put(CashEntryController());
+AddVoucherController addVoucherController = Get.put(AddVoucherController());
+AddRawMaterialController addRawMaterialController = Get.put(
+  AddRawMaterialController(),
+);
+AddFinishedGoodsStockController addFinishedGoodsStockController = Get.put(
+  AddFinishedGoodsStockController(),
+);
+AddSupplierController addSupplierController = Get.put(AddSupplierController());
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

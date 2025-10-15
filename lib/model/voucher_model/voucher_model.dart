@@ -9,7 +9,7 @@ class Voucher {
   String? paymentMode;
   String? referenceNo;
   String? referenceDoc;
-  String? status;
+  String? status; // raw status from API
   String? approvedBy;
   String? approvedAt;
   String? createdBy;
@@ -48,26 +48,26 @@ class Voucher {
   factory Voucher.fromJson(Map<String, dynamic> json) {
     var itemsList = <VoucherItem>[];
     if (json['items_json'] != null) {
-      itemsList = List<Map<String, dynamic>>.from(
-        json['items_json'],
-      ).map((item) => VoucherItem.fromJson(item)).toList();
+      itemsList = List<Map<String, dynamic>>.from(json['items_json'])
+          .map((item) => VoucherItem.fromJson(item))
+          .toList();
     }
 
     return Voucher(
-      voucherId: json['voucher_id'],
-      voucherDate: json['voucher_date'],
-      voucherType: json['voucher_type'],
+      voucherId: json['voucher_id'].toString(),
+      voucherDate: json['voucher_date'] ?? '',
+      voucherType: json['voucher_type'] ?? '',
       voucherNo: json['voucher_no'],
       billTo: json['bill_to'],
-      amount: json['amount'],
+      amount: json['amount'].toString(),
       description: json['description'],
       paymentMode: json['payment_mode'],
       referenceNo: json['reference_no'],
       referenceDoc: json['reference_doc'],
-      status: json['status'],
-      approvedBy: json['approved_by'],
+      status: json['status']?.toString(), // always keep as string
+      approvedBy: json['approved_by']?.toString(),
       approvedAt: json['approved_at'],
-      createdBy: json['created_by'],
+      createdBy: json['created_by']?.toString(),
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       voucherCode: json['voucher_code'],
@@ -101,6 +101,20 @@ class Voucher {
     'transaction_number': transactionNumber,
     'items_json': items.map((e) => e.toJson()).toList(),
   };
+
+  /// Human-readable status
+  String get statusText {
+    switch (status) {
+      case '1':
+        return 'Pending';
+      case '2':
+        return 'Approved';
+      case '3':
+        return 'Rejected';
+      default:
+        return 'Pending';
+    }
+  }
 }
 
 class VoucherItem {
@@ -124,16 +138,22 @@ class VoucherItem {
 
   factory VoucherItem.fromJson(Map<String, dynamic> json) {
     return VoucherItem(
-      item: json['item'],
+      item: json['item'] ?? json['item_name'], // handle both possible keys
       itemId: json['item_id'],
       description: json['description'],
-      qty: json['qty'] is int ? json['qty'] : int.parse(json['qty'].toString()),
-      rate: json['rate'] != null ? double.parse(json['rate'].toString()) : 0,
+      qty: json['qty'] is int
+          ? json['qty']
+          : int.tryParse(json['qty']?.toString() ?? '1') ?? 1,
+      rate: json['rate'] != null
+          ? double.tryParse(json['rate'].toString()) ?? 0
+          : json['unit_price'] != null
+          ? double.tryParse(json['unit_price'].toString()) ?? 0
+          : 0,
       price: json['price'] != null
-          ? double.parse(json['price'].toString())
+          ? double.tryParse(json['price'].toString())
           : null,
       total: json['total'] != null
-          ? double.parse(json['total'].toString())
+          ? double.tryParse(json['total'].toString())
           : null,
     );
   }

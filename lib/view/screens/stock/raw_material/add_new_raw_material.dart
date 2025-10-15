@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../main.dart';
 import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
@@ -11,6 +12,8 @@ class AddNewRawMaterial extends StatefulWidget {
   @override
   State<AddNewRawMaterial> createState() => _AddNewRawMaterialState();
 }
+
+final List<String> categories = ["0", "1", "2"];
 
 class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
   @override
@@ -108,7 +111,13 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ],
                       ),
                       SizedBox(height: Get.height / 40),
-                      CustomTextField(label: "Material Code", hint: "RM016"),
+                      CustomTextField(
+                        label: "Material Code",
+                        controller:
+                            addRawMaterialController.materialCodeController,
+                        isReadOnly: true,
+                        hint: '',
+                      ),
                       Text(
                         "Auto-generated unique code",
                         style: TextStyle(
@@ -119,44 +128,67 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: "Material Name",
-                        hint: "Sep 12, 2025 11:00 AM",
+                        hint: "Enter Name",
+                        controller:
+                            addRawMaterialController.materialNameController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Category",
-                        items: [1, 2, 3],
-                        value: "Select Category",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+                      Obx(
+                        () => CustomDropdownField<String>(
+                          label: "Category",
+                          value:
+                              addRawMaterialController
+                                  .selectedCategory
+                                  .value
+                                  .isEmpty
+                              ? null
+                              : addRawMaterialController.selectedCategory.value,
+                          items: categories,
+                          onChanged: (val) =>
+                              addRawMaterialController.selectedCategory.value =
+                                  val!,
+                          getLabel: (item) => item,
+                        ),
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Supplier",
-                        items: [1, 2, 3],
-                        value: "Select supplier",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+                      Obx(
+                        () => CustomDropdownField<int>(
+                          label: "Supplier",
+                          items: [1, 2, 3],
+                          value:
+                              addRawMaterialController.selectedSupplier.value,
+                          getLabel: (val) => val.toString(),
+                          onChanged: (val) =>
+                              addRawMaterialController.selectedSupplier.value =
+                                  val!,
+                        ),
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
                         label: "Unit",
-                        items: [1, 2, 3],
-                        value: "Select Unit",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+                        hint: "Enter Unit",
+                        controller:
+                            addRawMaterialController.unitOfMeasureController,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
 
-                      CustomTextField(label: "Initial Stock", hint: "0"),
+                      CustomTextField(
+                        label: "Initial Stock",
+                        hint: "0",
+                        controller:
+                            addRawMaterialController.currentQuantityController,
+                        keyboardType: TextInputType.number,
+                      ),
                       SizedBox(height: Get.height / 60),
 
-                      CustomTextField(label: "Minimum Stock Level", hint: "0"),
+                      CustomTextField(
+                        label: "Minimum Stock Level",
+                        hint: "0",
+                        controller:
+                            addRawMaterialController.minStockLevelController,
+                        keyboardType: TextInputType.number,
+                      ),
                       Text(
                         "Alert when stock falls below this level",
                         style: TextStyle(
@@ -165,8 +197,13 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-
-                      CustomTextField(label: "Maximum Stock Level", hint: "0"),
+                      CustomTextField(
+                        label: "Maximum Stock Level",
+                        hint: "0",
+                        controller:
+                            addRawMaterialController.maxStockLevelController,
+                        keyboardType: TextInputType.number,
+                      ),
                       Text(
                         "Maximum stock to maintain",
                         style: TextStyle(
@@ -175,38 +212,61 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Cost per Unit", hint: "tesr"),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Address", hint: "tesr"),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "GST", hint: "tesr"),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(label: "Cost per Unit", hint: "0"),
-                      SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
-                        label: "Statue",
-                        items: ["Active", "InActive"],
-                        value: "Active",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+                      CustomTextField(
+                        label: "Cost per Unit",
+                        hint: "tesr",
+                        controller:
+                            addRawMaterialController.costPriceController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField(
+                      CustomTextField(
+                        label: "Address",
+                        hint: "tesr",
+                        controller: addRawMaterialController.locationController,
+                      ),
+
+                      SizedBox(height: Get.height / 60),
+                      CustomTextField(
+                        label: "Cost per Unit",
+                        hint: "0",
+                        controller:
+                            addRawMaterialController.costPriceController,
+                      ),
+                      SizedBox(height: Get.height / 60),
+                      Obx(
+                        () => CustomDropdownField<String>(
+                          label: "Status",
+                          items: ["Active", "InActive"],
+                          value:
+                              addRawMaterialController
+                                  .selectedStatus
+                                  .value
+                                  .isEmpty
+                              ? "Active"
+                              : addRawMaterialController.selectedStatus.value,
+                          getLabel: (val) => val,
+                          onChanged: (val) =>
+                              addRawMaterialController.selectedStatus.value =
+                                  val!,
+                        ),
+                      ),
+
+                      SizedBox(height: Get.height / 60),
+                      CustomTextField(
                         label: "Description",
-                        items: ["Active", "InActive"],
-                        value: "Active",
-                        getLabel: (val) {
-                          return val.toString();
-                        },
-                        onChanged: (val) {},
+                        hint: "Description",
+                        controller:
+                            addRawMaterialController.descriptionController,
                       ),
+
                       SizedBox(height: Get.height / 60),
                       UploadFileField(
                         label: "Material Image",
-                        onFileSelected: (val) {},
+                        onFileSelected: (val) =>
+                            addRawMaterialController.materialImagePath.value =
+                                val,
                       ),
+
                       Text(
                         "Upload an image of the material (optional) ",
                         style: TextStyle(
@@ -218,21 +278,36 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffF78520),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        child: Obx(
+                          () => ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xffF78520),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "Add Raw Materials",
-                            style: GoogleFonts.poppins(
-                              fontSize: Get.width / 22.5,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            onPressed: addRawMaterialController.isLoading.value
+                                ? null // disable button while loading
+                                : () {
+                                    addRawMaterialController.addRawMaterial();
+                                  },
+                            child: addRawMaterialController.isLoading.value
+                                ? SizedBox(
+                                    height: Get.height / 40,
+                                    width: Get.height / 40,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    "Add Raw Materials",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: Get.width / 22.5,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),

@@ -16,8 +16,6 @@ class CreateB2BOrderController extends GetxController {
   final totalAmountController = TextEditingController();
   final statusController = TextEditingController(text: "Pending");
   final paymentStatusController = TextEditingController(text: "Pending");
-
-  // Optional: Order item fields (as per your design)
   final productController = TextEditingController();
   final variationController = TextEditingController();
   final quantityController = TextEditingController();
@@ -69,7 +67,6 @@ class CreateB2BOrderController extends GetxController {
           customerCompanyController.clear();
           customerGstController.clear();
           totalAmountController.clear();
-
           productController.clear();
           variationController.clear();
           quantityController.clear();
@@ -85,6 +82,7 @@ class CreateB2BOrderController extends GetxController {
             data["message"] ?? "Failed to add order",
             snackPosition: SnackPosition.BOTTOM,
           );
+          log("Error************: ${data["message"]}");
         }
       } else {
         Get.snackbar(

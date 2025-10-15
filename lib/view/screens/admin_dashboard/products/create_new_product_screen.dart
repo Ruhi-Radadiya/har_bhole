@@ -6,7 +6,7 @@ import 'package:har_bhole/main.dart';
 import '../../../component/textfield.dart';
 
 class CreateProductScreen extends StatefulWidget {
-  CreateProductScreen({super.key});
+  const CreateProductScreen({super.key});
 
   @override
   State<CreateProductScreen> createState() => _CreateProductScreenState();
@@ -16,40 +16,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final List<String> categories = ["0", "1", "2"];
-
-  Future<void> selectManufacturingDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: createProductController.selectedManufacturingDate.value,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      createProductController.selectedManufacturingDate.value = picked;
-      createProductController.manufacturingDateController.text =
-          "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
-    }
-  }
-
-  Future<void> selectExpiryDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: createProductController.selectedExpiryDate.value,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-
-    if (picked != null) {
-      createProductController.selectedExpiryDate.value = picked;
-      createProductController.expiryDateController.text =
-          "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
-    }
-  }
-
-  void _toggleTag(String tag) {
-    createProductController.toggleTag(tag);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,15 +42,15 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(Get.width / 25), // inner padding
+                  padding: EdgeInsets.all(Get.width / 25),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20), // rounded corners
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1), // shadow color
+                        color: Colors.black.withOpacity(0.2),
                         blurRadius: 10,
-                        offset: Offset(0, 5), // vertical offset
+                        offset: Offset(0, 5),
                       ),
                     ],
                   ),
@@ -202,7 +168,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         label: "Manufacturing date",
                         controller:
                             createProductController.manufacturingDateController,
-                        onTap: () => selectManufacturingDate(context),
+
                         hint: "Select Date",
                       ),
                       SizedBox(height: Get.height / 60),
@@ -210,7 +176,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         label: "Expiry date",
                         controller:
                             createProductController.expiryDateController,
-                        onTap: () => selectExpiryDate(context),
                         hint: "Select Date",
                       ),
                       SizedBox(height: Get.height / 60),
@@ -468,9 +433,15 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                               final success = await createProductController
                                   .createProduct();
                               if (success) {
+                                // ✅ Clear form fields
                                 _formKey.currentState!.reset();
                                 createProductController.clearFields();
-                                Get.back(); // ✅ go back after success
+
+                                // ✅ Refresh product list immediately
+                                productController.fetchProducts();
+
+                                // ✅ Navigate back
+                                Get.back();
                               }
                             }
                           },

@@ -123,23 +123,6 @@ class CreateNewUserScreen extends StatelessWidget {
                           controller:
                               createUserController.joiningDateController,
                           hint: 'Select Date',
-                          onTap: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (picked != null) {
-                              final formattedDate =
-                                  "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-
-                              createUserController.joiningDateController.text =
-                                  formattedDate;
-                              createUserController.joiningDate.value =
-                                  formattedDate;
-                            }
-                          },
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(

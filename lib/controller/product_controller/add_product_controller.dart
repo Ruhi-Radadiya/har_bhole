@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class CreateProductController extends GetxController {
-  // ===== Old fields (for backward compatibility with UI) =====
+  // ===== Old fields =====
   final productCodeController = TextEditingController();
   final manufacturingDateController = TextEditingController();
   final expiryDateController = TextEditingController();
@@ -48,10 +50,23 @@ class CreateProductController extends GetxController {
   final vitaminDController = TextEditingController();
   final cholesterolController = TextEditingController();
 
-  // ===== POST PRODUCT =====
+  // ===== Image =====
+  File? selectedImage;
+
+  void setImage(File image) {
+    selectedImage = image;
+  }
+
+  // ===== POST PRODUCT WITH IMAGE =====
   Future<bool> createProduct() async {
     try {
-      final Map<String, dynamic> body = {
+      final uri = Uri.parse(
+        "https://harbhole.eihlims.com/Api/product_api.php?action=add",
+      );
+      final request = http.MultipartRequest('POST', uri);
+
+      // Add text fields
+      final Map<String, String> fields = {
         "product_name": productNameController.text,
         "category_id": selectedCategory.value,
         "stock_quantity": stockController.text,
@@ -68,13 +83,10 @@ class CreateProductController extends GetxController {
             .toIso8601String()
             .split('T')[0],
         "expiry_date": selectedExpiryDate.value.toIso8601String().split('T')[0],
-
         "stock_status": "1",
         "ingredients": ingredientsListController.text,
         "tags": selectedTags.isEmpty ? "" : selectedTags.join(","),
         "status": "1",
-
-        // Nutritional info
         "energy_kcal":
             double.tryParse(energyController.text)?.toStringAsFixed(2) ??
             "0.00",
@@ -122,18 +134,27 @@ class CreateProductController extends GetxController {
         "cholesterol_mg":
             double.tryParse(cholesterolController.text)?.toStringAsFixed(2) ??
             "0.00",
+        "created_by": "1",
       };
 
-      print("📦 Sending data: $body");
+      request.fields.addAll(fields);
 
-      final response = await http.post(
-        Uri.parse(
-          "https://harbhole.eihlims.com/Api/product_api.php?action=add",
-        ),
-        body: body.map((key, value) => MapEntry(key, value.toString())),
-      );
+      // Add image if selected
+      if (selectedImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image', // API key for image
+            selectedImage!.path,
+          ),
+        );
+      }
 
-      print("🔁 Response: ${response.statusCode} ${response.body}");
+      // Send request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print("🔁 Status: ${response.statusCode}");
+      print("🔁 Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar(
@@ -199,5 +220,6 @@ class CreateProductController extends GetxController {
     selectedCategory.value = "1";
     selectedTags.clear();
     isActive.value = true;
+    selectedImage = null;
   }
 }

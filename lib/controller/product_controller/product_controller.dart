@@ -8,13 +8,11 @@ import '../../model/product_model/product_model.dart';
 class ProductController extends GetxController {
   static ProductController get instance => Get.find();
 
-  // Observables
   RxList<Product> productList = <Product>[].obs;
   RxBool isLoading = false.obs;
   RxString errorMessage = ''.obs;
   RxList<Product> filteredProducts = <Product>[].obs;
 
-  // API URL
   final String apiUrl =
       'https://harbhole.eihlims.com/Api/product_api.php?action=list';
 
@@ -41,24 +39,17 @@ class ProductController extends GetxController {
 
         if (jsonResponse['success'] == true && jsonResponse['items'] != null) {
           final List<dynamic> items = jsonResponse['items'];
-          final allProducts = items.map((e) => Product.fromJson(e)).toList();
+          final allProducts = items
+              .map((e) => Product.fromJson(e as Map<String, dynamic>))
+              .toList();
 
-          // ✅ Keep only unique products by productName (or productId if available)
-          final Map<String, Product> uniqueProducts = {};
-          for (var p in allProducts) {
-            uniqueProducts[p.productName] = p; // or use p.productId
-          }
-
-          productList.value = uniqueProducts.values.toList();
-
-          // Populate filteredProducts by default
+          productList.value = allProducts;
           filteredProducts.value = List<Product>.from(productList);
         } else {
           errorMessage.value = jsonResponse['message'] ?? 'No products found';
         }
       } else {
         errorMessage.value = 'Failed to load products: ${response.statusCode}';
-        print('Failed to load products: ${response.statusCode}');
       }
     } catch (e) {
       errorMessage.value = 'Error: $e';
@@ -70,7 +61,6 @@ class ProductController extends GetxController {
 
   void searchProducts(String query) {
     if (query.isEmpty) {
-      // Reset to all products
       filteredProducts.value = productList;
     } else {
       final lowerQuery = query.toLowerCase().trim();

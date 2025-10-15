@@ -5,6 +5,7 @@ import 'package:har_bhole/routes/routes.dart';
 import 'package:har_bhole/view/component/textfield.dart';
 
 import '../../../../main.dart';
+import '../../../../model/voucher_model/voucher_model.dart';
 
 class GeneralVouchersScreen extends StatelessWidget {
   const GeneralVouchersScreen({super.key});
@@ -86,7 +87,9 @@ class GeneralVouchersScreen extends StatelessWidget {
                     height: Get.height / 18,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.toNamed(Routes.addVoucherScreen);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xffF78520),
                         shape: RoundedRectangleBorder(
@@ -95,7 +98,7 @@ class GeneralVouchersScreen extends StatelessWidget {
                         elevation: 0,
                       ),
                       child: Text(
-                        'Voucher',
+                        '+ Add Voucher',
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 22.5,
@@ -219,12 +222,12 @@ class GeneralVouchersScreen extends StatelessWidget {
                                       final v = vouchersController
                                           .filteredVouchers[index];
                                       return voucherRow(
-                                        voucherCode:
-                                            v.voucherNo ?? v.voucherCode ?? '',
-                                        amount: "₹${v.amount}",
-                                        status: v.status ?? 'Pending',
+                                        voucher: v,
                                         onViewDetails: () {
-                                          Get.toNamed(Routes.viewVouchers);
+                                          Get.toNamed(
+                                            Routes.viewVouchers,
+                                            arguments: v,
+                                          ); // pass voucher if needed
                                         },
                                       );
                                     },
@@ -247,9 +250,7 @@ class GeneralVouchersScreen extends StatelessWidget {
   }
 
   Widget voucherRow({
-    required String voucherCode,
-    required String amount,
-    required String status,
+    required Voucher voucher,
     required VoidCallback onViewDetails,
   }) {
     return Column(
@@ -259,11 +260,12 @@ class GeneralVouchersScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Left Column: Voucher info
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    voucherCode,
+                    voucher.voucherCode ?? voucher.voucherNo ?? '-',
                     style: TextStyle(
                       fontSize: Get.width / 26,
                       fontWeight: FontWeight.w600,
@@ -271,7 +273,7 @@ class GeneralVouchersScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    amount,
+                    "Amount: ₹${voucher.amount}",
                     style: TextStyle(
                       fontSize: Get.width / 28,
                       color: Colors.grey.shade700,
@@ -279,6 +281,8 @@ class GeneralVouchersScreen extends StatelessWidget {
                   ),
                 ],
               ),
+
+              // Right Column: Status & Details
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -288,16 +292,16 @@ class GeneralVouchersScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: status.toLowerCase() == "approved"
+                      color: (voucher.status?.toLowerCase() == "approved")
                           ? const Color(0xffDCE1D7)
                           : Colors.orange.shade100,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(
-                      status,
+                      voucher.status ?? '',
                       style: TextStyle(
                         fontSize: Get.width / 33,
-                        color: status.toLowerCase() == "approved"
+                        color: (voucher.status?.toLowerCase() == "approved")
                             ? const Color(0xff4E6B37)
                             : Colors.orange,
                       ),

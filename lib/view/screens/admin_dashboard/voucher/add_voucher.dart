@@ -1,36 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
 import '../../../component/textfield.dart';
 
-class ViewVouchersScreen extends StatelessWidget {
-  ViewVouchersScreen({super.key});
+class AddVouchersScreen extends StatefulWidget {
+  const AddVouchersScreen({super.key});
 
-  final dateController = TextEditingController(text: '25 Aug 2025');
-  final amountController = TextEditingController(text: '6010.00');
-  final voucherNoController = TextEditingController(text: 'CHB/(PAY)/0002');
-  final refNoController = TextEditingController(text: '69');
-  final bankNameController = TextEditingController(text: 'hdfc');
-  final accountNoController = TextEditingController(text: '1234567890');
-  final transactionNoController = TextEditingController(text: '5875');
-  final descriptionController = TextEditingController(text: 'avghalkash');
-  final priceController = TextEditingController(text: '500');
-  final lineTotalController = TextEditingController(text: '5000.00');
-  final billToController = TextEditingController(text: 'gjbfcjchbdskskc');
+  @override
+  State<AddVouchersScreen> createState() => _AddVouchersScreenState();
+}
 
-  final String selectedType = 'Journal';
-  final String selectedPaymentMode = 'UPI';
-  final String selectedStatus = 'Approved';
+class _AddVouchersScreenState extends State<AddVouchersScreen> {
+  // Inject controller
+  String selectedType = 'Journal';
+  String selectedPaymentMode = 'Cash';
+  String selectedStatus = 'Active';
   final List<String> statusOptions = const ['Approved', 'Pending', 'Rejected'];
-  final String qtyValue = '1';
+  int qtyValue = 1;
 
   @override
   Widget build(BuildContext context) {
     const Color mainOrange = Color(0xffF78520);
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Column(
@@ -54,7 +48,7 @@ class ViewVouchersScreen extends StatelessWidget {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'View Vouchers',
+                        'Add Vouchers',
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             color: Colors.black,
@@ -92,7 +86,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Update Voucher',
+                            'add Voucher',
                             style: GoogleFonts.poppins(
                               textStyle: TextStyle(
                                 fontSize: Get.width / 20,
@@ -101,31 +95,16 @@ class ViewVouchersScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Text(
-                            'Edit',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 22.5,
-                                fontWeight: FontWeight.w600,
-                                color: mainOrange,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       SizedBox(height: Get.height / 50),
 
-                      CustomTextField(
+                      CustomDateField(
                         label: 'Date',
-                        hint: '25 Aug 2025',
-                        controller: dateController,
-                        suffixIcon: const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color(0xff858585),
-                        ),
-                        isReadOnly: true,
+                        controller: addVoucherController.voucherDateController,
                       ),
 
+                      SizedBox(height: Get.height / 60),
                       _buildChipSelector(
                         label: 'Type',
                         options: const ['Journal', 'Payment', 'Receipt'],
@@ -134,18 +113,19 @@ class ViewVouchersScreen extends StatelessWidget {
                           Color(0xff4E6B37),
                           Color(0xffA67014),
                           Color(0xffB52934),
-                        ], // unique color for each
+                        ],
+                        onSelect: (value) {
+                          setState(() => selectedType = value);
+                          addVoucherController.voucherTypeController.text =
+                              value; // important!
+                        },
                       ),
 
                       CustomTextField(
                         label: 'Amount',
                         hint: '6010.00',
-                        controller: amountController,
+                        controller: addVoucherController.amountController,
                         keyboardType: TextInputType.number,
-                        suffixIcon: const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color(0xff858585),
-                        ),
                       ),
 
                       _buildChipSelector(
@@ -153,38 +133,44 @@ class ViewVouchersScreen extends StatelessWidget {
                         options: const ['UPI', 'Cash', 'NetBanking', 'Card'],
                         selectedValue: selectedPaymentMode,
                         optionColors: [
-                          Color(0xff000000),
-                          Color(0xff000000),
-                          Color(0xff000000),
-                          Color(0xff000000),
+                          Colors.black,
+                          Colors.black,
+                          Colors.black,
+                          Colors.black,
                         ],
+                        onSelect: (value) {
+                          setState(() => selectedPaymentMode = value);
+                          addVoucherController.paymentModeController.text =
+                              value;
+                        },
                       ),
 
                       CustomTextField(
                         label: 'Voucher No.',
                         hint: 'CHB/(PAY)/0002',
-                        controller: voucherNoController,
+                        controller: addVoucherController.voucherTypeController,
                       ),
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: 'Reference No',
                         hint: '69',
-                        controller: refNoController,
+                        controller: addVoucherController.referenceNoController,
                       ),
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: 'Bank Name',
                         hint: 'hdfc',
-                        controller: bankNameController,
+                        controller: addVoucherController.bankNameController,
                       ),
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: 'Account Number',
                         hint: '1234567890',
-                        controller: accountNoController,
+                        controller:
+                            addVoucherController.accountNumberController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -192,7 +178,8 @@ class ViewVouchersScreen extends StatelessWidget {
                       CustomTextField(
                         label: 'Transaction No',
                         hint: '5875',
-                        controller: transactionNoController,
+                        controller:
+                            addVoucherController.transactionNumberController,
                       ),
                       SizedBox(height: Get.height / 60),
 
@@ -213,52 +200,125 @@ class ViewVouchersScreen extends StatelessWidget {
                       CustomTextField(
                         label: 'Description',
                         hint: 'avghalkash',
-                        controller: descriptionController,
+                        controller: addVoucherController.descriptionController,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       _buildQtyField(),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: 'Price',
                         hint: '500',
-                        controller: priceController,
+                        controller: addVoucherController
+                            .amountController, // reused amount
                         keyboardType: TextInputType.number,
                         icon: Icons.currency_rupee,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: 'Line Total',
                         hint: '5000.00',
-                        controller: lineTotalController,
+                        controller: addVoucherController.amountController,
                         keyboardType: TextInputType.number,
-                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 60),
-
-                      CustomTextField(
-                        label: 'Voucher No.',
-                        hint: 'CHB/(PAY)/0002',
-                        controller: TextEditingController(
-                          text: 'CHB/(PAY)/0002',
+                      Text(
+                        'Action',
+                        style: TextStyle(
+                          fontSize: Get.width / 26,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: Get.height / 18,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  addVoucherController.addItem(
+                                    addVoucherController
+                                        .descriptionController
+                                        .text,
+                                    addVoucherController.qtyValue.value,
+                                    double.tryParse(
+                                          addVoucherController
+                                              .amountController
+                                              .text,
+                                        ) ??
+                                        0,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xff88A940),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  'Save',
+                                  style: GoogleFonts.poppins(
+                                    textStyle: TextStyle(
+                                      fontSize: Get.width / 22.5,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: Get.width / 40),
+                          Expanded(
+                            child: SizedBox(
+                              height: Get.height / 18,
+                              child: ElevatedButton(
+                                onPressed: addVoucherController.clearForm,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xffD93031),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  'Cancel',
+                                  style: GoogleFonts.poppins(
+                                    textStyle: TextStyle(
+                                      fontSize: Get.width / 22.5,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Reference No',
                         hint: '69',
-                        controller: TextEditingController(text: '69'),
+                        controller: addVoucherController.referenceNoController,
                       ),
                       SizedBox(height: Get.height / 50),
-
                       SizedBox(
                         height: Get.height / 18,
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            addVoucherController.addItem(
+                              addVoucherController.descriptionController.text,
+                              qtyValue,
+                              double.tryParse(
+                                    addVoucherController.amountController.text,
+                                  ) ??
+                                  0,
+                            );
+                          },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: mainOrange, width: 2),
                             shape: RoundedRectangleBorder(
@@ -279,7 +339,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         height: Get.height / 18,
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: addVoucherController.clearForm,
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: mainOrange, width: 2),
                             shape: RoundedRectangleBorder(
@@ -299,31 +359,49 @@ class ViewVouchersScreen extends StatelessWidget {
                       CustomTextField(
                         label: 'Bill To',
                         hint: 'gjbfcjchbdskskc',
-                        controller: billToController,
+                        controller: addVoucherController.amountController,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       UploadFileField(
                         label: 'Reference Document (image/pdf)',
-                        onFileSelected: (path) {},
+                        onFileSelected: (path) {
+                          addVoucherController.referenceDocController.text =
+                              path;
+                        },
                       ),
-
-                      CustomDropdownField<String>(
-                        label: 'Status',
-                        items: statusOptions,
-                        value: selectedStatus,
-                        getLabel: (status) => status,
-                        onChanged: (newValue) {},
-                        hint: 'Select Status',
+                      SizedBox(height: Get.height / 60),
+                      Obx(
+                        () => CustomDropdownField<String>(
+                          label: 'Status',
+                          items: addVoucherController.statusOptions,
+                          value:
+                              addVoucherController.selectedStatus.value.isEmpty
+                              ? null
+                              : addVoucherController.selectedStatus.value,
+                          getLabel: (status) => status,
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              addVoucherController.selectedStatus.value =
+                                  newValue;
+                            }
+                          },
+                          hint: 'Select Status',
+                        ),
                       ),
 
                       SizedBox(height: Get.height / 50),
-
                       SizedBox(
                         height: Get.height / 18,
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            addVoucherController.voucherTypeController.text =
+                                selectedType;
+                            addVoucherController.paymentModeController.text =
+                                selectedPaymentMode;
+                            await addVoucherController.submitVoucher();
+                            vouchersController.fetchVouchers();
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: mainOrange,
                             shape: RoundedRectangleBorder(
@@ -332,7 +410,7 @@ class ViewVouchersScreen extends StatelessWidget {
                             elevation: 0,
                           ),
                           child: Text(
-                            'Update Vouchers',
+                            'Save Vouchers',
                             style: GoogleFonts.poppins(
                               textStyle: TextStyle(
                                 fontSize: Get.width / 22.5,
@@ -361,8 +439,10 @@ class ViewVouchersScreen extends StatelessWidget {
     required List<String> options,
     required String selectedValue,
     required List<Color> optionColors,
+    required void Function(String) onSelect,
   }) {
     const Color mainOrange = Color(0xffF78520);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -386,9 +466,7 @@ class ViewVouchersScreen extends StatelessWidget {
             final isSelected = option == selectedValue;
 
             return InkWell(
-              onTap: () {
-                // handle selection
-              },
+              onTap: () => onSelect(option),
               borderRadius: BorderRadius.circular(8),
               child: Container(
                 padding: EdgeInsets.symmetric(
@@ -396,7 +474,9 @@ class ViewVouchersScreen extends StatelessWidget {
                   vertical: Get.height / 150,
                 ),
                 decoration: BoxDecoration(
-                  color: Color(0xffF7F3F1),
+                  color: isSelected
+                      ? mainOrange.withOpacity(0.2)
+                      : Color(0xffF7F3F1),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Text(
@@ -429,51 +509,42 @@ class ViewVouchersScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: Get.width / 26,
             fontWeight: FontWeight.w500,
-            color: Color(0xff000000),
           ),
         ),
         SizedBox(height: Get.height / 150),
         Container(
           height: Get.height / 20,
-          width: Get.width / 3, // Constrained width as in the image
+          width: Get.width / 3,
           decoration: BoxDecoration(
-            color: const Color(0xffF3F7FC),
-            borderRadius: BorderRadius.circular(12.0),
+            color: Color(0xffF3F7FC),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Minus Button
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  if (qtyValue > 1) setState(() => qtyValue--);
+                },
                 child: Container(
                   width: Get.width / 15,
                   alignment: Alignment.center,
-                  child: Icon(
-                    Icons.remove,
-                    size: 18,
-                    color: Colors.grey.shade700,
-                  ),
+                  child: Icon(Icons.remove, size: 18),
                 ),
               ),
-              // QTY Value
               Text(
-                qtyValue,
-                style: GoogleFonts.poppins(
-                  textStyle: TextStyle(
-                    fontSize: Get.width / 30,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                '$qtyValue',
+                style: TextStyle(
+                  fontSize: Get.width / 30,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              // Plus Button
               InkWell(
-                onTap: () {},
+                onTap: () => setState(() => qtyValue++),
                 child: Container(
                   width: Get.width / 15,
                   alignment: Alignment.center,
-                  child: const Icon(Icons.add, size: 18, color: mainOrange),
+                  child: Icon(Icons.add, size: 18, color: mainOrange),
                 ),
               ),
             ],

@@ -84,7 +84,9 @@ class Product {
       productImage:
           json['product_image']?.toString() ?? 'asset/images/home/khaman.png',
       categoryName: json['category_name']?.toString() ?? '',
-      nutritionalInfo: NutritionalInfo.fromJson(json['nutritional_info'] ?? {}),
+      nutritionalInfo: (json['nutritional_info'] is Map<String, dynamic>)
+          ? NutritionalInfo.fromJson(json['nutritional_info'])
+          : NutritionalInfo.fromJson({}),
     );
   }
 }

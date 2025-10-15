@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../main.dart';
 import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
@@ -96,33 +99,63 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                       _buildSectionHeader('Add New Finished Good'),
                       CustomTextField(
                         label: 'Product Code',
-                        hint: 'FG011',
+                        hint: '',
                         isReadOnly: true,
+                        controller: addFinishedGoodsStockController
+                            .productCodeController,
                       ),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Product Name',
                         hint: 'Enter Product Name',
+                        controller: addFinishedGoodsStockController
+                            .productNameController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField<String>(
-                        label: 'Category',
-                        items: const ['Category A', 'Category B', 'Category C'],
-                        value: _selectedCategory,
-                        getLabel: (val) => val,
-                        onChanged: (val) {},
-                        hint: 'Select Category',
+                      Obx(
+                        () => CustomDropdownField<String>(
+                          label: 'Category',
+                          items: const [
+                            'Category A',
+                            'Category B',
+                            'Category C',
+                          ],
+                          value:
+                              addFinishedGoodsStockController
+                                  .selectedCategory
+                                  .value
+                                  .isEmpty
+                              ? null
+                              : addFinishedGoodsStockController
+                                    .selectedCategory
+                                    .value,
+                          getLabel: (val) => val,
+                          onChanged: (val) {
+                            addFinishedGoodsStockController
+                                    .selectedCategory
+                                    .value =
+                                val ?? '';
+                          },
+                          hint: 'Select Category',
+                        ),
                       ),
+
                       SizedBox(height: Get.height / 60),
                       UploadFileField(
                         label: 'Product Image',
-                        onFileSelected: (path) {},
+                        onFileSelected: (path) {
+                          addFinishedGoodsStockController.selectedImage.value =
+                              File(path);
+                        },
                       ),
+
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Description',
                         hint: 'Enter Product discription or note',
                         maxLines: 2,
+                        controller: addFinishedGoodsStockController
+                            .descriptionController,
                       ),
                       SizedBox(height: Get.height / 60),
                       _buildSectionHeader(
@@ -138,16 +171,34 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                           'Semi-Finished Mat B',
                           'Semi-Finished Mat C',
                         ],
-                        value: _selectedRawMaterial,
+                        value:
+                            addFinishedGoodsStockController
+                                .selectedRawMaterial
+                                .value
+                                .isEmpty
+                            ? null
+                            : addFinishedGoodsStockController
+                                  .selectedRawMaterial
+                                  .value,
                         getLabel: (val) => val,
-                        onChanged: (val) {},
+                        onChanged: (val) {
+                          if (val != null) {
+                            addFinishedGoodsStockController
+                                    .selectedRawMaterial
+                                    .value =
+                                val;
+                          }
+                        },
                         hint: 'Select Semi-Finished Material',
                       ),
+
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Quantity Required',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
+                        controller: addFinishedGoodsStockController
+                            .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
@@ -171,25 +222,28 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                         onActionTap: () {},
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField<String>(
+                      CustomTextField(
                         label: 'Unit of Measure',
-                        items: const ['Type A', 'Type B', 'Type C'],
-                        value: _selectedOutputType,
-                        getLabel: (val) => val,
-                        onChanged: (val) {},
-                        hint: 'Select Unit',
+                        hint: 'Enter Unit',
+                        controller: addFinishedGoodsStockController
+                            .unitOfMeasureController,
                       ),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Quantity Produced',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
+                        controller: addFinishedGoodsStockController
+                            .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Total Weight (grams)',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
+                        controller: addFinishedGoodsStockController
+                            .totalWeightController,
+                        isReadOnly: true,
                       ),
                       _buildSectionHeader(
                         'Variants (Weight-wise)',
@@ -197,26 +251,31 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                         onActionTap: () {},
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomDropdownField<String>(
+                      CustomTextField(
                         label: 'Weight (grams)',
-                        items: const ['Type A', 'Type B', 'Type C'],
-                        value: _selectedOutputType,
-                        getLabel: (val) => val,
-                        onChanged: (val) {},
-                        hint: 'e.g. 250 ',
+                        hint: 'e.g. 250',
+                        keyboardType: TextInputType.number,
+                        controller: addFinishedGoodsStockController
+                            .weightGramsController,
                       ),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Quantity (units)',
                         hint: '0',
                         keyboardType: TextInputType.number,
+                        controller: addFinishedGoodsStockController
+                            .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Total Weight (grams)',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
+                        controller: addFinishedGoodsStockController
+                            .totalWeightController,
+                        isReadOnly: true,
                       ),
+
                       SizedBox(height: Get.height / 60),
                       _buildSectionHeader(
                         'Ingredients',
@@ -228,26 +287,39 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                         label: 'Ingredients List',
                         hint: 'List all Ingredients....',
                         maxLines: 2,
+                        controller: addFinishedGoodsStockController
+                            .descriptionController,
                       ),
                       SizedBox(height: Get.height / 30),
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffF78520),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        child: Obx(
+                          () => ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xffF78520),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "Create Finished Goods",
-                            style: GoogleFonts.poppins(
-                              fontSize: Get.width / 22.5,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            onPressed:
+                                addFinishedGoodsStockController.isLoading.value
+                                ? null
+                                : () {
+                                    addFinishedGoodsStockController
+                                        .addFinishedGood();
+                                  },
+                            child:
+                                addFinishedGoodsStockController.isLoading.value
+                                ? CircularProgressIndicator(color: Colors.white)
+                                : Text(
+                                    "Create Finished Goods",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: Get.width / 22.5,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
