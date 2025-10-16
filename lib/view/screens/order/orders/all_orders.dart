@@ -130,7 +130,7 @@ class AllOrders extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        'Expot CSV',
+                        'Export CSV',
                         style: TextStyle(
                           color: Color(0xffF78520),
                           fontWeight: FontWeight.bold,

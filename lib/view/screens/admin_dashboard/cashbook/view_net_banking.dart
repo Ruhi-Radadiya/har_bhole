@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
 import '../../../../model/cashbook_model/cashbook_model.dart';
 import '../../../component/textfield.dart';
@@ -215,13 +216,75 @@ class _ViewNetbankingScreenState extends State<ViewNetbankingScreen> {
                               ),
                             )
                           : Container(),
-
-                      SizedBox(height: Get.height / 40),
+                      SizedBox(height: Get.height / 30),
+                      SizedBox(
+                        height: Get.height / 18,
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Get.defaultDialog(
+                              title: "Delete Entry",
+                              titleStyle: TextStyle(
+                                color: const Color(0xffF78520),
+                                fontWeight: FontWeight.bold,
+                                fontSize: Get.width / 20,
+                              ),
+                              backgroundColor: Colors.white,
+                              radius: 20,
+                              barrierDismissible: false,
+                              content: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: Get.width / 20,
+                                  vertical: Get.height / 50,
+                                ),
+                                child: Text(
+                                  "Are you sure you want to delete this entry?",
+                                  style: TextStyle(
+                                    color: const Color(0xffF78520),
+                                    fontSize: Get.width / 30,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              textConfirm: "Yes",
+                              textCancel: "No",
+                              confirmTextColor: const Color(0xffF78520),
+                              cancelTextColor: const Color(0xffF78520),
+                              buttonColor: Colors.white,
+                              onConfirm: () async {
+                                await cashEntryController.deleteCashbookEntry(
+                                  entry.entryId,
+                                );
+                                if (Get.isDialogOpen ?? false) Get.back();
+                                Get.back(); // go back after deletion
+                              },
+                              onCancel: () {
+                                if (Get.isDialogOpen ?? false) Get.back();
+                              },
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Color(0xffF78520),
+                              width: 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(color: const Color(0xffF78520)),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
+            SizedBox(height: Get.height / 40),
           ],
         ),
       ),

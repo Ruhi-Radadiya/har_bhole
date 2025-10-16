@@ -1,82 +1,108 @@
 class NutritionalInfo {
-  final int energyKcal;
-  final int proteinG;
-  final int totalFatG;
-  final int carbohydrateG;
-  final int totalSugarG;
-  final int saturatedFatG;
-  final int monounsaturatedFatG;
-  final int polyunsaturatedFatG;
-  final int sodiumMg;
-  final double ironMg;
-  final int calciumMg;
-  final int fiberG;
-  final int cholesterolMg;
-  final int vitaminCMg;
-  final int vitaminDMcg;
+  final double? energyKcal;
+  final double? proteinG;
+  final double? totalFatG;
+  final double? carbohydrateG;
+  final double? totalSugarG;
+  final double? saturatedFatG;
+  final double? monounsaturatedFatG;
+  final double? polyunsaturatedFatG;
+  final double? sodiumMg;
+  final double? ironMg;
+  final double? calciumMg;
+  final double? fiberG;
+  final double? cholesterolMg;
+  final double? vitaminCMg;
+  final double? vitaminDMcg;
 
   NutritionalInfo({
-    required this.energyKcal,
-    required this.proteinG,
-    required this.totalFatG,
-    required this.carbohydrateG,
-    required this.totalSugarG,
-    required this.saturatedFatG,
-    required this.monounsaturatedFatG,
-    required this.polyunsaturatedFatG,
-    required this.sodiumMg,
-    required this.ironMg,
-    required this.calciumMg,
-    required this.fiberG,
-    required this.cholesterolMg,
-    required this.vitaminCMg,
-    required this.vitaminDMcg,
+    this.energyKcal,
+    this.proteinG,
+    this.totalFatG,
+    this.carbohydrateG,
+    this.totalSugarG,
+    this.saturatedFatG,
+    this.monounsaturatedFatG,
+    this.polyunsaturatedFatG,
+    this.sodiumMg,
+    this.ironMg,
+    this.calciumMg,
+    this.fiberG,
+    this.cholesterolMg,
+    this.vitaminCMg,
+    this.vitaminDMcg,
   });
 
   factory NutritionalInfo.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic val) {
+      if (val == null) return 0.0;
+      if (val is num) return val.toDouble();
+      return double.tryParse(val.toString()) ?? 0.0;
+    }
+
     return NutritionalInfo(
-      energyKcal: (json['energy_kcal'] as num?)?.toInt() ?? 0,
-      proteinG: (json['protein_g'] as num?)?.toInt() ?? 0,
-      totalFatG: (json['total_fat_g'] as num?)?.toInt() ?? 0,
-      carbohydrateG: (json['carbohydrate_g'] as num?)?.toInt() ?? 0,
-      totalSugarG: (json['total_sugar_g'] as num?)?.toInt() ?? 0,
-      saturatedFatG: (json['saturated_fat_g'] as num?)?.toInt() ?? 0,
-      monounsaturatedFatG:
-          (json['monounsaturated_fat_g'] as num?)?.toInt() ?? 0,
-      polyunsaturatedFatG:
-          (json['polyunsaturated_fat_g'] as num?)?.toInt() ?? 0,
-      sodiumMg: (json['sodium_mg'] as num?)?.toInt() ?? 0,
-      ironMg: (json['iron_mg'] as num?)?.toDouble() ?? 0.0,
-      calciumMg: (json['calcium_mg'] as num?)?.toInt() ?? 0,
-      fiberG: (json['fiber_g'] as num?)?.toInt() ?? 0,
-      cholesterolMg: (json['cholesterol_mg'] as num?)?.toInt() ?? 0,
-      vitaminCMg: (json['vitamin_c_mg'] as num?)?.toInt() ?? 0,
-      vitaminDMcg: (json['vitamin_d_mcg'] as num?)?.toInt() ?? 0,
+      energyKcal: parseDouble(json['energy_kcal']),
+      proteinG: parseDouble(json['protein_g']),
+      totalFatG: parseDouble(json['total_fat_g']),
+      carbohydrateG: parseDouble(json['carbohydrate_g']),
+      totalSugarG: parseDouble(json['total_sugar_g']),
+      saturatedFatG: parseDouble(json['saturated_fat_g']),
+      monounsaturatedFatG: parseDouble(json['monounsaturated_fat_g']),
+      polyunsaturatedFatG: parseDouble(json['polyunsaturated_fat_g']),
+      sodiumMg: parseDouble(json['sodium_mg']),
+      ironMg: parseDouble(json['iron_mg']),
+      calciumMg: parseDouble(json['calcium_mg']),
+      fiberG: parseDouble(json['fiber_g']),
+      cholesterolMg: parseDouble(json['cholesterol_mg']),
+      vitaminCMg: parseDouble(json['vitamin_c_mg']),
+      vitaminDMcg: parseDouble(json['vitamin_d_mcg']),
     );
   }
 }
 
 class Product {
   final String productId;
+  final String productCode;
   final String productName;
+  final String variationName;
   final String variationValue;
   final String status;
   final String productImage;
   final String categoryName;
-  final double sellingPrice; // <-- add
-  final int stockQuantity; // <-- add
+  final double sellingPrice;
+  final double netWeight;
+  final double mrp;
+  final int stockQuantity;
+  final String manufacturingDate;
+  final String expiryDate;
+  final String ingredients;
+  final String description;
+  final String sku;
+  final double priceAdjustment;
   final NutritionalInfo nutritionalInfo;
+  final List<dynamic> variations;
 
   Product({
     required this.productId,
+    required this.productCode,
     required this.productName,
+    required this.variationName,
     required this.variationValue,
     required this.status,
     required this.productImage,
     required this.categoryName,
     required this.sellingPrice,
+    required this.netWeight,
+    required this.mrp,
     required this.stockQuantity,
+    required this.manufacturingDate,
+    required this.expiryDate,
+    required this.ingredients,
+    required this.description,
+    required this.sku,
+    required this.priceAdjustment,
     required this.nutritionalInfo,
+    required this.variations,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -94,17 +120,29 @@ class Product {
 
     return Product(
       productId: json['product_id']?.toString() ?? '',
+      productCode: json['product_code']?.toString() ?? '',
       productName: json['product_name']?.toString() ?? '',
+      variationName: json['variation_name']?.toString() ?? '',
       variationValue: json['variation_value']?.toString() ?? '',
       status: json['status']?.toString() ?? '0',
       productImage:
-          json['product_image']?.toString() ?? 'asset/images/home/khaman.png',
+          json['product_image']?.toString() ??
+          'https://harbhole.eihlims.com/images/no-image.png',
       categoryName: json['category_name']?.toString() ?? '',
       sellingPrice: parseDouble(json['selling_price']),
+      netWeight: parseDouble(json['net_weight']),
+      mrp: parseDouble(json['mrp']),
       stockQuantity: parseInt(json['stock_quantity']),
-      nutritionalInfo: (json['nutritional_info'] is Map<String, dynamic>)
+      manufacturingDate: json['manufacturing_date']?.toString() ?? '',
+      expiryDate: json['expiry_date']?.toString() ?? '',
+      ingredients: json['ingredients']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      sku: json['sku']?.toString() ?? '',
+      priceAdjustment: parseDouble(json['price_adjustment']),
+      nutritionalInfo: json['nutritional_info'] is Map<String, dynamic>
           ? NutritionalInfo.fromJson(json['nutritional_info'])
           : NutritionalInfo.fromJson({}),
+      variations: json['variations'] ?? [],
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/controller/b2b_order/b2b_order_controller.dart';
 import 'package:har_bhole/controller/b2b_order/delete_b2b_order_controller.dart';
 import 'package:har_bhole/controller/cashbook_controller/create_cashbook_entery_controller.dart';
+import 'package:har_bhole/controller/category_controller/edit_category_controller.dart';
 import 'package:har_bhole/controller/finished_goods_stock_controller/finished_goods_stock_controller.dart';
 import 'package:har_bhole/controller/product_controller/delete_product_controller.dart';
 import 'package:har_bhole/controller/product_controller/product_controller.dart';
@@ -20,11 +21,11 @@ import 'controller/b2b_user_controller/b2b_user_controller.dart';
 import 'controller/b2b_user_controller/create_b2b_user_controller.dart';
 import 'controller/cart_controller/order_controller.dart';
 import 'controller/cashbook_controller/cashbook_controller.dart';
+import 'controller/category_controller/category_controller.dart';
+import 'controller/category_controller/create_new_category_controller.dart';
+import 'controller/category_controller/delete_category_controller.dart';
 import 'controller/customer_detail_controller/customer_detail_controller.dart';
 import 'controller/finished_goods_stock_controller/add_finished_goods_stock_controller.dart';
-import 'controller/home_page_controllers/create_new_category_controller.dart';
-import 'controller/home_page_controllers/delete_category_controller.dart';
-import 'controller/home_page_controllers/premium_collection_controller.dart';
 import 'controller/orders_controller/orders_controller.dart';
 import 'controller/product_controller/add_product_controller.dart';
 import 'controller/raw_material_controller/add_raw_material_controller.dart';
@@ -88,6 +89,9 @@ DeleteCategoryController deleteCategoryController = Get.put(
 );
 DeleteB2BOrderController deleteB2BOrderController = Get.put(
   DeleteB2BOrderController(),
+);
+EditCategoryController editCategoryController = Get.put(
+  EditCategoryController(),
 );
 
 void main() async {

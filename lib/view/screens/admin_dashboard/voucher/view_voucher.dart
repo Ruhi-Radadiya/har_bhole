@@ -1,40 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
 
+import '../../../../model/voucher_model/voucher_model.dart';
 import '../../../component/textfield.dart';
+import 'add_voucher.dart';
 
 class ViewVouchersScreen extends StatelessWidget {
   ViewVouchersScreen({super.key});
 
-  final dateController = TextEditingController(text: '25 Aug 2025');
-  final amountController = TextEditingController(text: '6010.00');
-  final voucherNoController = TextEditingController(text: 'CHB/(PAY)/0002');
-  final refNoController = TextEditingController(text: '69');
-  final bankNameController = TextEditingController(text: 'hdfc');
-  final accountNoController = TextEditingController(text: '1234567890');
-  final transactionNoController = TextEditingController(text: '5875');
-  final descriptionController = TextEditingController(text: 'avghalkash');
-  final priceController = TextEditingController(text: '500');
-  final lineTotalController = TextEditingController(text: '5000.00');
-  final billToController = TextEditingController(text: 'gjbfcjchbdskskc');
+  final dateController = TextEditingController();
+  final amountController = TextEditingController();
+  final voucherNoController = TextEditingController();
+  final refNoController = TextEditingController();
+  final bankNameController = TextEditingController();
+  final accountNoController = TextEditingController();
+  final transactionNoController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final priceController = TextEditingController();
+  final lineTotalController = TextEditingController();
+  final billToController = TextEditingController();
 
-  final String selectedType = 'Journal';
-  final String selectedPaymentMode = 'UPI';
-  final String selectedStatus = 'Approved';
   final List<String> statusOptions = const ['Approved', 'Pending', 'Rejected'];
-  final String qtyValue = '1';
+  final List<String> voucherTypes = const ['Journal', 'Payment', 'Receipt'];
+  final List<String> paymentModes = const ['UPI', 'Cash', 'NetBanking', 'Card'];
 
   @override
   Widget build(BuildContext context) {
     const Color mainOrange = Color(0xffF78520);
+    final Voucher voucher = Get.arguments as Voucher;
+
+    // Initialize controllers with voucher data
+    dateController.text = voucher.voucherDate ?? '';
+    amountController.text = voucher.amount ?? '';
+    voucherNoController.text = voucher.voucherNo ?? '';
+    refNoController.text = voucher.referenceNo ?? '';
+    bankNameController.text = voucher.bankName ?? '';
+    accountNoController.text = voucher.accountNumber ?? '';
+    transactionNoController.text = voucher.transactionNumber ?? '';
+    descriptionController.text = voucher.description ?? '';
+    priceController.text = voucher.amount ?? '';
+    // lineTotalController.text = voucher. ?? '';
+    billToController.text = voucher.billTo ?? '';
+
+    String selectedType = voucher.voucherType ?? 'Journal';
+    String selectedPaymentMode = voucher.paymentMode ?? 'UPI';
+    final selectedStatus = (voucher.status ?? 'Pending').obs; // RxString
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Column(
           children: [
+            // Header
             Container(
               padding: EdgeInsets.only(
                 top: Get.height / 25,
@@ -54,7 +74,7 @@ class ViewVouchersScreen extends StatelessWidget {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'View Vouchers',
+                        'View Voucher',
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             color: Colors.black,
@@ -69,6 +89,8 @@ class ViewVouchersScreen extends StatelessWidget {
                 ],
               ),
             ),
+
+            // Body
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 30),
@@ -88,251 +110,147 @@ class ViewVouchersScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Update Voucher',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 20,
-                                fontWeight: FontWeight.bold,
-                                color: mainOrange,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Edit',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 22.5,
-                                fontWeight: FontWeight.w600,
-                                color: mainOrange,
-                              ),
-                            ),
-                          ),
-                        ],
+                      // Voucher Info
+                      CustomTextField(
+                        hint: 'Date',
+                        label: 'Date',
+                        controller: dateController,
+                        isReadOnly: true,
+                        suffixIcon: const Icon(Icons.calendar_today, size: 20),
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      _buildChipSelector(
+                        label: 'Type',
+                        options: voucherTypes,
+                        selectedValue: selectedType,
                       ),
                       SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Date',
-                        hint: '25 Aug 2025',
-                        controller: dateController,
-                        suffixIcon: const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color(0xff858585),
-                        ),
-                        isReadOnly: true,
-                      ),
-
-                      _buildChipSelector(
-                        label: 'Type',
-                        options: const ['Journal', 'Payment', 'Receipt'],
-                        selectedValue: selectedType,
-                        optionColors: [
-                          Color(0xff4E6B37),
-                          Color(0xffA67014),
-                          Color(0xffB52934),
-                        ], // unique color for each
-                      ),
-
-                      CustomTextField(
-                        label: 'Amount',
                         hint: '6010.00',
+                        label: 'Amount',
                         controller: amountController,
                         keyboardType: TextInputType.number,
-                        suffixIcon: const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color(0xff858585),
-                        ),
                       ),
+                      SizedBox(height: Get.height / 50),
 
                       _buildChipSelector(
                         label: 'Payment Mode',
-                        options: const ['UPI', 'Cash', 'NetBanking', 'Card'],
+                        options: paymentModes,
                         selectedValue: selectedPaymentMode,
-                        optionColors: [
-                          Color(0xff000000),
-                          Color(0xff000000),
-                          Color(0xff000000),
-                          Color(0xff000000),
-                        ],
                       ),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Voucher No.',
                         hint: 'CHB/(PAY)/0002',
+                        label: 'Voucher No.',
                         controller: voucherNoController,
                       ),
-                      SizedBox(height: Get.height / 60),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Reference No',
                         hint: '69',
+                        label: 'Reference No.',
                         controller: refNoController,
                       ),
-                      SizedBox(height: Get.height / 60),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Bank Name',
                         hint: 'hdfc',
+                        label: 'Bank Name',
                         controller: bankNameController,
                       ),
-                      SizedBox(height: Get.height / 60),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Account Number',
                         hint: '1234567890',
+                        label: 'Account Number',
                         controller: accountNoController,
                         keyboardType: TextInputType.number,
                       ),
-                      SizedBox(height: Get.height / 60),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Transaction No',
                         hint: '5875',
+                        label: 'Transaction No.',
                         controller: transactionNoController,
                       ),
-                      SizedBox(height: Get.height / 60),
-
-                      Padding(
-                        padding: EdgeInsets.only(bottom: Get.height / 100),
-                        child: Text(
-                          'Items',
-                          style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                              fontSize: Get.width / 20,
-                              fontWeight: FontWeight.bold,
-                              color: mainOrange,
-                            ),
-                          ),
-                        ),
-                      ),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Description',
                         hint: 'avghalkash',
+                        label: 'Description',
                         controller: descriptionController,
+                        maxLines: 3,
                       ),
-                      SizedBox(height: Get.height / 60),
-
-                      _buildQtyField(),
-                      SizedBox(height: Get.height / 60),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
-                        label: 'Price',
                         hint: '500',
+                        label: 'Price',
                         controller: priceController,
                         keyboardType: TextInputType.number,
-                        icon: Icons.currency_rupee,
                       ),
-                      SizedBox(height: Get.height / 60),
+                      SizedBox(height: Get.height / 50),
 
                       CustomTextField(
+                        hint: '500',
                         label: 'Line Total',
-                        hint: '5000.00',
                         controller: lineTotalController,
                         keyboardType: TextInputType.number,
                         isReadOnly: true,
                       ),
-                      SizedBox(height: Get.height / 60),
-
-                      CustomTextField(
-                        label: 'Voucher No.',
-                        hint: 'CHB/(PAY)/0002',
-                        controller: TextEditingController(
-                          text: 'CHB/(PAY)/0002',
-                        ),
-                      ),
-                      SizedBox(height: Get.height / 60),
-
-                      CustomTextField(
-                        label: 'Reference No',
-                        hint: '69',
-                        controller: TextEditingController(text: '69'),
-                      ),
                       SizedBox(height: Get.height / 50),
 
-                      SizedBox(
-                        height: Get.height / 18,
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: mainOrange, width: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                          ),
-                          child: Text(
-                            'Add Item',
-                            style: GoogleFonts.poppins(
-                              color: mainOrange,
-                              fontSize: Get.width / 30,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: Get.height / 50),
-                      SizedBox(
-                        height: Get.height / 18,
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: mainOrange, width: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                          ),
-                          child: Text(
-                            'Clear All',
-                            style: GoogleFonts.poppins(
-                              color: mainOrange,
-                              fontSize: Get.width / 30,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: Get.height / 50),
                       CustomTextField(
+                        hint: 'avghalkash',
                         label: 'Bill To',
-                        hint: 'gjbfcjchbdskskc',
                         controller: billToController,
                       ),
-                      SizedBox(height: Get.height / 60),
+                      SizedBox(height: Get.height / 50),
 
                       UploadFileField(
                         label: 'Reference Document (image/pdf)',
-                        onFileSelected: (path) {},
+                        onFileSelected: (path) {
+                          // handle file
+                        },
                       ),
+                      SizedBox(height: Get.height / 50),
 
-                      CustomDropdownField<String>(
-                        label: 'Status',
-                        items: statusOptions,
-                        value: selectedStatus,
-                        getLabel: (status) => status,
-                        onChanged: (newValue) {},
-                        hint: 'Select Status',
+                      Obx(
+                        () => CustomDropdownField<String>(
+                          label: 'Status',
+                          items: statusOptions,
+                          value: selectedStatus.value,
+                          getLabel: (status) => status,
+                          onChanged: (newValue) {
+                            if (newValue != null)
+                              selectedStatus.value = newValue;
+                          },
+                          hint: 'Select Status',
+                        ),
                       ),
 
                       SizedBox(height: Get.height / 50),
-
                       SizedBox(
-                        height: Get.height / 18,
                         width: double.infinity,
+                        height: Get.height / 18,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // Navigate to AddVouchersScreen with voucher data
+                            Get.to(
+                              () => AddVouchersScreen(),
+                              arguments: voucher,
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: mainOrange,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.0),
                             ),
-                            elevation: 0,
                           ),
                           child: Text(
-                            'Update Vouchers',
+                            'Edit Voucher',
                             style: GoogleFonts.poppins(
                               textStyle: TextStyle(
                                 fontSize: Get.width / 22.5,
@@ -343,7 +261,73 @@ class ViewVouchersScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(height: Get.height / 80),
+                      SizedBox(height: Get.height / 50),
+                      SizedBox(
+                        height: Get.height / 18,
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Get.defaultDialog(
+                              title: "Delete Voucher",
+                              titleStyle: TextStyle(
+                                color: const Color(0xffF78520),
+                                fontWeight: FontWeight.bold,
+                                fontSize: Get.width / 20,
+                              ),
+                              backgroundColor: Colors.white,
+                              radius: 20,
+                              barrierDismissible: false,
+                              content: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: Get.width / 20,
+                                  vertical: Get.height / 50,
+                                ),
+                                child: Text(
+                                  "Are you sure you want to delete this voucher?",
+                                  style: TextStyle(
+                                    color: const Color(0xffF78520),
+                                    fontSize: Get.width / 30,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              textConfirm: "Yes",
+                              textCancel: "No",
+                              confirmTextColor: const Color(0xffF78520),
+                              cancelTextColor: const Color(0xffF78520),
+                              buttonColor: Colors.white,
+                              onConfirm: () async {
+                                // Call deleteVoucher and wait for it
+                                await addVoucherController.deleteVoucher(
+                                  voucher.voucherId,
+                                );
+
+                                // Close dialog first
+                                if (Get.isDialogOpen ?? false) Get.back();
+
+                                Get.back();
+                              },
+                              onCancel: () {
+                                if (Get.isDialogOpen ?? false) Get.back();
+                              },
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Color(0xffF78520),
+                              width: 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(color: const Color(0xffF78520)),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -360,7 +344,6 @@ class ViewVouchersScreen extends StatelessWidget {
     required String label,
     required List<String> options,
     required String selectedValue,
-    required List<Color> optionColors,
   }) {
     const Color mainOrange = Color(0xffF78520);
     return Column(
@@ -379,107 +362,33 @@ class ViewVouchersScreen extends StatelessWidget {
         SizedBox(height: Get.height / 150),
         Wrap(
           spacing: Get.width / 40,
-          runSpacing: Get.height / 150,
-          children: List.generate(options.length, (index) {
-            final option = options[index];
-            final optionColor = optionColors[index];
+          children: options.map((option) {
             final isSelected = option == selectedValue;
-
             return InkWell(
               onTap: () {
-                // handle selection
+                selectedValue = option;
               },
-              borderRadius: BorderRadius.circular(8),
               child: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: Get.width / 30,
                   vertical: Get.height / 150,
                 ),
                 decoration: BoxDecoration(
-                  color: Color(0xffF7F3F1),
+                  color: isSelected ? mainOrange : Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Text(
                   option,
-                  style: GoogleFonts.poppins(
-                    textStyle: TextStyle(
-                      fontSize: Get.width / 32,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? mainOrange : optionColor,
-                    ),
+                  style: TextStyle(
+                    fontSize: Get.width / 32,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : Colors.black,
                   ),
                 ),
               ),
             );
-          }),
+          }).toList(),
         ),
-        SizedBox(height: Get.height / 50),
-      ],
-    );
-  }
-
-  Widget _buildQtyField() {
-    const Color mainOrange = Color(0xffF78520);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'QTY',
-          style: TextStyle(
-            fontSize: Get.width / 26,
-            fontWeight: FontWeight.w500,
-            color: Color(0xff000000),
-          ),
-        ),
-        SizedBox(height: Get.height / 150),
-        Container(
-          height: Get.height / 20,
-          width: Get.width / 3, // Constrained width as in the image
-          decoration: BoxDecoration(
-            color: const Color(0xffF3F7FC),
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Minus Button
-              InkWell(
-                onTap: () {},
-                child: Container(
-                  width: Get.width / 15,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.remove,
-                    size: 18,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-              // QTY Value
-              Text(
-                qtyValue,
-                style: GoogleFonts.poppins(
-                  textStyle: TextStyle(
-                    fontSize: Get.width / 30,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              // Plus Button
-              InkWell(
-                onTap: () {},
-                child: Container(
-                  width: Get.width / 15,
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.add, size: 18, color: mainOrange),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: Get.height / 50),
       ],
     );
   }

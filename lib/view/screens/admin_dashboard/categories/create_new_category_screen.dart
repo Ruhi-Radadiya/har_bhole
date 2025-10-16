@@ -10,7 +10,9 @@ import '../../../../model/home_page_models/premium_collection_model.dart';
 import '../../../../view/component/textfield.dart';
 
 class CreateNewCategoryScreen extends StatefulWidget {
-  const CreateNewCategoryScreen({super.key});
+  final PremiumCollectionModel? existingCategory;
+
+  const CreateNewCategoryScreen({super.key, this.existingCategory});
 
   @override
   State<CreateNewCategoryScreen> createState() =>
@@ -21,9 +23,7 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
   final TextEditingController _categoryCodeController = TextEditingController();
   final TextEditingController _categoryNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _sortOrderController = TextEditingController(
-    text: "1",
-  );
+  final TextEditingController _sortOrderController = TextEditingController();
 
   var selectedCategoryType = "Main".obs;
   var selectedStatus = "Active".obs;
@@ -33,7 +33,26 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
   @override
   void initState() {
     super.initState();
-    _generateNextCategoryCode();
+    if (widget.existingCategory != null) {
+      // Pre-fill fields for edit
+      _categoryNameController.text = widget.existingCategory!.categoryName;
+      _categoryCodeController.text = widget.existingCategory!.categoryCode;
+      _descriptionController.text = widget.existingCategory!.description;
+      _sortOrderController.text = widget.existingCategory!.sortOrder;
+      selectedStatus.value = widget.existingCategory!.status == "1"
+          ? "Active"
+          : "Inactive";
+      showOnHome.value = widget.existingCategory!.showOnHome == "1"
+          ? "Yes"
+          : "No";
+      categoryImage = widget.existingCategory!.categoryImage ?? "default.png";
+      selectedCategoryType.value = widget.existingCategory!.parentId == null
+          ? "Main"
+          : "Sub";
+    } else {
+      _sortOrderController.text = "1";
+      _generateNextCategoryCode();
+    }
   }
 
   Future<void> _generateNextCategoryCode() async {
@@ -43,12 +62,10 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
           'https://harbhole.eihlims.com/Api/category_api.php?action=list',
         ),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final items = data['items'] as List<dynamic>;
 
-        // Filter only codes starting with 'CAT'
         final catCodes = items
             .map((e) => e['category_code'].toString())
             .where((code) => code.startsWith('CAT'))
@@ -59,13 +76,10 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
           return;
         }
 
-        // Extract numeric parts and find max
         final numbers = <int>[];
         for (var code in catCodes) {
           final numericPart = code.replaceAll(RegExp(r'[^0-9]'), '');
-          if (numericPart.isNotEmpty) {
-            numbers.add(int.parse(numericPart));
-          }
+          if (numericPart.isNotEmpty) numbers.add(int.parse(numericPart));
         }
 
         final maxNum = numbers.isNotEmpty
@@ -82,6 +96,93 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
     }
   }
 
+  Future<void> _saveCategory() async {
+    if (widget.existingCategory != null &&
+        _categoryCodeController.text.trim() !=
+            widget.existingCategory!.categoryCode) {
+      final exists = premiumCollectionController.premiumCollection.any(
+        (cat) => cat.categoryCode == _categoryCodeController.text.trim(),
+      );
+      if (exists) {
+        Get.snackbar(
+          "Error",
+          "Category code already exists for another category",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return; // Stop update
+      }
+    }
+
+    // ---- Rest of your _saveCategory code ----
+    final category = PremiumCollectionModel(
+      categoryId: widget.existingCategory?.categoryId ?? '',
+      categoryName: _categoryNameController.text.trim(),
+      categoryCode: _categoryCodeController.text.trim(),
+      description: _descriptionController.text.trim(),
+      parentId: null,
+      status: selectedStatus.value == "Active" ? "1" : "0",
+      sortOrder: _sortOrderController.text.trim(),
+      categoryImage: categoryImage,
+      createdAt: "",
+      updatedAt: "",
+      showOnHome: showOnHome.value == "Yes" ? "1" : "0",
+    );
+
+    bool success;
+    if (widget.existingCategory != null) {
+      print("Updating category with ID: ${category.categoryId}");
+      print("Name: ${category.categoryName}");
+      print("Code: ${category.categoryCode}");
+      print("Description: ${category.description}");
+      print("Status: ${category.status}");
+      print("Sort Order: ${category.sortOrder}");
+      print("Show on Home: ${category.showOnHome}");
+      print("Image: ${category.categoryImage}");
+
+      // Send full body including category_code
+      final body = {
+        "category_id": category.categoryId,
+        "category_name": category.categoryName,
+        "category_code": category.categoryCode, // MUST send
+        "description": category.description,
+        "parent_id": category.parentId ?? "",
+        "status": int.tryParse(category.status) ?? 1,
+        "sort_order": int.tryParse(category.sortOrder) ?? 1,
+        "show_on_home": int.tryParse(category.showOnHome) ?? 1,
+        "category_image": category.categoryImage,
+      };
+
+      print("Updating category with body: $body");
+
+      success = await createCategoryController.updateCategory(category);
+    } else {
+      success = await createCategoryController.createCategory(category);
+    }
+
+    if (success) {
+      Get.snackbar(
+        "Success",
+        widget.existingCategory != null
+            ? "Category updated successfully"
+            : "Category created successfully",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+      await premiumCollectionController.fetchPremiumCollection();
+      Get.back();
+    } else {
+      Get.snackbar(
+        "Error",
+        widget.existingCategory != null
+            ? "Failed to update category"
+            : "Failed to create category",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color mainOrange = Color(0xffF78520);
@@ -94,11 +195,9 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
           children: [
             SizedBox(height: Get.height / 30),
             Container(
-              padding: EdgeInsets.only(
-                left: Get.width / 25,
-                right: Get.width / 25,
-                bottom: Get.height / 100,
-              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: Get.width / 25,
+              ).copyWith(bottom: Get.height / 100),
               decoration: const BoxDecoration(color: Colors.white),
               child: Column(
                 children: [
@@ -111,13 +210,13 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
                           color: Color(0xffF78520),
                         ),
                         onPressed: () => Get.back(),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(minWidth: Get.width / 15),
                       ),
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Create New Category',
+                            widget.existingCategory != null
+                                ? 'Edit Category'
+                                : 'Create New Category',
                             style: GoogleFonts.poppins(
                               textStyle: TextStyle(
                                 color: Colors.black,
@@ -167,7 +266,6 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
                           }
                         },
                       ),
-
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         hint: "Enter Category Name",
@@ -203,7 +301,6 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
                           }
                         },
                       ),
-
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         hint: "1",
@@ -244,54 +341,7 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
                                 height: Get.height / 18,
                                 width: double.infinity,
                                 child: ElevatedButton(
-                                  onPressed: () async {
-                                    final category = PremiumCollectionModel(
-                                      categoryId: '',
-                                      categoryName: _categoryNameController.text
-                                          .trim(),
-                                      categoryCode: _categoryCodeController.text
-                                          .trim(),
-                                      description: _descriptionController.text
-                                          .trim(),
-                                      parentId: null,
-                                      status: selectedStatus == "Active"
-                                          ? "1"
-                                          : "0",
-                                      sortOrder: _sortOrderController.text
-                                          .trim(),
-                                      categoryImage: categoryImage,
-                                      createdAt: "",
-                                      updatedAt: "",
-                                      showOnHome: showOnHome == "Yes"
-                                          ? "1"
-                                          : "0",
-                                    );
-
-                                    final success =
-                                        await createCategoryController
-                                            .createCategory(category);
-                                    if (success) {
-                                      Get.snackbar(
-                                        "Success",
-                                        "Category created successfully",
-                                        backgroundColor: Colors.green,
-                                        colorText: Colors.white,
-                                      );
-
-                                      // Refresh categories list
-                                      await premiumCollectionController
-                                          .fetchPremiumCollection();
-
-                                      Get.back(); // Go back to Categories screen
-                                    } else {
-                                      Get.snackbar(
-                                        "Error",
-                                        "Failed to create category",
-                                        backgroundColor: Colors.red,
-                                        colorText: Colors.white,
-                                      );
-                                    }
-                                  },
+                                  onPressed: _saveCategory,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: mainOrange,
                                     shape: RoundedRectangleBorder(
@@ -299,7 +349,9 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    'Create Category',
+                                    widget.existingCategory != null
+                                        ? 'Update Category'
+                                        : 'Create Category',
                                     style: GoogleFonts.poppins(
                                       fontSize: Get.width / 22.5,
                                       color: Colors.white,
@@ -320,45 +372,5 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
         ),
       ),
     );
-  }
-}
-
-/// Controller for Create Category
-class CreateCategoryController extends GetxController {
-  static CreateCategoryController get instance => Get.find();
-
-  RxBool isLoading = false.obs;
-  final String apiUrl =
-      "https://harbhole.eihlims.com/Api/category_api.php?action=add";
-
-  Future<bool> createCategory(PremiumCollectionModel category) async {
-    isLoading.value = true;
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "category_name": category.categoryName,
-          "category_code": category.categoryCode,
-          "description": category.description,
-          "parent_id": category.parentId,
-          "status": int.tryParse(category.status) ?? 1,
-          "sort_order": int.tryParse(category.sortOrder) ?? 1,
-          "show_on_home": int.tryParse(category.showOnHome) ?? 1,
-          "category_image": category.categoryImage,
-        }),
-      );
-
-      isLoading.value = false;
-      if (response.statusCode == 200) {
-        final res = jsonDecode(response.body);
-        return res['success'] == true;
-      }
-      return false;
-    } catch (e) {
-      isLoading.value = false;
-      print("Error creating category: $e");
-      return false;
-    }
   }
 }

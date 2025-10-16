@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -147,9 +145,7 @@ class B2BUserScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             SizedBox(height: Get.height / 50),
-
             // -------------------- USER LIST --------------------
             Expanded(
               child: Obx(() {
@@ -166,23 +162,70 @@ class B2BUserScreen extends StatelessWidget {
                   itemCount: b2bUserController.filteredUsers.length,
                   itemBuilder: (context, index) {
                     final user = b2bUserController.filteredUsers[index];
-                    return _buildRecentUserTile(
+                    return _buildUserCard(
                       name: user.name,
                       email: user.email,
                       mobile: user.phone,
+                      address: user.address ?? "No address", // provide address
                       status: user.status,
                       statusColor: user.status.toLowerCase() == "active"
-                          ? Color(0xff4E6B37)
-                          : Color(0xffAD111E),
+                          ? const Color(0xff4E6B37)
+                          : const Color(0xffAD111E),
                       statusBgColour: user.status.toLowerCase() == "active"
-                          ? Color(0xffDCE1D7)
-                          : Color(0xffEFCFD2),
+                          ? const Color(0xffDCE1D7)
+                          : const Color(0xffEFCFD2),
                       userCode: user.id,
+                      onEdit: () {
+                        // Navigate to edit page or open edit dialog
+                        // Get.to(() => EditUserScreen(), arguments: user);
+                      },
+                      onDelete: () {
+                        Get.defaultDialog(
+                          title: "Delete User",
+                          titleStyle: TextStyle(
+                            color: const Color(0xffF78520),
+                            fontWeight: FontWeight.bold,
+                            fontSize: Get.width / 20,
+                          ),
+                          backgroundColor: Colors.white,
+                          radius: 20,
+                          barrierDismissible: false,
+                          content: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Get.width / 20,
+                              vertical: Get.height / 50,
+                            ),
+                            child: Text(
+                              "Are you sure you want to delete ${user.name}?",
+                              style: TextStyle(
+                                color: const Color(0xffF78520),
+                                fontSize: Get.width / 30,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          textConfirm: "Yes",
+                          textCancel: "No",
+                          confirmTextColor: const Color(0xffF78520),
+                          cancelTextColor: const Color(0xffF78520),
+                          buttonColor: Colors.white,
+                          onConfirm: () async {
+                            await createB2bUserController.deleteB2BUser(
+                              user.id,
+                            );
+                            if (Get.isDialogOpen ?? false) Get.back();
+                          },
+                          onCancel: () {
+                            if (Get.isDialogOpen ?? false) Get.back();
+                          },
+                        );
+                      },
                     );
                   },
                 );
               }),
             ),
+            SizedBox(height: Get.height / 20),
           ],
         ),
       ),
@@ -190,113 +233,159 @@ class B2BUserScreen extends StatelessWidget {
   }
 
   // -------------------- USER TILE --------------------
-  Widget _buildRecentUserTile({
+  Widget _buildUserCard({
     required String name,
     required String email,
     required String mobile,
+    required String address,
     required String status,
     required Color statusColor,
     required Color statusBgColour,
-    String? userImagePath,
     required String userCode,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
   }) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: Get.height / 100),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: Get.height / 80,
+        // horizontal: Get.width / 25,
+      ),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 5,
+        shadowColor: Colors.black.withOpacity(0.8),
+        color: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.all(Get.width / 25),
+          child: Stack(
             children: [
-              // Profile Image
-              CircleAvatar(
-                radius: Get.width / 16,
-                backgroundImage:
-                    userImagePath != null && userImagePath.isNotEmpty
-                    ? FileImage(File(userImagePath)) as ImageProvider
-                    : const AssetImage('asset/images/person_image.jpg'),
-                backgroundColor: Colors.grey.shade200,
-              ),
-
-              SizedBox(width: Get.width / 25),
-
-              // User Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: GoogleFonts.poppins(
-                        fontSize: Get.width / 24,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: Get.height / 200),
-                    Text(
-                      email,
-                      style: GoogleFonts.poppins(
-                        fontSize: Get.width / 30,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    SizedBox(height: Get.height / 250),
-                    Text(
-                      mobile,
-                      style: GoogleFonts.poppins(
-                        fontSize: Get.width / 30,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Status + View Details
+              // Main content
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Get.width / 40,
-                      vertical: Get.height / 200,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusBgColour,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      status,
-                      style: GoogleFonts.poppins(
-                        fontSize: Get.width / 36,
-                        fontWeight: FontWeight.bold,
-                        color: statusColor,
-                      ),
+                  SizedBox(
+                    height: Get.height / 60,
+                  ), // Space for top-right status
+                  // Name
+                  Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                      fontSize: Get.width / 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: Get.height / 120),
-                  GestureDetector(
-                    onTap: () {
-                      Get.snackbar("User", "View Details of $userCode");
-                    },
-                    child: Text(
-                      'View Details',
-                      style: GoogleFonts.poppins(
-                        fontSize: Get.width / 36,
-                        color: const Color(0xff2A86D1),
-                        fontWeight: FontWeight.w600,
-                      ),
+                  SizedBox(height: Get.height / 200),
+
+                  // Email
+                  Text(
+                    email,
+                    style: GoogleFonts.poppins(
+                      fontSize: Get.width / 28,
+                      color: Colors.grey.shade700,
                     ),
+                  ),
+                  SizedBox(height: Get.height / 300),
+
+                  // Mobile
+                  Text(
+                    mobile,
+                    style: GoogleFonts.poppins(
+                      fontSize: Get.width / 28,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  SizedBox(height: Get.height / 300),
+
+                  // Address
+                  Text(
+                    address,
+                    style: GoogleFonts.poppins(
+                      fontSize: Get.width / 28,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+
+                  SizedBox(height: Get.height / 40),
+
+                  // Buttons row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // Edit button
+                      GestureDetector(
+                        onTap: onEdit,
+                        child: Container(
+                          width: Get.width / 12,
+                          height: Get.width / 12,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Color(0xffF78520),
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            size: 18,
+                            color: Color(0xffF78520),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: Get.width / 30),
+
+                      // Delete button
+                      GestureDetector(
+                        onTap: onDelete,
+                        child: Container(
+                          width: Get.width / 12,
+                          height: Get.width / 12,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Color(0xffF78520),
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.delete,
+                            size: 18,
+                            color: Color(0xffF78520),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
+              ),
+
+              // Status badge top-right
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Get.width / 30,
+                    vertical: Get.height / 300,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusBgColour,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    status,
+                    style: GoogleFonts.poppins(
+                      fontSize: Get.width / 34,
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
         ),
-
-        // Divider
-        Divider(height: Get.height / 200, color: Colors.grey.shade300),
-      ],
+      ),
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../main.dart';
 import '../../../../model/product_model/product_model.dart';
 import '../../../component/textfield.dart';
+import 'create_new_product_screen.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   const ProductDetailsScreen({super.key});
@@ -13,7 +14,6 @@ class ProductDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const Color mainOrange = Color(0xffF78520);
 
-    // Get the product object passed via Get.arguments
     final Product product = Get.arguments as Product;
 
     return Scaffold(
@@ -21,7 +21,6 @@ class ProductDetailsScreen extends StatelessWidget {
       body: Column(
         children: [
           SizedBox(height: Get.height / 30),
-          // --- Header with Back Button ---
           Container(
             padding: EdgeInsets.only(
               left: Get.width / 25,
@@ -137,13 +136,12 @@ class ProductDetailsScreen extends StatelessWidget {
                               ),
                               CustomTextField(
                                 label: 'Selling Price',
-                                hint:
-                                    '₹500.00', // Replace if price comes from API
+                                hint: product.sellingPrice.toString(),
                                 isReadOnly: true,
                               ),
                               CustomTextField(
                                 label: 'Stock Quantity',
-                                hint: '0', // Replace if stock comes from API
+                                hint: product.stockQuantity.toString(),
                                 isReadOnly: true,
                               ),
 
@@ -154,7 +152,13 @@ class ProductDetailsScreen extends StatelessWidget {
                                 height: Get.height / 18,
                                 width: double.infinity,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    // Navigate to CreateOrUpdateProductScreen with the product to edit
+                                    Get.to(
+                                      () => CreateProductScreen(),
+                                      arguments: product,
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: mainOrange,
                                     shape: RoundedRectangleBorder(

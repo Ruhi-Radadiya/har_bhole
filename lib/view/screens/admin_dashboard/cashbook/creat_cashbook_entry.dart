@@ -20,14 +20,6 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
   String selectedInOut = "IN";
   String selectedPayment = "UPI";
 
-  final List<String> userList = [
-    "emp001",
-    "emp002",
-    "emp003",
-    "emp004",
-    "emp005",
-  ];
-
   final List<String> paymentMethods = ["UPI", "Cash", "NetBanking", "Card"];
 
   @override
@@ -107,60 +99,27 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                         hint: "Select Date",
                       ),
                       SizedBox(height: Get.height / 50),
-
-                      // User Dropdown and IN/OUT Toggle
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: CustomDropdownField(
-                              label: "User",
-                              items: userList,
-                              value: selectedUser,
-                              getLabel: (item) => item.toString(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedUser = value;
-                                });
-                              },
-                            ),
-                          ),
-                          SizedBox(width: Get.width / 20),
-                          Expanded(
-                            flex: 1,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Type',
-                                  style: GoogleFonts.poppins(
-                                    textStyle: TextStyle(
-                                      fontSize: Get.width / 26,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xff000000),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: Get.height / 150),
-                                Row(
-                                  children: [
-                                    _buildInOutToggle(
-                                      'IN',
-                                      selectedInOut == "IN",
-                                    ),
-                                    SizedBox(width: Get.width / 40),
-                                    _buildInOutToggle(
-                                      'OUT',
-                                      selectedInOut == "OUT",
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      CustomDropdownField<String>(
+                        label: "Type",
+                        items: ["Income", "Expense"],
+                        value:
+                            cashEntryController
+                                .entryTypeController
+                                .text
+                                .isNotEmpty
+                            ? cashEntryController.entryTypeController.text
+                            : "Income",
+                        getLabel: (type) => type,
+                        onChanged: (value) {
+                          if (value != null) {
+                            cashEntryController.entryTypeController.text =
+                                value;
+                            setState(() {
+                              selectedInOut = value == "Income" ? "IN" : "OUT";
+                            });
+                          }
+                        },
                       ),
-
                       SizedBox(height: Get.height / 50),
 
                       CustomTextField(
@@ -274,34 +233,36 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
 
   Widget _buildInOutToggle(String text, bool isSelected) {
     const Color mainOrange = Color(0xffF78520);
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            selectedInOut = text;
-          });
-        },
-        child: Container(
-          height: Get.height / 23,
-          decoration: BoxDecoration(
-            color: isSelected ? mainOrange : Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(10.0),
-            border: Border.all(
-              color: isSelected ? mainOrange : Colors.grey.shade400,
-              width: 1,
-            ),
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedInOut = text;
+        });
+        // ✅ Also update your controller value dynamically
+        cashEntryController.entryTypeController.text = text == "IN"
+            ? "Income"
+            : "Expense";
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: Get.width / 14,
+          vertical: Get.height / 110,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? mainOrange : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(
+            color: isSelected ? mainOrange : Colors.grey.shade400,
+            width: 1,
           ),
-          child: Center(
-            child: Text(
-              text,
-              style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: Get.width / 30,
-                  fontWeight: FontWeight.w500,
-                  color: isSelected ? Colors.white : Colors.black,
-                ),
-              ),
-            ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontWeight: FontWeight.w600,
+            fontSize: Get.width / 28,
           ),
         ),
       ),
@@ -355,24 +316,11 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
       return;
     }
 
-    if (selectedUser == null) {
-      Get.snackbar(
-        'Error',
-        'Please select a user',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
     // Map fields to controller
     cashEntryController.entryTypeController.text = selectedInOut == "IN"
         ? "Income"
         : "Expense";
     cashEntryController.paymentMethodController.text = selectedPayment;
-    cashEntryController.categoryIdController.text =
-        selectedUser!; // or map user to categoryId
 
     // Call API
     cashEntryController.addCashbookEntry();

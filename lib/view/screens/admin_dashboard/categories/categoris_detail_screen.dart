@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../main.dart';
 import '../../../../model/home_page_models/premium_collection_model.dart';
+import '../../../../view/component/textfield.dart';
+import 'create_new_category_screen.dart';
 
 class CategoryDetailsScreen extends StatelessWidget {
   const CategoryDetailsScreen({super.key});
@@ -12,8 +14,11 @@ class CategoryDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const Color mainOrange = Color(0xffF78520);
 
+    final PremiumCollectionModel category =
+        Get.arguments as PremiumCollectionModel;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade100, // Main background
+      backgroundColor: Colors.grey.shade100,
       body: Column(
         children: [
           SizedBox(height: Get.height / 30),
@@ -50,21 +55,19 @@ class CategoryDetailsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: Get.width / 15), // Placeholder
+                    SizedBox(width: Get.width / 15),
                   ],
                 ),
               ],
             ),
           ),
-
-          // --- Main Content Area ---
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(Get.width / 15),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20.0), // Standard radius
+                  borderRadius: BorderRadius.circular(20.0),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
@@ -77,7 +80,7 @@ class CategoryDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
                       ),
@@ -85,47 +88,109 @@ class CategoryDetailsScreen extends StatelessWidget {
                         'asset/images/home/khaman.png',
                         width: double.infinity,
                         height: Get.height / 4,
-
                         fit: BoxFit.cover,
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(
-                        bottom: Get.height / 100,
-                        left: Get.width / 25,
-                        right: Get.width / 25,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Get.width / 25,
+                        vertical: Get.height / 50,
                       ),
                       child: Column(
                         children: [
-                          SizedBox(height: Get.height / 30),
-                          _buildDetailField(
-                            label: 'Category Name',
-                            value: 'Namkeen',
+                          CustomTextField(
+                            hint: '',
+                            label: "Category Name",
+                            controller: TextEditingController(
+                              text: category.categoryName,
+                            ),
+                            isReadOnly: true,
                           ),
-                          _buildDetailField(
-                            label: 'Category Type',
-                            value: 'Main Category',
+                          SizedBox(height: Get.height / 60),
+                          CustomTextField(
+                            hint: '',
+
+                            label: "Category Type",
+                            controller: TextEditingController(
+                              text: category.parentId == null
+                                  ? 'Main Category'
+                                  : 'Sub Category',
+                            ),
+                            isReadOnly: true,
                           ),
-                          _buildDetailField(
-                            label: 'Category Code',
-                            value: 'CAT007',
+                          SizedBox(height: Get.height / 60),
+                          CustomTextField(
+                            hint: '',
+
+                            label: "Category Code",
+                            controller: TextEditingController(
+                              text: category.categoryCode,
+                            ),
+                            isReadOnly: true,
                           ),
-                          _buildDetailField(label: 'Sort Order', value: '4'),
-                          _buildDetailField(
-                            label: 'Description',
-                            value: 'Crispy and Savory Namkeen',
+                          SizedBox(height: Get.height / 60),
+                          CustomTextField(
+                            hint: '',
+
+                            label: "Sort Order",
+                            controller: TextEditingController(
+                              text: category.sortOrder,
+                            ),
+                            isReadOnly: true,
+                          ),
+                          SizedBox(height: Get.height / 60),
+                          CustomTextField(
+                            hint: '',
+
+                            label: "Description",
+                            controller: TextEditingController(
+                              text: category.description,
+                            ),
+                            isReadOnly: true,
                             maxLines: 2,
                           ),
-                          _buildDetailField(
-                            label: 'Created Date',
-                            value: 'September 10, 2025 at 10:22 Am',
+                          SizedBox(height: Get.height / 60),
+                          CustomTextField(
+                            hint: '',
+                            label: "Status",
+                            controller: TextEditingController(
+                              text: category.status == '1'
+                                  ? 'Active'
+                                  : 'Inactive',
+                            ),
+                            isReadOnly: true,
+                          ),
+                          SizedBox(height: Get.height / 60),
+                          CustomTextField(
+                            hint: '',
+                            label: "Show on Home",
+                            controller: TextEditingController(
+                              text: category.showOnHome == '1' ? 'Yes' : 'No',
+                            ),
+                            isReadOnly: true,
+                          ),
+                          SizedBox(height: Get.height / 60),
+                          CustomTextField(
+                            hint: '',
+
+                            label: "Created Date",
+                            controller: TextEditingController(
+                              text: category.createdAt ?? '',
+                            ),
+                            isReadOnly: true,
                           ),
                           SizedBox(height: Get.height / 50),
                           SizedBox(
                             height: Get.height / 18,
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Get.to(
+                                  () => CreateNewCategoryScreen(
+                                    existingCategory: category,
+                                  ),
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: mainOrange,
                                 shape: RoundedRectangleBorder(
@@ -145,34 +210,28 @@ class CategoryDetailsScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(height: Get.height / 80),
+                          SizedBox(height: Get.height / 50),
                           SizedBox(
                             height: Get.height / 18,
                             width: double.infinity,
                             child: OutlinedButton(
                               onPressed: () async {
-                                // Get selected category from Get.arguments
-                                final category =
-                                    Get.arguments as PremiumCollectionModel;
-                                final categoryId = category.categoryId;
-
-                                // Call delete
                                 bool success = await deleteCategoryController
-                                    .deleteCategory(categoryId);
-
+                                    .deleteCategory(category.categoryId);
                                 if (success) {
-                                  // Remove deleted category from the list (optional)
-
                                   premiumCollectionController.premiumCollection
                                       .removeWhere(
-                                        (cat) => cat.categoryId == categoryId,
+                                        (cat) =>
+                                            cat.categoryId ==
+                                            category.categoryId,
                                       );
                                   premiumCollectionController.filteredCategories
                                       .removeWhere(
-                                        (cat) => cat.categoryId == categoryId,
+                                        (cat) =>
+                                            cat.categoryId ==
+                                            category.categoryId,
                                       );
-
-                                  Get.back(); // Close details screen
+                                  Get.back();
                                 }
                               },
                               style: OutlinedButton.styleFrom(
@@ -185,7 +244,7 @@ class CategoryDetailsScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Delete',
                                 style: TextStyle(color: Color(0xffF78520)),
                               ),
@@ -202,52 +261,6 @@ class CategoryDetailsScreen extends StatelessWidget {
           SizedBox(height: Get.height / 30),
         ],
       ),
-    );
-  }
-
-  Widget _buildDetailField({
-    required String label,
-    required String value,
-    int maxLines = 1,
-  }) {
-    final double fieldHeight = maxLines > 1 ? Get.height / 10 : Get.height / 20;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: Get.width / 26,
-              fontWeight: FontWeight.w500,
-              color: Color(0xff000000),
-            ),
-          ),
-        ),
-        SizedBox(height: Get.height / 150),
-        Container(
-          height: fieldHeight,
-          alignment: maxLines > 1 ? Alignment.topLeft : Alignment.centerLeft,
-          padding: EdgeInsets.symmetric(
-            horizontal: Get.width / 25,
-            vertical: Get.height / 100,
-          ),
-          decoration: BoxDecoration(
-            color: const Color(0xffF3F7FC),
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Text(
-            value,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                color: Colors.black,
-                fontSize: Get.width / 30,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: Get.height / 50),
-      ],
     );
   }
 }

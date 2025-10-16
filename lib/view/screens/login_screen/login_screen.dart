@@ -99,35 +99,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         SizedBox(height: Get.height / 25),
-                        Text(
-                          'Email or username',
-                          style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                              fontSize: Get.width / 22.5,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF424242),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: Get.height / 100),
                         CustomTextField(
+                          label: 'Mobile number',
                           controller: emailController,
-                          hint: 'Enter your email',
+                          hint: 'Enter your mobile number',
                           image: "asset/icons/textfield_icon.png",
+                          keyboardType: TextInputType.phone,
                         ),
                         SizedBox(height: Get.height / 40),
-                        Text(
-                          'Password',
-                          style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                              fontSize: Get.width / 22.5,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF424242),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: Get.height / 100),
                         CustomTextField(
+                          label: 'Password',
                           hint: 'Enter your password',
                           image: "asset/icons/password_lock_icon.png",
                           isPassword: _isPasswordHidden,

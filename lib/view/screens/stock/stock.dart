@@ -176,7 +176,7 @@ class _StockState extends State<Stock> {
                   ),
                   SizedBox(height: Get.height / 30),
                   _buildMenuItemTile(
-                    image: "asset/icons/users_icon.png",
+                    image: "asset/icons/categories_icon.png",
                     title: 'Raw Material',
                     iconColor: Color(0xffF78520),
                     onTap: () {
@@ -184,7 +184,7 @@ class _StockState extends State<Stock> {
                     },
                   ),
                   _buildMenuItemTile(
-                    image: "asset/icons/money_icon.png",
+                    image: "asset/icons/semi_finished.png",
                     title: 'Semi-Finished',
                     iconColor: Color(0xffF78520),
                     onTap: () {
@@ -192,7 +192,7 @@ class _StockState extends State<Stock> {
                     },
                   ),
                   _buildMenuItemTile(
-                    image: "asset/icons/categories_icon.png",
+                    image: "asset/icons/finished_goods.png",
                     title: 'Finished Goods',
                     iconColor: Color(0xffF78520),
                     onTap: () {
@@ -200,7 +200,7 @@ class _StockState extends State<Stock> {
                     },
                   ),
                   _buildMenuItemTile(
-                    image: "asset/icons/product_icon.png",
+                    image: "asset/icons/stock_movement.png",
                     title: 'Stock Movement',
                     iconColor: Color(0xffF78520),
                     onTap: () {

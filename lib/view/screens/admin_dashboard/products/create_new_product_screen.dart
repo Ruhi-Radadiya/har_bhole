@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:har_bhole/main.dart';
 
+import '../../../../main.dart';
+import '../../../../model/product_model/product_model.dart';
 import '../../../component/textfield.dart';
 
 class CreateProductScreen extends StatefulWidget {
-  const CreateProductScreen({super.key});
+  final Product? product; // Optional for editing
+  const CreateProductScreen({super.key, this.product});
 
   @override
   State<CreateProductScreen> createState() => _CreateProductScreenState();
@@ -15,16 +19,85 @@ class CreateProductScreen extends StatefulWidget {
 class _CreateProductScreenState extends State<CreateProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final List<String> categories = ["0", "1", "2"];
+  // Example categories, replace with real ones
+  final List<String> categories = ["Category A", "Category B", "Category C"];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final Product? productArg = widget.product ?? Get.arguments as Product?;
+
+    if (productArg != null) {
+      _fillFields(productArg);
+    } else {
+      // Clear all fields for creating a new product
+      createProductController.clearFields();
+    }
+  }
+
+  void _fillFields(Product p) {
+    final ctrl = createProductController;
+
+    ctrl.productCodeController.text = p.productId;
+    ctrl.productNameController.text = p.productName;
+    ctrl.selectedCategory.value =
+        p.productId; // Make sure Product has categoryId
+    ctrl.basePriceController.text = p.mrp.toString();
+    ctrl.sellingPriceController.text = p.sellingPrice.toString();
+    ctrl.stockController.text = p.stockQuantity.toString();
+    ctrl.netWeightController.text = p.netWeight.toString();
+    ctrl.manufacturingDateController.text = p.manufacturingDate;
+    ctrl.expiryDateController.text = p.expiryDate;
+    ctrl.ingredientsListController.text = p.ingredients;
+    ctrl.isActive.value = p.status == '1';
+    ctrl.descriptionController.text = p.description ?? "";
+
+    if (p.nutritionalInfo != null) {
+      ctrl.energyController.text = p.nutritionalInfo.energyKcal.toString();
+      ctrl.proteinController.text = p.nutritionalInfo.proteinG.toString();
+      ctrl.totalFatController.text = p.nutritionalInfo.totalFatG.toString();
+      ctrl.carbohydrateController.text = p.nutritionalInfo.carbohydrateG
+          .toString();
+      ctrl.totalSugarController.text = p.nutritionalInfo.totalSugarG.toString();
+      ctrl.saturatedFatController.text = p.nutritionalInfo.saturatedFatG
+          .toString();
+      ctrl.monounsaturatedFatController.text = p
+          .nutritionalInfo
+          .monounsaturatedFatG
+          .toString();
+      ctrl.polyunsaturatedFatController.text = p
+          .nutritionalInfo
+          .polyunsaturatedFatG
+          .toString();
+      ctrl.sodiumController.text = p.nutritionalInfo.sodiumMg.toString();
+      ctrl.ironController.text = p.nutritionalInfo.ironMg.toString();
+      ctrl.calciumController.text = p.nutritionalInfo.calciumMg.toString();
+      ctrl.fiberController.text = p.nutritionalInfo.fiberG.toString();
+      ctrl.vitaminCController.text = p.nutritionalInfo.vitaminCMg.toString();
+      ctrl.vitaminDController.text = p.nutritionalInfo.vitaminDMcg.toString();
+      ctrl.cholesterolController.text = p.nutritionalInfo.cholesterolMg
+          .toString();
+    }
+
+    // Image
+    if (p.productImage.isNotEmpty) ctrl.setImageUrl(p.productImage);
+
+    // // Tags
+    // ctrl.selectedTags.clear();
+    // if (p.tags != null) ctrl.selectedTags.addAll(p.tags);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Product? productArg = widget.product ?? Get.arguments as Product?;
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Create New Product",
+            productArg != null ? "Edit Product" : "Create New Product",
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               fontSize: Get.width / 22.5,
@@ -63,14 +136,12 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         hint: "Enter Product Code",
                         controller:
                             createProductController.productCodeController,
-                        validator: (v) => v!.isEmpty ? "Required" : null,
                       ),
                       CustomTextField(
                         label: "Product Name",
                         hint: "Enter Product Name",
                         controller:
                             createProductController.productNameController,
-                        validator: (v) => v!.isEmpty ? "Required" : null,
                       ),
                       Obx(
                         () => CustomDropdownField<String>(
@@ -93,11 +164,12 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         hint: "Description",
                         label: "Description",
                         maxLines: 5,
+                        controller:
+                            createProductController.descriptionController,
                       ),
                       SizedBox(height: Get.height / 60),
                       _sectionTitle("Pricing & Stock Information"),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "MRP (₹)",
                         hint: "0.00",
@@ -105,16 +177,14 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
-                        label: "Selling Prince(₹)",
-                        hint: "Enter Stock",
+                        label: "Selling Price(₹)",
+                        hint: "0.00",
                         controller:
                             createProductController.sellingPriceController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Stock Quantity",
                         hint: "0",
@@ -122,7 +192,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Net Weight (g)",
                         hint: "0.00",
@@ -130,7 +199,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       Text(
                         "Stock Status",
                         style: TextStyle(color: Colors.black),
@@ -159,16 +227,16 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                       SizedBox(height: Get.height / 60),
                       UploadFileField(
                         label: "Product Image",
-                        onFileSelected: (file) {},
+                        onFileSelected: (file) {
+                          createProductController.setImage(file as File);
+                        },
                       ),
                       SizedBox(height: Get.height / 60),
                       _sectionTitle("Manufacturing & Expiry Dates"),
-                      SizedBox(height: Get.height / 60),
                       CustomDateField(
                         label: "Manufacturing date",
                         controller:
                             createProductController.manufacturingDateController,
-
                         hint: "Select Date",
                       ),
                       SizedBox(height: Get.height / 60),
@@ -180,221 +248,11 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                       ),
                       SizedBox(height: Get.height / 60),
                       _sectionTitle("Ingredients"),
-                      SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: "Ingredients List",
                         hint: "Enter Ingredients list (Separate with Commas)",
                         controller:
                             createProductController.ingredientsListController,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _sectionTitle("Nutritional (per 100g)"),
-                          Text(
-                            "Edit",
-                            style: TextStyle(
-                              color: Color(0xffF26E27),
-                              fontWeight: FontWeight.bold,
-                              fontSize: Get.width / 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Energy(kcal)",
-                        hint: "Enter Value",
-                        controller: createProductController.energyController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Protein(g)",
-                        hint: "Enter Value",
-                        controller: createProductController.proteinController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Total Fat(g)",
-                        hint: "Enter Value",
-                        controller: createProductController.totalFatController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Carbohydrate(g)",
-                        hint: "Enter Value",
-                        controller:
-                            createProductController.carbohydrateController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Total Sugar(g)",
-                        hint: "Enter Value",
-                        controller:
-                            createProductController.totalSugarController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Saturated Fat(g)",
-                        hint: "Enter Value",
-                        controller:
-                            createProductController.saturatedFatController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Monounsaturated Fat(g)",
-                        hint: "Enter Value",
-                        controller: createProductController
-                            .monounsaturatedFatController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Polyunsaturated Fat(g)",
-                        hint: "Enter Value",
-                        controller: createProductController
-                            .polyunsaturatedFatController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Sodium(mg)",
-                        hint: "Enter Value",
-                        controller: createProductController.sodiumController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Iron(mg)",
-                        hint: "Enter Value",
-                        controller: createProductController.ironController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Calcium(mg)",
-                        hint: "Enter Value",
-                        controller: createProductController.calciumController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Fiber(g)",
-                        hint: "Enter Value",
-                        controller: createProductController.fiberController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Vitamin C(mg)",
-                        hint: "Enter Value",
-                        controller: createProductController.vitaminCController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Vitamin D(mcg)",
-                        hint: "Enter Value",
-                        controller: createProductController.vitaminDController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Cholesterol(mg)",
-                        hint: "Enter Value",
-                        controller:
-                            createProductController.cholesterolController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      _sectionTitle("Product Tags"),
-                      SizedBox(height: Get.height / 60),
-                      _buildProductTagFlow(
-                        tags: createProductController.productTags,
-                        selectedTags: createProductController.selectedTags,
-                        onTagTap: (tag) =>
-                            createProductController.toggleTag(tag),
-                      ),
-
-                      SizedBox(height: Get.height / 60),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _sectionTitle("Product Variations"),
-                          Text(
-                            "Edit",
-                            style: TextStyle(
-                              color: Color(0xffF26E27),
-                              fontWeight: FontWeight.bold,
-                              fontSize: Get.width / 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Variation Name",
-                        hint: "e.g., size, color",
-
-                        onChanged: (val) {},
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Variation Value",
-                        hint: "e.g., large, Red",
-
-                        onChanged: (val) {},
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Price Adjustment (₹)",
-                        hint: "0.00",
-
-                        onChanged: (val) {},
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "SKU",
-                        hint: "SKU",
-
-                        onChanged: (val) {},
-                      ),
-                      SizedBox(height: Get.height / 60),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            width: Get.height / 5,
-                            height: Get.height / 18,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                side: BorderSide(
-                                  color: Color(0xffF78520),
-                                  width: 2,
-                                ),
-                              ),
-                              onPressed: () {},
-                              child: Text(
-                                "+ Add Varients",
-                                style: GoogleFonts.poppins(
-                                  fontSize: Get.width / 30,
-                                  color: Color(0xffF78520),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                       SizedBox(height: Get.height / 60),
                       Row(
@@ -430,23 +288,29 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              final success = await createProductController
-                                  .createProduct();
+                              bool success = false;
+
+                              if (productArg != null) {
+                                success = await createProductController
+                                    .updateProduct(productArg.productId);
+                              } else {
+                                success = await createProductController
+                                    .createProduct();
+                              }
+
                               if (success) {
-                                // ✅ Clear form fields
-                                _formKey.currentState!.reset();
-                                createProductController.clearFields();
+                                // Refresh product list
+                                await productController.fetchProducts();
 
-                                // ✅ Refresh product list immediately
-                                productController.fetchProducts();
-
-                                // ✅ Navigate back
+                                // Navigate back only once
                                 Get.back();
                               }
                             }
                           },
                           child: Text(
-                            "Create Product",
+                            productArg != null
+                                ? "Update Product"
+                                : "Create Product",
                             style: GoogleFonts.poppins(
                               fontSize: Get.width / 22.5,
                               color: Colors.white,
@@ -464,66 +328,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildProductTagFlow({
-    required List<String> tags,
-    required RxSet<String> selectedTags,
-    Function(String tag)? onTagTap,
-  }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double spacing = 8.0;
-        final double totalSpacing = spacing * 2; // 3 items => 2 spaces
-        final double tagWidth = (constraints.maxWidth - totalSpacing) / 3;
-        const double tagHeight = 40.0;
-
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: tags.map((tag) {
-            // Wrap each tag in Obx instead of the whole LayoutBuilder
-            return Obx(() {
-              final isSelected = selectedTags.contains(tag);
-              final theme = ThemeData.light();
-
-              return GestureDetector(
-                onTap: onTagTap != null ? () => onTagTap(tag) : null,
-                child: Container(
-                  width: tagWidth,
-                  height: tagHeight,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? theme.primaryColor.withOpacity(0.1)
-                        : Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    tag,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: isSelected ? theme.primaryColor : Colors.black87,
-                    ),
-                  ),
-                ),
-              );
-            });
-          }).toList(),
-        );
-      },
     );
   }
 

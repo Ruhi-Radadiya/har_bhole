@@ -7,11 +7,10 @@ import '../../../../model/supplier_model/supplier_model.dart';
 import '../../../component/textfield.dart';
 
 class ViewSupplierScreen extends StatelessWidget {
-  ViewSupplierScreen({super.key});
+  const ViewSupplierScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Fetch suppliers when screen opens
     supplierController.fetchSuppliers();
 
     return GestureDetector(

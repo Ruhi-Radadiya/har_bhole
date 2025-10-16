@@ -184,7 +184,7 @@ class _B2BState extends State<B2B> {
                     },
                   ),
                   _buildMenuItemTile(
-                    image: "asset/icons/money_icon.png",
+                    image: "asset/icons/b2b_order.png",
                     title: 'B2B Orders',
                     iconColor: Color(0xffF78520),
                     onTap: () {

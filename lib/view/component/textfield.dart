@@ -76,7 +76,7 @@ class CustomTextField extends StatelessWidget {
             label!,
             style: TextStyle(
               fontSize: Get.width / 26,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),

@@ -132,7 +132,6 @@ class CustomerOrder extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                                 SizedBox(width: Get.width / 100),
                                 Container(
                                   padding: const EdgeInsets.all(8),

@@ -176,7 +176,7 @@ class _OrderState extends State<Order> {
                   ),
                   SizedBox(height: Get.height / 30),
                   _buildMenuItemTile(
-                    image: "asset/icons/users_icon.png",
+                    image: "asset/icons/b2b_order.png",
                     title: 'Orders Analytics',
                     iconColor: Color(0xffF78520),
                     onTap: () {
@@ -184,7 +184,7 @@ class _OrderState extends State<Order> {
                     },
                   ),
                   _buildMenuItemTile(
-                    image: "asset/icons/money_icon.png",
+                    image: "asset/icons/b2b_order.png",
                     title: 'Orders',
                     iconColor: Color(0xffF78520),
                     onTap: () {
@@ -192,7 +192,7 @@ class _OrderState extends State<Order> {
                     },
                   ),
                   _buildMenuItemTile(
-                    image: "asset/icons/categories_icon.png",
+                    image: "asset/icons/customer_icon.png",
                     title: 'Customer Details',
                     iconColor: Color(0xffF78520),
                     onTap: () {
@@ -200,11 +200,19 @@ class _OrderState extends State<Order> {
                     },
                   ),
                   _buildMenuItemTile(
-                    image: "asset/icons/product_icon.png",
+                    image: "asset/icons/customer_icon.png",
                     title: 'Customer Order',
                     iconColor: Color(0xffF78520),
                     onTap: () {
                       Get.toNamed(Routes.customerOrder);
+                    },
+                  ),
+                  _buildMenuItemTile(
+                    image: "asset/icons/vouchers_icon.png",
+                    title: 'Suppiler',
+                    iconColor: Color(0xffF78520),
+                    onTap: () {
+                      Get.toNamed(Routes.addNewSupplier);
                     },
                   ),
                   SizedBox(height: Get.height / 40),

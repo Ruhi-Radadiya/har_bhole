@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import 'b2b_user_controller.dart';
 
 class CreateB2bUserController extends GetxController {
-  // TextEditingControllers for form fields
+  // ------------------- FORM CONTROLLERS -------------------
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
@@ -18,10 +19,22 @@ class CreateB2bUserController extends GetxController {
   final passwordController = TextEditingController();
   final statusController = TextEditingController();
 
-  // Loading state
+  // ------------------- LOADING STATE -------------------
   var isLoading = false.obs;
 
-  // API POST method
+  // ------------------- TOAST FUNCTION -------------------
+  void showToast(String message, {bool isError = false}) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: isError ? Colors.red.shade400 : Colors.green.shade400,
+      textColor: Colors.white,
+      fontSize: 14.0,
+    );
+  }
+
+  // ------------------- ADD B2B USER -------------------
   Future<void> addB2BUser() async {
     final url = Uri.parse(
       'https://harbhole.eihlims.com/Api/b2busers_api.php?action=add',
@@ -50,49 +63,88 @@ class CreateB2bUserController extends GetxController {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
-          Get.snackbar(
-            'Success',
-            'User added successfully!',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-          nameController.clear();
-          emailController.clear();
-          phoneController.clear();
-          companyController.clear();
-          gstinController.clear();
-          addressController.clear();
-          passwordController.clear();
-          statusController.clear();
+          showToast("User added successfully!");
+          _clearFields();
+
           // Refresh user list
           if (Get.isRegistered<B2BUserController>()) {
             final userController = Get.find<B2BUserController>();
             await userController.fetchUsers();
           }
-          log("data Added: $data");
-          Get.back();
+
+          log("User Added: $data");
+          Get.back(); // Close form page
         } else {
-          Get.snackbar(
-            'Error',
-            data['message'] ?? 'Failed to add user',
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          showToast(data['message'] ?? "Failed to add user", isError: true);
         }
       } else {
-        Get.snackbar(
-          'Error',
-          'Failed to add user: ${response.statusCode}',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        showToast("Failed to add user: ${response.statusCode}", isError: true);
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Something went wrong: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      log("Error: $e");
+      showToast("Something went wrong: $e", isError: true);
+      log("Add User Error: $e");
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // ------------------- DELETE B2B USER -------------------
+  Future<void> deleteB2BUser(String userId) async {
+    final url = Uri.parse(
+      'https://harbhole.eihlims.com/Api/b2busers_api.php?action=delete',
+    );
+
+    final body = {'id': userId};
+
+    try {
+      isLoading.value = true;
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          showToast("User deleted successfully!");
+
+          // Refresh user list
+          if (Get.isRegistered<B2BUserController>()) {
+            final userController = Get.find<B2BUserController>();
+            await userController.fetchUsers();
+          }
+
+          log("User Deleted: $data");
+        } else {
+          showToast(data['message'] ?? "Failed to delete user", isError: true);
+          log("Delete User Error1: $data");
+        }
+      } else {
+        showToast(
+          "Failed to delete user: ${response.statusCode}",
+          isError: true,
+        );
+        log("Delete User Error2: ${response.statusCode}");
+      }
+    } catch (e) {
+      showToast("Something went wrong: $e", isError: true);
+      log("Delete User Error3: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ------------------- CLEAR FORM -------------------
+  void _clearFields() {
+    nameController.clear();
+    emailController.clear();
+    phoneController.clear();
+    companyController.clear();
+    gstinController.clear();
+    addressController.clear();
+    passwordController.clear();
+    statusController.clear();
   }
 }

@@ -321,13 +321,10 @@ class CashbookScreen extends StatelessWidget {
                                           SizedBox(height: 4),
                                           GestureDetector(
                                             onTap: () {
-                                              if (entry.attachment.isNotEmpty) {
-                                                // Open the PDF or navigate to a detail screen
-                                                Get.toNamed(
-                                                  Routes.viewNetbanking,
-                                                  arguments: entry,
-                                                );
-                                              }
+                                              Get.toNamed(
+                                                Routes.viewNetbanking,
+                                                arguments: entry,
+                                              );
                                             },
                                             child: Text(
                                               "View Details",
