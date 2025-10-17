@@ -336,13 +336,15 @@ class CategoriesScreen extends StatelessWidget {
                   // Navigate to details screen with the selected category
                   Get.to(() => CategoryDetailsScreen(), arguments: item);
                 },
-                child: Text(
-                  'View Details',
-                  style: GoogleFonts.poppins(
-                    textStyle: TextStyle(
-                      fontSize: Get.width / 36,
-                      color: const Color(0xff2A86D1),
-                      fontWeight: FontWeight.w600,
+                child: Container(
+                  child: Text(
+                    'View Details',
+                    style: GoogleFonts.poppins(
+                      textStyle: TextStyle(
+                        fontSize: Get.width / 36,
+                        color: const Color(0xff2A86D1),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),

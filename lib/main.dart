@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/controller/b2b_order/b2b_order_controller.dart';
-import 'package:har_bhole/controller/b2b_order/delete_b2b_order_controller.dart';
 import 'package:har_bhole/controller/cashbook_controller/create_cashbook_entery_controller.dart';
 import 'package:har_bhole/controller/category_controller/edit_category_controller.dart';
 import 'package:har_bhole/controller/finished_goods_stock_controller/finished_goods_stock_controller.dart';
@@ -87,9 +86,7 @@ DeleteProductController deleteProductController = Get.put(
 DeleteCategoryController deleteCategoryController = Get.put(
   DeleteCategoryController(),
 );
-DeleteB2BOrderController deleteB2BOrderController = Get.put(
-  DeleteB2BOrderController(),
-);
+
 EditCategoryController editCategoryController = Get.put(
   EditCategoryController(),
 );

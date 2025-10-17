@@ -5,6 +5,7 @@ import 'package:har_bhole/main.dart';
 
 import '../../../../model/cashbook_model/cashbook_model.dart';
 import '../../../component/textfield.dart';
+import 'creat_cashbook_entry.dart';
 
 class ViewNetbankingScreen extends StatefulWidget {
   const ViewNetbankingScreen({super.key});
@@ -113,13 +114,24 @@ class _ViewNetbankingScreenState extends State<ViewNetbankingScreen> {
                               ),
                             ),
                           ),
-                          Text(
-                            'Edit',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 26,
-                                fontWeight: FontWeight.w600,
-                                color: mainOrange,
+                          GestureDetector(
+                            onTap: () {
+                              // Navigate to Add/Edit Cashbook Screen
+                              Get.to(
+                                CreateCashbookEntryScreen(),
+                                arguments: entry,
+                              );
+                            },
+                            child: Container(
+                              child: Text(
+                                'Edit',
+                                style: GoogleFonts.poppins(
+                                  textStyle: TextStyle(
+                                    fontSize: Get.width / 26,
+                                    fontWeight: FontWeight.w600,
+                                    color: mainOrange,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -133,24 +145,11 @@ class _ViewNetbankingScreenState extends State<ViewNetbankingScreen> {
                         hint: entry.entryDate,
                         isReadOnly: true,
                       ),
-                      // --- Type (In/Out) ---
-                      Text(
-                        'Type',
-                        style: GoogleFonts.poppins(
-                          textStyle: TextStyle(
-                            fontSize: Get.width / 26,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
                       SizedBox(height: Get.height / 60),
-                      Row(
-                        children: [
-                          _buildTypeToggle('In', selectedInOut == "In"),
-                          SizedBox(width: Get.width / 30),
-                          _buildTypeToggle('Out', selectedInOut == "Out"),
-                        ],
+                      CustomTextField(
+                        hint: entry.entryType,
+                        label: "Type",
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 60),
 

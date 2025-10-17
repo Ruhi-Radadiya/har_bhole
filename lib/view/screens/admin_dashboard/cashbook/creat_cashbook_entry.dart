@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/view/component/textfield.dart';
 
 import '../../../../main.dart';
+import '../../../../model/cashbook_model/cashbook_model.dart';
 
 class CreateCashbookEntryScreen extends StatefulWidget {
   const CreateCashbookEntryScreen({super.key});
@@ -16,11 +17,60 @@ class CreateCashbookEntryScreen extends StatefulWidget {
 }
 
 class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
-  String? selectedUser;
-  String selectedInOut = "IN";
-  String selectedPayment = "UPI";
-
+  String selectedInOut = "Income"; // default
+  String selectedPayment = "UPI"; // default
   final List<String> paymentMethods = ["UPI", "Cash", "NetBanking", "Card"];
+
+  bool isEditMode = false;
+  String? entryId;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final CashbookEntry? entry = Get.arguments as CashbookEntry?;
+
+    if (entry != null) {
+      // --- Edit Mode ---
+      isEditMode = true;
+      entryId = entry.entryId;
+
+      // Pre-fill controller values
+      cashEntryController.entryDateController.text = entry.entryDate;
+      cashEntryController.entryTypeController.text = entry.entryType;
+      cashEntryController.amountController.text = entry.amount;
+      cashEntryController.paymentMethodController.text = entry.paymentMethod;
+      cashEntryController.referenceNoController.text = entry.referenceNo;
+      cashEntryController.descriptionController.text = entry.description;
+
+      selectedInOut = entry.entryType;
+      selectedPayment = entry.paymentMethod;
+
+      if (entry.attachment.isNotEmpty) {
+        try {
+          cashEntryController.attachmentFile.value = File(entry.attachment);
+        } catch (e) {
+          cashEntryController.attachmentFile.value = null;
+        }
+      }
+    } else {
+      // --- New Entry Mode ---
+      isEditMode = false;
+      entryId = null;
+
+      // Reset all controllers
+      cashEntryController.entryDateController.clear();
+      cashEntryController.entryTypeController.clear();
+      cashEntryController.amountController.clear();
+      cashEntryController.paymentMethodController.clear();
+      cashEntryController.referenceNoController.clear();
+      cashEntryController.descriptionController.clear();
+      cashEntryController.attachmentFile.value = null;
+
+      selectedInOut = "Income";
+      selectedPayment = "UPI";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +83,7 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
+            // Header
             Container(
               padding: EdgeInsets.only(
                 left: Get.width / 25,
@@ -55,7 +106,9 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Create Cashbook Entry',
+                            isEditMode
+                                ? 'Edit Cashbook Entry'
+                                : 'Create Cashbook Entry',
                             style: GoogleFonts.poppins(
                               textStyle: TextStyle(
                                 color: Colors.black,
@@ -99,6 +152,8 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                         hint: "Select Date",
                       ),
                       SizedBox(height: Get.height / 50),
+
+                      // Type Dropdown
                       CustomDropdownField<String>(
                         label: "Type",
                         items: ["Income", "Expense"],
@@ -115,13 +170,14 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                             cashEntryController.entryTypeController.text =
                                 value;
                             setState(() {
-                              selectedInOut = value == "Income" ? "IN" : "OUT";
+                              selectedInOut = value;
                             });
                           }
                         },
                       ),
                       SizedBox(height: Get.height / 50),
 
+                      // Amount Field
                       CustomTextField(
                         label: 'Amount',
                         hint: 'Enter your Amount',
@@ -156,37 +212,41 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                           ),
                         ],
                       ),
-
                       SizedBox(height: Get.height / 50),
 
+                      // Reference No
                       CustomTextField(
                         label: 'Reference No',
                         hint: 'Optional Reference',
                         controller: cashEntryController.referenceNoController,
                       ),
-
                       SizedBox(height: Get.height / 50),
+
+                      // Description
                       CustomTextField(
                         label: 'Description',
                         hint: 'Note',
                         controller: cashEntryController.descriptionController,
                         maxLines: 6,
                       ),
+                      SizedBox(height: Get.height / 30),
 
-                      // Attachment Field
+                      // Attachment
                       UploadFileField(
                         label: "Attachment (image/pdf)",
                         onFileSelected: (path) {
-                          if (path != null) {
+                          if (path != null && path.isNotEmpty) {
                             cashEntryController.attachmentFile.value = File(
                               path,
                             );
+                          } else {
+                            cashEntryController.attachmentFile.value = null;
                           }
                         },
                       ),
                       SizedBox(height: Get.height / 30),
 
-                      // Save Button with loading
+                      // Save or Update Button
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,
@@ -194,7 +254,25 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                           () => ElevatedButton(
                             onPressed: cashEntryController.isLoading.value
                                 ? null
-                                : _saveEntry,
+                                : () {
+                                    // Set type & payment before API call
+                                    cashEntryController
+                                            .entryTypeController
+                                            .text =
+                                        selectedInOut;
+                                    cashEntryController
+                                            .paymentMethodController
+                                            .text =
+                                        selectedPayment;
+
+                                    if (isEditMode && entryId != null) {
+                                      cashEntryController.updateCashbookEntry(
+                                        entryId!,
+                                      );
+                                    } else {
+                                      cashEntryController.addCashbookEntry();
+                                    }
+                                  },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: mainOrange,
                               shape: RoundedRectangleBorder(
@@ -207,7 +285,7 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                                     color: Colors.white,
                                   )
                                 : Text(
-                                    'Save Entry',
+                                    isEditMode ? 'Update Entry' : 'Save Entry',
                                     style: GoogleFonts.poppins(
                                       textStyle: TextStyle(
                                         fontSize: Get.width / 22.5,
@@ -226,44 +304,6 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
             ),
             SizedBox(height: Get.height / 30),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInOutToggle(String text, bool isSelected) {
-    const Color mainOrange = Color(0xffF78520);
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedInOut = text;
-        });
-        // ✅ Also update your controller value dynamically
-        cashEntryController.entryTypeController.text = text == "IN"
-            ? "Income"
-            : "Expense";
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Get.width / 14,
-          vertical: Get.height / 110,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? mainOrange : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(
-            color: isSelected ? mainOrange : Colors.grey.shade400,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: Get.width / 28,
-          ),
         ),
       ),
     );
@@ -302,27 +342,5 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
         ),
       ),
     );
-  }
-
-  void _saveEntry() {
-    if (cashEntryController.amountController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter amount',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    // Map fields to controller
-    cashEntryController.entryTypeController.text = selectedInOut == "IN"
-        ? "Income"
-        : "Expense";
-    cashEntryController.paymentMethodController.text = selectedPayment;
-
-    // Call API
-    cashEntryController.addCashbookEntry();
   }
 }

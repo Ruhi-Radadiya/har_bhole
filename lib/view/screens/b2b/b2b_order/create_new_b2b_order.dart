@@ -3,13 +3,83 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/main.dart';
 
+import '../../../../model/b2b_order/b2b_order_model.dart';
+import '../../../../model/product_model/product_model.dart';
 import '../../../component/textfield.dart';
 
-class CreateNewB2BOrder extends StatelessWidget {
+class CreateNewB2BOrder extends StatefulWidget {
+  const CreateNewB2BOrder({super.key});
+
+  @override
+  State<CreateNewB2BOrder> createState() => _CreateNewB2BOrderState();
+}
+
+class _CreateNewB2BOrderState extends State<CreateNewB2BOrder> {
   final _formKey = GlobalKey<FormState>();
+  B2BOrder? editingOrder;
 
-  CreateNewB2BOrder({super.key});
+  @override
+  void initState() {
+    super.initState();
+    if (Get.arguments != null && Get.arguments is B2BOrder) {
+      editingOrder = Get.arguments as B2BOrder;
+      _prefillOrder(editingOrder!);
 
+      // Prefill dropdowns
+      selectedStatus = editingOrder!.status;
+      selectedPaymentStatus = editingOrder!.paymentStatus;
+      createB2BOrderController.statusController.text = selectedStatus;
+      createB2BOrderController.paymentStatusController.text =
+          selectedPaymentStatus;
+    }
+  }
+
+  void _prefillOrder(B2BOrder order) {
+    // Customer details
+    createB2BOrderController.customerNameController.text = order.customerName;
+    createB2BOrderController.customerEmailController.text = order.customerEmail;
+    createB2BOrderController.customerPhoneController.text = order.customerPhone;
+    createB2BOrderController.customerAddressController.text =
+        order.customerAddress;
+    createB2BOrderController.customerCompanyController.text =
+        order.customerCompany;
+    createB2BOrderController.customerGstController.text = order.customerGst;
+
+    // Order items - taking first item for simplicity
+    if (order.items.isNotEmpty) {
+      final item = order.items[0];
+      createB2BOrderController.productController.text = item.productName;
+      createB2BOrderController.variationController.text = item.variationValue;
+      createB2BOrderController.quantityController.text = item.quantity
+          .toString();
+      createB2BOrderController.priceController.text = item.price.toString();
+      createB2BOrderController.gstController.text = order.customerGst
+          .toString();
+      createB2BOrderController.totalController.text = item.total.toString();
+      createB2BOrderController.totalAmountController.text = order.totalAmount;
+    }
+  }
+
+  void _clearAll() {
+    _formKey.currentState!.reset();
+    createB2BOrderController.clearAll();
+  }
+
+  final List<String> statusOptions = [
+    "Pending",
+    "Processing",
+    "Completed",
+    "Cancelled",
+  ];
+  final List<String> paymentStatusOptions = [
+    "Pending",
+    "Paid",
+    "Failed",
+    "Refunded",
+  ];
+
+  String selectedStatus = "Pending";
+  String selectedPaymentStatus = "Pending";
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -42,7 +112,9 @@ class CreateNewB2BOrder extends StatelessWidget {
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Create New B2B Order',
+                            editingOrder != null
+                                ? 'Edit B2B Order'
+                                : 'Create New B2B Order',
                             style: GoogleFonts.poppins(
                               textStyle: TextStyle(
                                 color: Colors.black,
@@ -80,7 +152,7 @@ class CreateNewB2BOrder extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _sectionTitle("Create Manual Order"),
+                        _sectionTitle("Customer Details"),
                         CustomTextField(
                           label: "Customer Name",
                           hint: "Enter Your Name",
@@ -100,7 +172,7 @@ class CreateNewB2BOrder extends StatelessWidget {
                           hint: "Enter Your Phone Number",
                           controller:
                               createB2BOrderController.customerPhoneController,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.phone,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
@@ -119,23 +191,40 @@ class CreateNewB2BOrder extends StatelessWidget {
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: "GST",
-                          hint: "₹336.00",
+                          hint: "Enter GST",
                           controller:
                               createB2BOrderController.customerGstController,
                           keyboardType: TextInputType.number,
                         ),
                         SizedBox(height: Get.height / 60),
+
                         _sectionTitle("Order Items"),
                         SizedBox(height: Get.height / 60),
+                        Obx(
+                          () => CustomDropdownField<Product>(
+                            label: "Product",
+                            items: productController.filteredProducts,
+                            value:
+                                createB2BOrderController.selectedProduct.value,
+                            getLabel: (product) => product.productName,
+                            onChanged: (product) {
+                              createB2BOrderController.selectedProduct.value =
+                                  product;
+                              createB2BOrderController.productController.text =
+                                  product?.productName ?? '';
 
-                        CustomTextField(
-                          label: "Product",
-                          hint: "Select Product",
-                          controller:
-                              createB2BOrderController.productController,
+                              // Set the unit price from selected product
+                              createB2BOrderController.unitPrice.value =
+                                  product?.sellingPrice ?? 0;
+
+                              // Recalculate total if quantity already entered
+                              createB2BOrderController.updateTotal();
+                            },
+                            hint: "Select Product",
+                          ),
                         ),
-                        SizedBox(height: Get.height / 60),
 
+                        SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: "Variation",
                           hint: "Select Variation",
@@ -143,26 +232,26 @@ class CreateNewB2BOrder extends StatelessWidget {
                               createB2BOrderController.variationController,
                         ),
                         SizedBox(height: Get.height / 60),
-
                         CustomTextField(
                           label: "Quantity",
                           hint: "0",
                           controller:
                               createB2BOrderController.quantityController,
                           keyboardType: TextInputType.number,
-                          onChanged: (_) => _updateTotal(),
+                          onChanged: (_) =>
+                              createB2BOrderController.updateTotal(),
                         ),
                         SizedBox(height: Get.height / 60),
-
                         CustomTextField(
                           label: "Price",
                           hint: "0.00",
                           controller: createB2BOrderController.priceController,
                           keyboardType: TextInputType.number,
-                          onChanged: (_) => _updateTotal(),
+                          onChanged: (_) =>
+                              createB2BOrderController.updateTotal(),
+                          isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
-
                         CustomTextField(
                           label: "Total",
                           hint: "0.00",
@@ -171,6 +260,55 @@ class CreateNewB2BOrder extends StatelessWidget {
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
+                        if (editingOrder != null) ...[
+                          Text(
+                            "Quick Actions",
+                            style: GoogleFonts.poppins(
+                              fontSize: Get.width / 20,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xffF78520),
+                            ),
+                          ),
+                          SizedBox(height: Get.height / 60),
+                          CustomDropdownField<String>(
+                            label: "Order Status",
+                            items: statusOptions,
+                            value: selectedStatus,
+                            getLabel: (val) => val,
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  selectedStatus = val;
+                                  createB2BOrderController
+                                          .statusController
+                                          .text =
+                                      val;
+                                });
+                              }
+                            },
+                            hint: "Select Status",
+                          ),
+                          SizedBox(height: Get.height / 60),
+                          CustomDropdownField<String>(
+                            label: "Payment Status",
+                            items: paymentStatusOptions,
+                            value: selectedPaymentStatus,
+                            getLabel: (val) => val,
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  selectedPaymentStatus = val;
+                                  createB2BOrderController
+                                          .paymentStatusController
+                                          .text =
+                                      val;
+                                });
+                              }
+                            },
+                            hint: "Select Payment Status",
+                          ),
+                          SizedBox(height: Get.height / 60),
+                        ],
 
                         // Submit Button
                         Obx(
@@ -189,7 +327,13 @@ class CreateNewB2BOrder extends StatelessWidget {
                                   ? null
                                   : () {
                                       if (_formKey.currentState!.validate()) {
-                                        createB2BOrderController.addB2BOrder();
+                                        if (editingOrder != null) {
+                                          createB2BOrderController
+                                              .updateB2BOrder(editingOrder!.id);
+                                        } else {
+                                          createB2BOrderController
+                                              .addB2BOrder();
+                                        }
                                       }
                                     },
                               child: createB2BOrderController.isLoading.value
@@ -197,7 +341,9 @@ class CreateNewB2BOrder extends StatelessWidget {
                                       color: Colors.white,
                                     )
                                   : Text(
-                                      "Create Order",
+                                      editingOrder != null
+                                          ? "Update Order"
+                                          : "Create Order",
                                       style: GoogleFonts.poppins(
                                         fontSize: Get.width / 22.5,
                                         color: Colors.white,
@@ -209,38 +355,12 @@ class CreateNewB2BOrder extends StatelessWidget {
                         ),
                         SizedBox(height: Get.height / 60),
 
-                        // Delete Button
+                        // Clear Button
                         SizedBox(
                           height: Get.height / 18,
                           width: double.infinity,
                           child: OutlinedButton(
-                            onPressed: () {
-                              _formKey.currentState!.reset();
-                              createB2BOrderController.customerNameController
-                                  .clear();
-                              createB2BOrderController.customerEmailController
-                                  .clear();
-                              createB2BOrderController.customerPhoneController
-                                  .clear();
-                              createB2BOrderController.customerAddressController
-                                  .clear();
-                              createB2BOrderController.customerCompanyController
-                                  .clear();
-                              createB2BOrderController.customerGstController
-                                  .clear();
-                              createB2BOrderController.totalAmountController
-                                  .clear();
-
-                              createB2BOrderController.productController
-                                  .clear();
-                              createB2BOrderController.variationController
-                                  .clear();
-                              createB2BOrderController.quantityController
-                                  .clear();
-                              createB2BOrderController.priceController.clear();
-                              createB2BOrderController.totalController.clear();
-                              createB2BOrderController.gstController.clear();
-                            },
+                            onPressed: _clearAll,
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.white,
                               side: const BorderSide(
@@ -253,7 +373,7 @@ class CreateNewB2BOrder extends StatelessWidget {
                               elevation: 0,
                             ),
                             child: Text(
-                              'Delete',
+                              'Clear All',
                               style: GoogleFonts.poppins(
                                 textStyle: TextStyle(
                                   fontSize: Get.width / 22.5,
@@ -275,21 +395,6 @@ class CreateNewB2BOrder extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _updateTotal() {
-    double quantity =
-        double.tryParse(createB2BOrderController.quantityController.text) ?? 0;
-    double price =
-        double.tryParse(createB2BOrderController.priceController.text) ?? 0;
-    double gst =
-        double.tryParse(createB2BOrderController.gstController.text) ?? 0;
-
-    double total = (quantity * price) + gst;
-    createB2BOrderController.totalController.text = total.toStringAsFixed(2);
-    createB2BOrderController.totalAmountController.text = total.toStringAsFixed(
-      2,
-    ); // this is sent to API
   }
 
   Widget _sectionTitle(String title) {

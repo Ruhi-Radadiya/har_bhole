@@ -270,7 +270,6 @@ class CashbookScreen extends StatelessWidget {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      // Left column: Payment method & amount
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -294,31 +293,10 @@ class CashbookScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-
-                                      // Right column: Status & View Details
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Color(0xffDCE1D7),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            ),
-                                            child: Text(
-                                              "Approved", // You can map actual status if API provides
-                                              style: TextStyle(
-                                                fontSize: Get.width / 33,
-                                                color: Color(0xff4E6B37),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(height: 4),
                                           GestureDetector(
                                             onTap: () {
                                               Get.toNamed(
@@ -326,11 +304,13 @@ class CashbookScreen extends StatelessWidget {
                                                 arguments: entry,
                                               );
                                             },
-                                            child: Text(
-                                              "View Details",
-                                              style: TextStyle(
-                                                fontSize: Get.width / 30,
-                                                color: Colors.blue,
+                                            child: Container(
+                                              child: Text(
+                                                "View Details",
+                                                style: TextStyle(
+                                                  fontSize: Get.width / 32,
+                                                  color: Colors.blue,
+                                                ),
                                               ),
                                             ),
                                           ),

@@ -93,6 +93,75 @@ class CashEntryController extends GetxController {
     }
   }
 
+  /// ------------------- UPDATE CASHBOOK ENTRY -------------------
+  Future<void> updateCashbookEntry(String entryId) async {
+    isLoading.value = true;
+
+    const String url =
+        "https://harbhole.eihlims.com/Api/cashbook_entries_api.php?action=edit";
+
+    try {
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      // Add required fields
+      request.fields['entry_id'] = entryId;
+      request.fields['entry_date'] = entryDateController.text;
+      request.fields['entry_type'] = selectedInOut.value; // Income/Expense
+      request.fields['amount'] = amountController.text;
+      request.fields['category_id'] = "1"; // Can be dynamic if needed
+      request.fields['payment_method'] = paymentMethodController.text;
+      request.fields['reference_no'] = referenceNoController.text;
+      request.fields['description'] = descriptionController.text;
+      request.fields['created_by'] = '1'; // Keep same as add
+
+      // Attach file if selected
+      if (attachmentFile.value != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'attachment',
+            attachmentFile.value!.path,
+          ),
+        );
+      }
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      log('Cashbook Update Response: $responseBody');
+
+      final result = jsonDecode(responseBody);
+
+      if (response.statusCode == 200 && result['success'] == true) {
+        Fluttertoast.showToast(
+          msg: "Cashbook entry updated successfully!",
+          backgroundColor: Colors.green.shade300,
+          textColor: Colors.white,
+        );
+
+        clearAllFields();
+        await cashbookController.fetchCashbookEntries();
+        Get.back();
+        Get.back();
+      } else {
+        Fluttertoast.showToast(
+          msg:
+              "Failed to update entry: ${result['message'] ?? 'Unknown error'}",
+          backgroundColor: Colors.red.shade300,
+          textColor: Colors.white,
+        );
+      }
+    } catch (e) {
+      log('Error updating cashbook entry: $e');
+      Fluttertoast.showToast(
+        msg: "Something went wrong: $e",
+        backgroundColor: Colors.red.shade300,
+        textColor: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   /// ------------------- DELETE CASHBOOK ENTRY -------------------
   Future<void> deleteCashbookEntry(String entryId) async {
     isLoading.value = true;

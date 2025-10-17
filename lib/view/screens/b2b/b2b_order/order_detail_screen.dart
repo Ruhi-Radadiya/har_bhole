@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/view/component/textfield.dart';
@@ -15,6 +16,7 @@ class OrderDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = Get.height;
     double subTotal = 0;
+
     if (order.items.isNotEmpty) {
       subTotal = order.items.fold<double>(
         0,
@@ -23,8 +25,10 @@ class OrderDetailScreen extends StatelessWidget {
     } else {
       subTotal = double.tryParse(order.totalAmount)?.toDouble() ?? 0;
     }
+
     final tax = subTotal * 0.12;
     final total = subTotal + tax;
+
     return Scaffold(
       backgroundColor: const Color(0xffF9F9F9),
       body: Column(
@@ -96,8 +100,6 @@ class OrderDetailScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _topTab('Edit', false),
-                        _topTab('Delete', false),
                         _topTab('Share', false),
                         _topTab('Print', false),
                       ],
@@ -119,24 +121,17 @@ class OrderDetailScreen extends StatelessWidget {
                       isReadOnly: true,
                     ),
                     SizedBox(height: height / 60),
-
-                    CustomDropdownField(
-                      label: 'Status',
-                      items: ['Pending', 'Approved', 'Rejected'],
-                      value: order.status,
-                      getLabel: (val) => val.toString(),
-                      onChanged: (val) {},
+                    CustomTextField(
                       hint: order.status,
+                      label: 'Status',
+                      isReadOnly: true,
                     ),
                     SizedBox(height: height / 60),
 
-                    CustomDropdownField(
-                      label: 'Payment',
-                      items: ['Pending', 'Approved', 'Rejected'],
-                      value: order.paymentStatus,
-                      getLabel: (val) => val.toString(),
-                      onChanged: (val) {},
+                    CustomTextField(
                       hint: order.paymentStatus,
+                      label: 'Payment',
+                      isReadOnly: true,
                     ),
                     SizedBox(height: height / 60),
 
@@ -200,7 +195,7 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                     SizedBox(height: height / 40),
 
-                    // 🔸 Order Items (placeholder for now)
+                    // 🔸 Order Items
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -227,7 +222,6 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                       )
                     else
-                      // fallback static items
                       Column(
                         children: [
                           _orderItem('Product', 'Farali Petis'),
@@ -235,15 +229,9 @@ class OrderDetailScreen extends StatelessWidget {
                           _orderItem('Variants', '-'),
                           _orderItem('QTY', '1'),
                           const Divider(),
-                          _orderItem('Product', 'Mohanthal'),
-                          _orderItem('Price', '₹100'),
-                          _orderItem('Variants', '500gm'),
-                          _orderItem('QTY', '1'),
-                          const Divider(),
                         ],
                       ),
 
-                    // 🔹 Subtotal / Tax / Total
                     _subTotal('Subtotal', '₹${subTotal.toStringAsFixed(2)}'),
                     _subTotal('Tax Rate(12.00%)', '₹${tax.toStringAsFixed(2)}'),
                     _subTotal(
@@ -252,43 +240,24 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                     SizedBox(height: height / 40),
 
-                    // 🔸 Quick Actions
-                    _sectionTitle('Quick Actions'),
-                    CustomDropdownField(
-                      label: 'Order Status',
-                      items: ['Pending', 'Approved', 'Rejected'],
-                      value: order.status,
-                      getLabel: (val) => val.toString(),
-                      onChanged: (val) {},
-                      hint: order.status,
-                    ),
-                    SizedBox(height: height / 60),
-
-                    CustomDropdownField(
-                      label: 'Payment Status',
-                      items: ['Pending', 'Approved', 'Rejected'],
-                      value: order.paymentStatus,
-                      getLabel: (val) => val.toString(),
-                      onChanged: (val) {},
-                      hint: order.paymentStatus,
-                    ),
-                    SizedBox(height: height / 30),
                     SizedBox(
                       height: Get.height / 18,
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Get.toNamed(Routes.createNewb2bOrder);
+                          Get.toNamed(
+                            Routes.createNewb2bOrder,
+                            arguments: order, // ✅ Pass the existing order here
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xffF78520),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
                           ),
-                          elevation: 0,
                         ),
                         child: Text(
-                          'Create Manual Order',
+                          'Edit Order',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
                               fontSize: Get.width / 22.5,
@@ -299,17 +268,25 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     SizedBox(height: height / 80),
                     SizedBox(
                       height: Get.height / 18,
                       width: double.infinity,
                       child: OutlinedButton(
                         onPressed: () async {
-                          bool deleted = await deleteB2BOrderController
-                              .deleteOrder(order.id);
+                          bool deleted = await createB2BOrderController
+                              .deleteB2bOrder(order.id);
                           if (deleted) {
-                            Get.back(); // go back to order list
-                            b2bOrderController.fetchOrders(); // refresh list
+                            Fluttertoast.showToast(
+                              msg: "Order deleted successfully",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: const Color(0xff4CAF50),
+                              textColor: Colors.white,
+                            );
+                            Get.back();
+                            b2bOrderController.fetchOrders();
                           }
                         },
                         style: OutlinedButton.styleFrom(
@@ -338,7 +315,6 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Helper Widgets
   Widget _topTab(String text, bool isActive) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
@@ -360,7 +336,7 @@ class OrderDetailScreen extends StatelessWidget {
 
   Widget _sectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Text(
         title,
         style: GoogleFonts.poppins(
@@ -393,7 +369,7 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _orderItem(String title, String price) {
+  Widget _orderItem(String title, dynamic value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -408,7 +384,7 @@ class OrderDetailScreen extends StatelessWidget {
             ),
           ),
           Text(
-            price,
+            '$value',
             style: GoogleFonts.poppins(
               fontSize: Get.width / 26,
               fontWeight: FontWeight.w500,

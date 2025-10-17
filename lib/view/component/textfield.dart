@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -163,19 +164,18 @@ class FieldValidator {
   static bool validateRequired(Map<String, TextEditingController> fields) {
     for (var entry in fields.entries) {
       if (entry.value.text.trim().isEmpty) {
-        Get.snackbar(
-          "Error",
-          "${entry.key} is required",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red.withOpacity(0.8),
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(12),
-          duration: const Duration(seconds: 2),
+        Fluttertoast.showToast(
+          msg: "${entry.key} is required",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
-        return false;
+        return false; // Stop checking after first empty field
       }
     }
-    return true;
+    return true; // All fields are filled
   }
 }
 
