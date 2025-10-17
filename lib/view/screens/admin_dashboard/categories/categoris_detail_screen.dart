@@ -216,23 +216,69 @@ class CategoryDetailsScreen extends StatelessWidget {
                             width: double.infinity,
                             child: OutlinedButton(
                               onPressed: () async {
-                                bool success = await deleteCategoryController
-                                    .deleteCategory(category.categoryId);
-                                if (success) {
-                                  premiumCollectionController.premiumCollection
-                                      .removeWhere(
-                                        (cat) =>
-                                            cat.categoryId ==
-                                            category.categoryId,
-                                      );
-                                  premiumCollectionController.filteredCategories
-                                      .removeWhere(
-                                        (cat) =>
-                                            cat.categoryId ==
-                                            category.categoryId,
-                                      );
-                                  Get.back();
-                                }
+                                // Show confirmation dialog
+                                await Get.defaultDialog(
+                                  title: "Delete Category",
+                                  titleStyle: TextStyle(
+                                    color: const Color(0xffF78520),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: Get.width / 20,
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  radius: 20,
+                                  barrierDismissible: false,
+                                  content: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: Get.width / 20,
+                                      vertical: Get.height / 50,
+                                    ),
+                                    child: Text(
+                                      "Are you sure you want to delete this category?",
+                                      style: TextStyle(
+                                        color: const Color(0xffF78520),
+                                        fontSize: Get.width / 30,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  textConfirm: "Yes",
+                                  textCancel: "No",
+                                  confirmTextColor: const Color(0xffF78520),
+                                  cancelTextColor: const Color(0xffF78520),
+                                  buttonColor: Colors.white,
+                                  onConfirm: () async {
+                                    // Call delete function
+                                    bool success =
+                                        await deleteCategoryController
+                                            .deleteCategory(
+                                              category.categoryId,
+                                            );
+
+                                    if (success) {
+                                      // Remove category from lists locally
+                                      premiumCollectionController
+                                          .premiumCollection
+                                          .removeWhere(
+                                            (cat) =>
+                                                cat.categoryId ==
+                                                category.categoryId,
+                                          );
+                                      premiumCollectionController
+                                          .filteredCategories
+                                          .removeWhere(
+                                            (cat) =>
+                                                cat.categoryId ==
+                                                category.categoryId,
+                                          );
+
+                                      // Close dialog
+                                      if (Get.isDialogOpen ?? false) Get.back();
+                                    }
+                                  },
+                                  onCancel: () {
+                                    if (Get.isDialogOpen ?? false) Get.back();
+                                  },
+                                );
                               },
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: Colors.white,

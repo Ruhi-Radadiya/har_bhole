@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -34,10 +35,22 @@ class AddSupplierController extends GetxController {
     generateNextSupplierCode();
   }
 
+  /// Toast helper
+  void showToast(String message, {bool success = true}) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: success ? Colors.green : Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
   /// Generate supplier code automatically
   Future<void> generateNextSupplierCode() async {
     const String getApiUrl =
-        "https://harbhole.eihlims.com/api/suppliers_api.php?action=list";
+        "https://harbhole.eihlims.com/Api/suppliers_api.php?action=list";
 
     try {
       final response = await http.get(Uri.parse(getApiUrl));
@@ -123,47 +136,53 @@ class AddSupplierController extends GetxController {
         result = jsonDecode(response.body);
       } catch (e) {
         log('Response is not JSON: ${response.body}');
-        Get.snackbar(
-          'Error',
-          'Invalid response from server.',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        showToast('Invalid response from server.', success: false);
         return;
       }
 
       if (response.statusCode == 200 && result['success'] == true) {
-        Get.snackbar(
-          'Success',
-          'Supplier added successfully!',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-
+        showToast('Supplier added successfully!', success: true);
         clearAllFields();
         Get.back();
       } else {
-        Get.snackbar(
-          'Error',
+        showToast(
           'Failed to add supplier: ${result['message'] ?? 'Unknown error'}',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
+          success: false,
         );
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Something went wrong: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      showToast('Something went wrong: $e', success: false);
       log('Error adding supplier: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Delete supplier
+  Future<void> deleteSupplier(String supplierId) async {
+    final url = Uri.parse(
+      'https://harbhole.eihlims.com/Api/suppliers_api.php?action=delete',
+    );
+
+    try {
+      final response = await http.post(url, body: {'supplier_id': supplierId});
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          showToast('Supplier deleted successfully!', success: true);
+        } else {
+          showToast(
+            data['message'] ?? 'Failed to delete supplier',
+            success: false,
+          );
+          log('Failed to delete supplier: ${data['message']}');
+        }
+      } else {
+        showToast('Server error: ${response.statusCode}', success: false);
+      }
+    } catch (e) {
+      showToast('Something went wrong: $e', success: false);
     }
   }
 

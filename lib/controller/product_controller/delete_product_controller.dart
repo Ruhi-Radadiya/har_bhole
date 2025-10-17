@@ -5,6 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../../main.dart';
+
 class DeleteProductController extends GetxController {
   static DeleteProductController get instance => Get.find();
 
@@ -33,6 +35,9 @@ class DeleteProductController extends GetxController {
           textColor: Colors.white,
           fontSize: 16.0,
         );
+        Get.back();
+        productController.fetchProducts();
+
         return true;
       } else {
         Fluttertoast.showToast(

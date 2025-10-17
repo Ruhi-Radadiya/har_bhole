@@ -11,6 +11,7 @@ class ViewSupplierScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Fetch suppliers when the screen loads
     supplierController.fetchSuppliers();
 
     return GestureDetector(
@@ -20,6 +21,7 @@ class ViewSupplierScreen extends StatelessWidget {
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
+            // Header
             Container(
               padding: EdgeInsets.only(
                 left: Get.width / 25,
@@ -57,6 +59,7 @@ class ViewSupplierScreen extends StatelessWidget {
                 ],
               ),
             ),
+            // Supplier list
             Expanded(
               child: Obx(() {
                 if (supplierController.isLoading.value) {
@@ -85,29 +88,35 @@ class ViewSupplierScreen extends StatelessWidget {
                             BoxShadow(
                               color: Colors.black.withOpacity(0.2),
                               blurRadius: 10,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Buttons Row
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                // Edit Button
                                 GestureDetector(
+                                  onTap: () {
+                                    // Navigate to edit supplier screen
+                                    // Get.to(() => EditSupplierScreen(supplier: supplier));
+                                  },
                                   child: Container(
                                     padding: const EdgeInsets.all(7),
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: Color(0xffF78520),
+                                        color: const Color(0xffF78520),
                                       ),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
                                       'Edit',
                                       style: TextStyle(
-                                        color: Color(0xffF78520),
+                                        color: const Color(0xffF78520),
                                         fontWeight: FontWeight.bold,
                                         fontSize: Get.width / 36,
                                       ),
@@ -115,31 +124,86 @@ class ViewSupplierScreen extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(width: Get.width / 100),
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Color(0xffF78520),
+                                // Delete Button
+                                GestureDetector(
+                                  onTap: () async {
+                                    // Show custom styled confirmation dialog
+                                    await Get.defaultDialog(
+                                      title: "Delete Supplier",
+                                      titleStyle: TextStyle(
+                                        color: const Color(0xffF78520),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: Get.width / 20,
+                                      ),
+                                      backgroundColor: Colors.white,
+                                      radius: 20,
+                                      barrierDismissible: false,
+                                      content: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: Get.width / 20,
+                                          vertical: Get.height / 50,
+                                        ),
+                                        child: Text(
+                                          "Are you sure you want to delete this supplier?",
+                                          style: TextStyle(
+                                            color: const Color(0xffF78520),
+                                            fontSize: Get.width / 30,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      textConfirm: "Yes",
+                                      textCancel: "No",
+                                      confirmTextColor: const Color(0xffF78520),
+                                      cancelTextColor: const Color(0xffF78520),
+                                      buttonColor: Colors.white,
+                                      onConfirm: () async {
+                                        // Call delete function
+                                        await addSupplierController
+                                            .deleteSupplier(
+                                              supplier.supplierId,
+                                            );
+
+                                        // Refresh supplier list
+                                        supplierController.fetchSuppliers();
+
+                                        // Close dialog
+                                        if (Get.isDialogOpen ?? false)
+                                          Get.back();
+                                      },
+                                      onCancel: () {
+                                        if (Get.isDialogOpen ?? false)
+                                          Get.back();
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: const Color(0xffF78520),
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    'Delete',
-                                    style: TextStyle(
-                                      color: Color(0xffF78520),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: Get.width / 36,
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: const Color(0xffF78520),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: Get.width / 36,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: Get.height / 40),
+                            SizedBox(height: Get.height / 30),
+                            // Filter Fields Row
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 _buildFilterField(
-                                  label: "Statue",
+                                  label: "Status",
                                   child: _buildFilterDropdown(
                                     label: supplier.status,
                                   ),
@@ -153,6 +217,7 @@ class ViewSupplierScreen extends StatelessWidget {
                               ],
                             ),
                             SizedBox(height: Get.height / 40),
+                            // Supplier Details Fields
                             CustomTextField(
                               label: "Code",
                               hint: supplier.supplierCode ?? "-",
@@ -190,7 +255,7 @@ class ViewSupplierScreen extends StatelessWidget {
                             ),
                             SizedBox(height: Get.height / 60),
                             CustomTextField(
-                              label: "Statue",
+                              label: "Status",
                               hint: supplier.status,
                             ),
                             SizedBox(height: Get.height / 60),
@@ -224,7 +289,7 @@ class ViewSupplierScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           child,
         ],
       ),

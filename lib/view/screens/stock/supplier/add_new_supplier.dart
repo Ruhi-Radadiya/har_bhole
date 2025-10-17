@@ -7,13 +7,14 @@ import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
 class AddNewSupplier extends StatelessWidget {
-  AddNewSupplier({super.key});
+  const AddNewSupplier({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
