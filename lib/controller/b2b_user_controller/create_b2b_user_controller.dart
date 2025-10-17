@@ -64,7 +64,7 @@ class CreateB2bUserController extends GetxController {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           showToast("User added successfully!");
-          _clearFields();
+          clearFields();
 
           // Refresh user list
           if (Get.isRegistered<B2BUserController>()) {
@@ -83,6 +83,65 @@ class CreateB2bUserController extends GetxController {
     } catch (e) {
       showToast("Something went wrong: $e", isError: true);
       log("Add User Error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ------------------- UPDATE B2B USER -------------------
+  Future<void> updateB2BUser(String userId) async {
+    final url = Uri.parse(
+      'https://harbhole.eihlims.com/Api/b2busers_api.php?action=edit',
+    );
+
+    final body = {
+      'id': userId,
+      'name': nameController.text,
+      'email': emailController.text,
+      'phone': phoneController.text,
+      'company': companyController.text,
+      'gstin': gstinController.text,
+      'address': addressController.text,
+      'password_hash': passwordController.text,
+      'status': statusController.text,
+    };
+
+    try {
+      isLoading.value = true;
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data['success'] == true) {
+          showToast("User updated successfully!");
+          clearFields();
+
+          // Refresh user list
+          if (Get.isRegistered<B2BUserController>()) {
+            final userController = Get.find<B2BUserController>();
+            await userController.fetchUsers();
+          }
+
+          Get.back(); // Close form page
+          log("User Updated: $data");
+        } else {
+          showToast(data['message'] ?? "Failed to update user", isError: true);
+        }
+      } else {
+        showToast(
+          "Failed to update user: ${response.statusCode}",
+          isError: true,
+        );
+      }
+    } catch (e) {
+      showToast("Something went wrong: $e", isError: true);
+      log("Update User Error: $e");
     } finally {
       isLoading.value = false;
     }
@@ -137,7 +196,7 @@ class CreateB2bUserController extends GetxController {
   }
 
   // ------------------- CLEAR FORM -------------------
-  void _clearFields() {
+  void clearFields() {
     nameController.clear();
     emailController.clear();
     phoneController.clear();
@@ -146,5 +205,16 @@ class CreateB2bUserController extends GetxController {
     addressController.clear();
     passwordController.clear();
     statusController.clear();
+  } // ------------------- PREFILL USER DATA (FOR UPDATE) -------------------
+
+  void prefillUserData(Map<String, dynamic> user) {
+    nameController.text = user['name'] ?? '';
+    emailController.text = user['email'] ?? '';
+    phoneController.text = user['phone'] ?? '';
+    companyController.text = user['company'] ?? '';
+    gstinController.text = user['gstin'] ?? '';
+    addressController.text = user['address'] ?? '';
+    passwordController.text = ''; // keep blank for security
+    statusController.text = user['status'] ?? '';
   }
 }

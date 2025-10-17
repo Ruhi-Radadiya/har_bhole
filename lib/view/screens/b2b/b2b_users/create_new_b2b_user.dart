@@ -5,18 +5,39 @@ import 'package:har_bhole/main.dart';
 
 import '../../../component/textfield.dart';
 
-class CreateNewB2BUser extends StatelessWidget {
-  CreateNewB2BUser({super.key});
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+class CreateNewB2BUser extends StatefulWidget {
+  const CreateNewB2BUser({super.key});
 
-  // GetX Controller
+  @override
+  State<CreateNewB2BUser> createState() => _CreateNewB2BUserState();
+}
+
+class _CreateNewB2BUserState extends State<CreateNewB2BUser> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late bool isEditMode;
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Check arguments once during init
+    if (Get.arguments != null && Get.arguments is Map<String, dynamic>) {
+      userData = Get.arguments as Map<String, dynamic>;
+      isEditMode = true;
+      createB2bUserController.prefillUserData(userData!);
+    } else {
+      isEditMode = false;
+      createB2bUserController.clearFields();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -26,7 +47,7 @@ class CreateNewB2BUser extends StatelessWidget {
             onPressed: () => Get.back(),
           ),
           title: Text(
-            'Create New B2B User',
+            isEditMode ? 'Update B2B User' : 'Create New B2B User',
             style: GoogleFonts.poppins(
               textStyle: TextStyle(
                 color: Colors.black,
@@ -37,26 +58,26 @@ class CreateNewB2BUser extends StatelessWidget {
           ),
           centerTitle: true,
         ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(Get.width / 30),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(Get.width / 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey,
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(Get.width / 30),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(Get.width / 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     children: [
                       CustomTextField(
@@ -73,12 +94,15 @@ class CreateNewB2BUser extends StatelessWidget {
                         keyboardType: TextInputType.emailAddress,
                       ),
                       SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: 'Password',
-                        hint: 'Enter your Password',
-                        controller: createB2bUserController.passwordController,
-                        isPassword: true,
-                      ),
+                      if (isEditMode == false)
+                        CustomTextField(
+                          label: 'Password',
+                          hint: isEditMode ? '-' : 'Enter your Password',
+                          controller:
+                              createB2bUserController.passwordController,
+                          isPassword: !isEditMode,
+                          isReadOnly: isEditMode,
+                        ),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Phone',
@@ -115,6 +139,8 @@ class CreateNewB2BUser extends StatelessWidget {
                         keyboardType: TextInputType.text,
                       ),
                       SizedBox(height: Get.height / 60),
+
+                      // Save/Update Button
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,
@@ -124,7 +150,13 @@ class CreateNewB2BUser extends StatelessWidget {
                                 ? null
                                 : () {
                                     if (_formKey.currentState!.validate()) {
-                                      createB2bUserController.addB2BUser();
+                                      if (isEditMode) {
+                                        createB2bUserController.updateB2BUser(
+                                          userData!['id'].toString(),
+                                        );
+                                      } else {
+                                        createB2bUserController.addB2BUser();
+                                      }
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
@@ -139,7 +171,7 @@ class CreateNewB2BUser extends StatelessWidget {
                                     color: Colors.white,
                                   )
                                 : Text(
-                                    'Save User',
+                                    isEditMode ? 'Update User' : 'Save User',
                                     style: GoogleFonts.poppins(
                                       textStyle: TextStyle(
                                         fontSize: Get.width / 22.5,
@@ -151,13 +183,12 @@ class CreateNewB2BUser extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(height: Get.height / 40),
                     ],
                   ),
                 ),
-              ),
-              SizedBox(height: Get.height / 20),
-            ],
+                SizedBox(height: Get.height / 20),
+              ],
+            ),
           ),
         ),
       ),

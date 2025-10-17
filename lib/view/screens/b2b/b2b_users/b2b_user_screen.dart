@@ -5,6 +5,7 @@ import 'package:har_bhole/routes/routes.dart';
 
 import '../../../../main.dart';
 import '../../../component/textfield.dart';
+import 'create_new_b2b_user.dart';
 
 class B2BUserScreen extends StatelessWidget {
   B2BUserScreen({super.key});
@@ -176,8 +177,19 @@ class B2BUserScreen extends StatelessWidget {
                           : const Color(0xffEFCFD2),
                       userCode: user.id,
                       onEdit: () {
-                        // Navigate to edit page or open edit dialog
-                        // Get.to(() => EditUserScreen(), arguments: user);
+                        Get.to(
+                          () => CreateNewB2BUser(),
+                          arguments: {
+                            'id': user.id,
+                            'name': user.name,
+                            'email': user.email,
+                            'phone': user.phone,
+                            'company': user.company,
+                            'gstin': user.gstin,
+                            'address': user.address,
+                            'status': user.status,
+                          },
+                        );
                       },
                       onDelete: () {
                         Get.defaultDialog(

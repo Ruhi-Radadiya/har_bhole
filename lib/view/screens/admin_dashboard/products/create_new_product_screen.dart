@@ -53,32 +53,30 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     ctrl.isActive.value = p.status == '1';
     ctrl.descriptionController.text = p.description ?? "";
 
-    if (p.nutritionalInfo != null) {
-      ctrl.energyController.text = p.nutritionalInfo.energyKcal.toString();
-      ctrl.proteinController.text = p.nutritionalInfo.proteinG.toString();
-      ctrl.totalFatController.text = p.nutritionalInfo.totalFatG.toString();
-      ctrl.carbohydrateController.text = p.nutritionalInfo.carbohydrateG
-          .toString();
-      ctrl.totalSugarController.text = p.nutritionalInfo.totalSugarG.toString();
-      ctrl.saturatedFatController.text = p.nutritionalInfo.saturatedFatG
-          .toString();
-      ctrl.monounsaturatedFatController.text = p
-          .nutritionalInfo
-          .monounsaturatedFatG
-          .toString();
-      ctrl.polyunsaturatedFatController.text = p
-          .nutritionalInfo
-          .polyunsaturatedFatG
-          .toString();
-      ctrl.sodiumController.text = p.nutritionalInfo.sodiumMg.toString();
-      ctrl.ironController.text = p.nutritionalInfo.ironMg.toString();
-      ctrl.calciumController.text = p.nutritionalInfo.calciumMg.toString();
-      ctrl.fiberController.text = p.nutritionalInfo.fiberG.toString();
-      ctrl.vitaminCController.text = p.nutritionalInfo.vitaminCMg.toString();
-      ctrl.vitaminDController.text = p.nutritionalInfo.vitaminDMcg.toString();
-      ctrl.cholesterolController.text = p.nutritionalInfo.cholesterolMg
-          .toString();
-    }
+    ctrl.energyController.text = p.nutritionalInfo.energyKcal.toString();
+    ctrl.proteinController.text = p.nutritionalInfo.proteinG.toString();
+    ctrl.totalFatController.text = p.nutritionalInfo.totalFatG.toString();
+    ctrl.carbohydrateController.text = p.nutritionalInfo.carbohydrateG
+        .toString();
+    ctrl.totalSugarController.text = p.nutritionalInfo.totalSugarG.toString();
+    ctrl.saturatedFatController.text = p.nutritionalInfo.saturatedFatG
+        .toString();
+    ctrl.monounsaturatedFatController.text = p
+        .nutritionalInfo
+        .monounsaturatedFatG
+        .toString();
+    ctrl.polyunsaturatedFatController.text = p
+        .nutritionalInfo
+        .polyunsaturatedFatG
+        .toString();
+    ctrl.sodiumController.text = p.nutritionalInfo.sodiumMg.toString();
+    ctrl.ironController.text = p.nutritionalInfo.ironMg.toString();
+    ctrl.calciumController.text = p.nutritionalInfo.calciumMg.toString();
+    ctrl.fiberController.text = p.nutritionalInfo.fiberG.toString();
+    ctrl.vitaminCController.text = p.nutritionalInfo.vitaminCMg.toString();
+    ctrl.vitaminDController.text = p.nutritionalInfo.vitaminDMcg.toString();
+    ctrl.cholesterolController.text = p.nutritionalInfo.cholesterolMg
+        .toString();
 
     // Image
     if (p.productImage.isNotEmpty) ctrl.setImageUrl(p.productImage);
