@@ -1,100 +1,107 @@
-import 'package:get/get.dart';
+import 'dart:convert';
+import 'dart:developer';
 
-import '../../view/screens/shopping/checkout.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+
+import '../../model/cart_model/cart_model.dart';
 
 class OrderCartController extends GetxController {
-  RxList<CartItem> cartItems = <CartItem>[].obs;
+  RxList<CartModel> cartItems = <CartModel>[].obs;
+  RxBool isLoading = false.obs;
+
+  final String baseUrl =
+      "http://192.168.0.118/har_bhole_farsan/Api/cart.php?action=list";
 
   @override
   void onInit() {
     super.onInit();
-    // sample initial data (same as your old UI). Your Products screen can add items to cartItems
-    cartItems.assignAll([
-      CartItem(
-        imageUrl: 'asset/images/home/khaman.png',
-        name: 'Khaman',
-        weight: '1kg',
-        price: 200,
-        originalPrice: 400,
-        quantity: 2,
-      ),
-      CartItem(
-        imageUrl: 'asset/images/home/khaman.png',
-        name: 'Samosa',
-        weight: '500g',
-        price: 100,
-        originalPrice: 200,
-        quantity: 2,
-      ),
-      CartItem(
-        imageUrl: 'asset/images/home/khaman.png',
-        name: 'Mix Farsan',
-        weight: '500g',
-        price: 200,
-        originalPrice: 300,
-        quantity: 1,
-      ),
-    ]);
+    fetchCartData();
   }
 
-  // Add item (merge if same product+weight)
-  void addItem(CartItem newItem) {
-    final index = cartItems.indexWhere(
-      (i) => i.name == newItem.name && i.weight == newItem.weight,
-    );
-    if (index >= 0) {
-      cartItems[index].quantity.value += newItem.quantity.value;
-      cartItems.refresh();
-    } else {
-      cartItems.add(newItem);
+  /// ✅ Fetch Cart Data from API
+  Future<void> fetchCartData() async {
+    try {
+      isLoading.value = true;
+      final response = await http.get(Uri.parse(baseUrl));
+
+      log("🟠 Cart API Status: ${response.statusCode}");
+      log("🟢 Cart API Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        if (jsonResponse["success"] == true && jsonResponse["data"] != null) {
+          List data = jsonResponse["data"];
+          cartItems.assignAll(data.map((e) => CartModel.fromJson(e)).toList());
+        } else {
+          cartItems.clear();
+          log("⚠️ No cart data found");
+        }
+      } else {
+        log("❌ Server error: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("❌ Exception: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  void removeItem(CartItem item) {
-    cartItems.remove(item);
-  }
-
-  void increaseQuantity(CartItem item) {
-    item.quantity.value++;
+  /// ✅ Increase quantity
+  void increaseQuantity(CartModel item) {
+    int currentQty = int.tryParse(item.qty) ?? 1;
+    int newQty = currentQty + 1;
+    item.qty = newQty.toString();
     cartItems.refresh();
   }
 
-  void decreaseQuantity(CartItem item) {
-    if (item.quantity.value > 1) {
-      item.quantity.value--;
+  /// ✅ Decrease quantity
+  void decreaseQuantity(CartModel item) {
+    int currentQty = int.tryParse(item.qty) ?? 1;
+    if (currentQty > 1) {
+      int newQty = currentQty - 1;
+      item.qty = newQty.toString();
       cartItems.refresh();
     } else {
       removeItem(item);
     }
   }
 
-  // subtotal: sum of (selling price * qty)
-  double get calculatedSubtotal => cartItems.fold(
-    0.0,
-    (sum, item) => sum + (item.price * item.quantity.value),
-  );
-
-  // base price for display: sum of (originalPrice * qty)
-  double get basePriceForItemsDisplay => cartItems.fold(
-    0.0,
-    (sum, item) => sum + (item.originalPrice * item.quantity.value),
-  );
-
-  // discount = base - subtotal (if base > subtotal). else 0
-  double get displayDiscount {
-    final d = basePriceForItemsDisplay - calculatedSubtotal;
-    return d > 0 ? d : 0.0;
+  /// ✅ Remove item
+  void removeItem(CartModel item) {
+    cartItems.remove(item);
   }
 
-  // delivery charges: free for subtotal >= 500, else 40 (adjust as needed)
+  /// ✅ Subtotal (price * qty)
+  double get calculatedSubtotal {
+    return cartItems.fold(0.0, (sum, item) {
+      double price = double.tryParse(item.price) ?? 0.0;
+      int qty = int.tryParse(item.qty) ?? 0;
+      return sum + (price * qty);
+    });
+  }
+
+  /// ✅ Base price for MRP display (same as subtotal if no discount)
+  double get basePriceForItemsDisplay => calculatedSubtotal;
+
+  /// ✅ Discount (0 for now)
+  double get displayDiscount => 0.0;
+
+  /// ✅ Delivery charges
   double get deliveryCharges => calculatedSubtotal >= 500 ? 0.0 : 40.0;
 
+  /// ✅ Platform fee
   double get platformFee => cartItems.isEmpty ? 0.0 : 5.0;
 
-  // final payable amount
+  /// ✅ Grand total
   double get grandTotal => calculatedSubtotal + deliveryCharges + platformFee;
 
-  // convenience totalItems count
-  int get totalItemsCount =>
-      cartItems.fold(0, (sum, item) => sum + item.quantity.value);
+  /// ✅ Total items count
+  int get totalItemsCount {
+    return cartItems.fold(0, (sum, item) {
+      int qty = int.tryParse(item.qty) ?? 0;
+      return sum + qty;
+    });
+  }
 }

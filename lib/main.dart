@@ -18,6 +18,7 @@ import 'package:har_bhole/routes/routes.dart';
 import 'controller/b2b_order/create_b2b_order_controller.dart';
 import 'controller/b2b_user_controller/b2b_user_controller.dart';
 import 'controller/b2b_user_controller/create_b2b_user_controller.dart';
+import 'controller/banner_controller/banner_controller.dart';
 import 'controller/cart_controller/order_controller.dart';
 import 'controller/cashbook_controller/cashbook_controller.dart';
 import 'controller/category_controller/category_controller.dart';
@@ -25,9 +26,11 @@ import 'controller/category_controller/create_new_category_controller.dart';
 import 'controller/category_controller/delete_category_controller.dart';
 import 'controller/customer_detail_controller/customer_detail_controller.dart';
 import 'controller/finished_goods_stock_controller/add_finished_goods_stock_controller.dart';
+import 'controller/login_controller.dart';
 import 'controller/orders_controller/orders_controller.dart';
 import 'controller/product_controller/add_product_controller.dart';
 import 'controller/raw_material_controller/add_raw_material_controller.dart';
+import 'controller/stock_movement_controller/stock_movement_controller.dart';
 import 'controller/supplier_controller/add_supplier_controller.dart';
 import 'controller/supplier_controller/supplier_controller.dart';
 import 'controller/users_controller/dashboard_users_controller.dart';
@@ -90,7 +93,11 @@ DeleteCategoryController deleteCategoryController = Get.put(
 EditCategoryController editCategoryController = Get.put(
   EditCategoryController(),
 );
-
+BannerController bannerController = Get.put(BannerController());
+LoginController loginController = Get.put(LoginController());
+StockMovementController stockMovementController = Get.put(
+  StockMovementController(),
+);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();

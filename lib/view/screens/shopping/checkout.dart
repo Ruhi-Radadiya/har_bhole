@@ -2,28 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/model/cart_model/cart_model.dart';
 
 import '../../../main.dart';
-
-class CartItem {
-  String imageUrl;
-  String name;
-  String weight;
-  double price; // selling price
-  double originalPrice; // cross/struck price or MRP
-  RxInt quantity;
-
-  CartItem({
-    required this.imageUrl,
-    required this.name,
-    required this.weight,
-    required this.price,
-    required this.originalPrice,
-    required int quantity,
-  }) : quantity = quantity.obs;
-}
-
-// --------------------- UI ---------------------
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -58,7 +39,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
       body: Column(
         children: [
-          // content
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: Get.width / 20),
@@ -69,16 +49,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   children: [
                     Divider(thickness: 0.5),
 
-                    // Address row (matches image)
+                    // Address section
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.location_on,
-                          color: const Color(0xff67BF86),
+                          color: Color(0xff67BF86),
                           size: 28,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,31 +76,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       ),
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      // implement address change navigation if needed
-                                    },
-                                    child: Text(
-                                      'Change',
-                                      style: GoogleFonts.poppins(
-                                        textStyle: TextStyle(
-                                          fontSize: Get.width / 26,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.deepOrange,
-                                        ),
+                                  Text(
+                                    'Change',
+                                    style: GoogleFonts.poppins(
+                                      textStyle: TextStyle(
+                                        fontSize: Get.width / 26,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.deepOrange,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Text(
-                                  'Rajesh Kumar\nA-304, Sunrise Apartments, Sector 15\nNoida, Uttar Pradesh - 201301\nPhone: +91 98765 43210',
-                                  style: TextStyle(
-                                    fontSize: Get.width / 26,
-                                    color: Colors.grey.shade600,
-                                  ),
+                              Text(
+                                'Rajesh Kumar\nA-304, Sunrise Apartments, Sector 15\nNoida, Uttar Pradesh - 201301\nPhone: +91 98765 43210',
+                                style: TextStyle(
+                                  fontSize: Get.width / 26,
+                                  color: Colors.grey.shade600,
                                 ),
                               ),
                             ],
@@ -128,13 +100,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                       ],
                     ),
-                    Divider(thickness: 0.5),
 
+                    Divider(thickness: 0.5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Order Summery',
+                          'Order Summary',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
                               fontSize: Get.width / 21,
@@ -143,7 +115,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                         ),
                         Text(
-                          '${orderCartController.totalItemsCount} item',
+                          '${orderCartController.totalItemsCount} items',
                           style: TextStyle(
                             fontSize: Get.width / 26,
                             color: Colors.grey.shade600,
@@ -151,14 +123,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                       ],
                     ),
-
                     Divider(thickness: 0.5),
-                    SizedBox(height: Get.height / 80),
+                    const SizedBox(height: 10),
 
-                    // Items list
                     if (items.isEmpty)
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 30),
+                        padding: const EdgeInsets.symmetric(vertical: 30),
                         child: Center(
                           child: Text(
                             "No items in cart",
@@ -176,7 +146,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: Get.height / 80),
                       child: Text(
-                        'Price Detail',
+                        'Price Details',
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 21,
@@ -187,7 +157,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
 
                     _buildSummaryRow(
-                      'Price(${orderCartController.totalItemsCount} items)',
+                      'Price (${orderCartController.totalItemsCount} items)',
                       '₹${orderCartController.basePriceForItemsDisplay.toStringAsFixed(0)}',
                     ),
                     _buildSummaryRow(
@@ -209,9 +179,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
 
                     Divider(thickness: 0.5),
-                    SizedBox(height: Get.height / 80),
-
-                    // Total Amount row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -236,8 +203,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                       ],
                     ),
-
-                    // Save message
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
@@ -252,17 +217,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
 
-                    SizedBox(height: Get.height / 60),
-
-                    // Delivery ETA row
+                    const SizedBox(height: 20),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.local_shipping,
                           size: 24,
-                          color: const Color(0xff67BF86),
+                          color: Color(0xff67BF86),
                         ),
-                        SizedBox(width: Get.width / 40),
+                        const SizedBox(width: 8),
                         Text(
                           'Expected Delivery\n3-5 business days',
                           style: GoogleFonts.poppins(
@@ -274,25 +237,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: Get.height / 40),
 
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: Get.height / 80),
-                      child: Text(
-                        'Payment Method',
-                        style: GoogleFonts.poppins(
-                          textStyle: TextStyle(
-                            fontSize: Get.width / 21,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Payment Method',
+                      style: GoogleFonts.poppins(
+                        textStyle: TextStyle(
+                          fontSize: Get.width / 21,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
+                    const SizedBox(height: 10),
                     _buildPaymentMethodTile(
                       context: context,
                       title: "Pay on delivery",
                       subtitle: "UPI / Cash",
-                      leadingIcon: Icons.wallet_outlined, // Placeholder icon
+                      leadingIcon: Icons.wallet_outlined,
                       value: 1,
                       selectedValue: _selectedPaymentMethod,
                       onTap: () => setState(() => _selectedPaymentMethod = 1),
@@ -300,8 +261,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     _buildPaymentMethodTile(
                       context: context,
                       title: "Net Banking",
-                      subtitle: "UPI / Cash",
-                      leadingIcon: Icons.account_balance, // Placeholder icon
+                      subtitle: "Bank Transfer / UPI",
+                      leadingIcon: Icons.account_balance,
                       value: 2,
                       selectedValue: _selectedPaymentMethod,
                       onTap: () => setState(() => _selectedPaymentMethod = 2),
@@ -309,8 +270,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     _buildPaymentMethodTile(
                       context: context,
                       title: "HDFC Bank",
-                      subtitle: "UPI / Cash",
-                      leadingIcon: Icons.credit_card, // Placeholder icon
+                      subtitle: "Credit / Debit Card",
+                      leadingIcon: Icons.credit_card,
                       value: 3,
                       selectedValue: _selectedPaymentMethod,
                       onTap: () => setState(() => _selectedPaymentMethod = 3),
@@ -321,7 +282,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ),
 
-          // Bottom bar with total and place order button
+          // Bottom bar
           Container(
             padding: EdgeInsets.symmetric(
               horizontal: Get.width / 25,
@@ -375,7 +336,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       child: ElevatedButton.icon(
                         onPressed: orderCartController.cartItems.isEmpty
                             ? null
-                            : () => _onPlaceOrderPressed(),
+                            : _onPlaceOrderPressed,
                         icon: const Icon(
                           CupertinoIcons.bag_fill,
                           color: Colors.white,
@@ -403,7 +364,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               );
             }),
           ),
-
           Padding(
             padding: EdgeInsets.all(Get.width / 35),
             child: Text(
@@ -420,6 +380,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
+  // --- Order placed action ---
   void _onPlaceOrderPressed() {
     final total = orderCartController.grandTotal;
     Get.to(() => OrderSuccessScreen(totalAmount: total))?.then((_) {
@@ -427,6 +388,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     });
   }
 
+  // --- Price detail sheet ---
   void _showPriceDetailsSheet(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
@@ -480,7 +442,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildCheckoutCartItemCard(CartItem item) {
+  // --- Cart item card using Map instead of model ---
+  Widget _buildCheckoutCartItemCard(CartModel item) {
     final imageWidth = Get.width / 3.5;
 
     return Padding(
@@ -488,49 +451,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Image.asset(
-              item.imageUrl,
+              "asset/images/home/khaman.png",
               width: imageWidth,
               height: imageWidth,
               fit: BoxFit.cover,
             ),
           ),
           SizedBox(width: Get.width / 30),
-
-          // Product Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
+                  item.productName,
                   style: TextStyle(
                     fontSize: Get.width / 22.5,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Tasty & Freshly',
+                  item.grams,
                   style: TextStyle(
                     fontSize: Get.width / 30,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xff6B7180),
-                  ),
-                ),
-                Text(
-                  item.weight,
-                  style: TextStyle(
-                    fontSize: Get.width / 30,
-                    fontWeight: FontWeight.bold,
                     color: const Color(0xff6B7180),
                   ),
                 ),
                 SizedBox(height: Get.height / 100),
                 Text(
-                  '₹${item.price.toStringAsFixed(0)}',
+                  '₹${item.price}',
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
                       fontSize: Get.width / 20,
@@ -542,33 +493,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ],
             ),
           ),
-
-          // Quantity controls (reactive)
-          Obx(() {
-            return Row(
-              children: [
-                _buildQuantityButton(
-                  Icons.remove,
-                  onPressed: () => orderCartController.decreaseQuantity(item),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    item.quantity.value.toString(),
-                    style: TextStyle(
-                      fontSize: Get.width / 26,
-                      fontWeight: FontWeight.bold,
-                    ),
+          // Quantity controls
+          Row(
+            children: [
+              _buildQuantityButton(
+                Icons.remove,
+                onPressed: () => orderCartController.decreaseQuantity(item),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  item.qty.toString(),
+                  style: TextStyle(
+                    fontSize: Get.width / 26,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                _buildQuantityButton(
-                  Icons.add,
-                  isAdd: true,
-                  onPressed: () => orderCartController.increaseQuantity(item),
-                ),
-              ],
-            );
-          }),
+              ),
+              _buildQuantityButton(
+                Icons.add,
+                isAdd: true,
+                onPressed: () => orderCartController.increaseQuantity(item),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -709,6 +657,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 }
 
+// --- Success screen ---
 class OrderSuccessScreen extends StatelessWidget {
   final double totalAmount;
   const OrderSuccessScreen({super.key, required this.totalAmount});
@@ -723,8 +672,12 @@ class OrderSuccessScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.check_circle_outline, color: Colors.green, size: 120),
-              SizedBox(height: Get.height / 40),
+              const Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+                size: 120,
+              ),
+              const SizedBox(height: 20),
               Text(
                 "Order Placed!",
                 style: GoogleFonts.poppins(
@@ -732,7 +685,6 @@ class OrderSuccessScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: Get.height / 80),
               Text(
                 "Your order has been placed successfully.\nTotal: ₹${totalAmount.toStringAsFixed(0)}",
                 textAlign: TextAlign.center,
@@ -741,17 +693,20 @@ class OrderSuccessScreen extends StatelessWidget {
                   color: Colors.grey.shade800,
                 ),
               ),
-              SizedBox(height: Get.height / 30),
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () => Get.back(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xffF78520),
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   "Continue Shopping",
                   style: TextStyle(color: Colors.white),
                 ),

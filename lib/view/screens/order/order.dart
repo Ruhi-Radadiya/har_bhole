@@ -207,14 +207,6 @@ class _OrderState extends State<Order> {
                       Get.toNamed(Routes.customerOrder);
                     },
                   ),
-                  _buildMenuItemTile(
-                    image: "asset/icons/vouchers_icon.png",
-                    title: 'Suppiler',
-                    iconColor: Color(0xffF78520),
-                    onTap: () {
-                      Get.toNamed(Routes.addNewSupplier);
-                    },
-                  ),
                   SizedBox(height: Get.height / 40),
                 ],
               ),
@@ -249,9 +241,9 @@ class _OrderState extends State<Order> {
               border: Border.all(color: Colors.grey.shade200, width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1), // shadow color
-                  blurRadius: 8, // softness of shadow
-                  offset: const Offset(0, 4), // x, y offset
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),

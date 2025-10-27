@@ -6,12 +6,10 @@ import '../../../component/textfield.dart';
 
 class AddStockMovementScreen extends StatelessWidget {
   const AddStockMovementScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-
       child: Scaffold(
         body: Column(
           children: [
@@ -45,7 +43,6 @@ class AddStockMovementScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 30),
-
                 child: Container(
                   padding: EdgeInsets.all(Get.width / 20),
                   decoration: BoxDecoration(
@@ -67,28 +64,23 @@ class AddStockMovementScreen extends StatelessWidget {
                         hint: "Enter Stock TYpe",
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Movement Type",
                         hint: "Enter Movement TYpe",
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(label: "Item", hint: "Select Item"),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Reference",
                         hint: "PO Number, Invoice, etc..",
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Movement Date",
                         hint: "12-09-2025",
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Notes",
                         hint: "ADJUSTMENT",
