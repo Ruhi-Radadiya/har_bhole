@@ -149,7 +149,9 @@ class B2BOrderScreen extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if (b2bOrderController.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xffF78520)),
+                );
               }
               if (b2bOrderController.filteredOrders.isEmpty) {
                 return const Center(child: Text("No orders found"));

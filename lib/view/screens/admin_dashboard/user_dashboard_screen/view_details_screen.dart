@@ -36,7 +36,9 @@ class ViewDetailsScreen extends StatelessWidget {
       });
       return Scaffold(
         backgroundColor: const Color(0xffF7F9FA),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(
+          child: CircularProgressIndicator(color: Color(0xffF78520)),
+        ),
       );
     }
 

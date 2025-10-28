@@ -15,7 +15,7 @@ class ViewNetbankingScreen extends StatefulWidget {
 }
 
 class _ViewNetbankingScreenState extends State<ViewNetbankingScreen> {
-  late CashbookEntry entry; // will hold the selected entry
+  late CashbookEntry entry;
 
   String selectedInOut = "In";
   String selectedPayment = "NetBanking";
@@ -25,11 +25,9 @@ class _ViewNetbankingScreenState extends State<ViewNetbankingScreen> {
     super.initState();
     entry = Get.arguments as CashbookEntry;
 
-    // Initialize toggles based on entry
     selectedPayment = entry.paymentMethod.isNotEmpty
         ? entry.paymentMethod
         : "NetBanking";
-    // You can set selectedInOut based on entry.entryType if available
     selectedInOut = entry.entryType.isNotEmpty ? entry.entryType : "In";
   }
 
@@ -138,11 +136,9 @@ class _ViewNetbankingScreenState extends State<ViewNetbankingScreen> {
                         ],
                       ),
                       SizedBox(height: Get.height / 60),
-
-                      // --- Date ---
                       CustomTextField(
                         label: "Date",
-                        hint: entry.entryDate,
+                        hint: entry.entryDate.split(' ').first,
                         isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -152,8 +148,6 @@ class _ViewNetbankingScreenState extends State<ViewNetbankingScreen> {
                         isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 60),
-
-                      // --- Amount ---
                       CustomTextField(
                         label: "Amount",
                         hint: entry.amount,

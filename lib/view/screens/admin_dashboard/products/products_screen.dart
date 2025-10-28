@@ -179,7 +179,9 @@ class ProductsScreen extends StatelessWidget {
                           Obx(() {
                             if (productController.isLoading.value) {
                               return const Center(
-                                child: CircularProgressIndicator(),
+                                child: CircularProgressIndicator(
+                                  color: Color(0xffF78520),
+                                ),
                               );
                             }
 

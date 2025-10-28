@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/routes/routes.dart';
 
+import '../../../controller/product_controller/product_controller.dart';
 import '../../component/product_page_component.dart';
 
 class Products extends StatefulWidget {
@@ -14,97 +15,13 @@ class Products extends StatefulWidget {
 }
 
 class _ProductsState extends State<Products> {
+  final ProductController controller = Get.put(ProductController());
   final Map<String, int> cart = {};
+  final Map<String, bool> expanded = {};
 
-  final List<FoodSection> sections = [
-    FoodSection(
-      title: 'Recommended for you',
-      isExpanded: true,
-      items: [
-        MenuItem(
-          title: 'Farali Petis',
-          imageUrl: 'asset/images/home/khaman.png',
-          price: '₹ 220',
-          description:
-              'Traditional Gujarati snack with a French twist, light, crispy, and perfect for tea time.',
-        ),
-        MenuItem(
-          title: 'Rajavadi Petis',
-          imageUrl: 'asset/images/home/khaman.png',
-          price: '₹ 220',
-          description:
-              'Traditional Gujarati snack with a French twist, light, crispy, and perfect for tea time.',
-        ),
-      ],
-    ),
-    FoodSection(
-      title: 'Om Her Bhole Special',
-      items: [
-        MenuItem(
-          title: 'Farali Petis',
-          imageUrl: 'asset/images/home/khaman.png',
-          price: '₹ 220',
-          description: 'Special edition snack, rich in flavor and texture.',
-        ),
-      ],
-    ),
-    FoodSection(
-      title: 'Hot Snacks',
-      items: [
-        MenuItem(
-          title: 'Samosa',
-          imageUrl: 'asset/images/home/khaman.png',
-          price: '₹ 40',
-          description: 'Crispy pastry with spicy potato filling.',
-        ),
-      ],
-    ),
-    FoodSection(
-      title: 'Sweet',
-      items: [
-        MenuItem(
-          title: 'Jalebi',
-          imageUrl: 'asset/images/home/khaman.png',
-          price: '₹ 150',
-          description: 'Crispy pretzel-shaped deep-fried sweet.',
-        ),
-      ],
-    ),
-    FoodSection(
-      title: 'Namkeen',
-      items: [
-        MenuItem(
-          title: 'Chakri',
-          imageUrl: 'asset/images/home/khaman.png',
-          price: '₹ 200',
-          description: 'Spicy, spiral-shaped crunchy snack.',
-        ),
-      ],
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.defaultType != null) {
-      final indexToOpen = sections.indexWhere(
-        (section) => section.title == widget.defaultType,
-      );
-      if (indexToOpen != -1) {
-        for (var s in sections) {
-          s.isExpanded = false;
-        }
-        sections[indexToOpen].isExpanded = true;
-      }
-    }
-  }
-
-  void toggleSection(int index) {
+  void toggleSection(String title) {
     setState(() {
-      for (int i = 0; i < sections.length; i++) {
-        if (i != index) sections[i].isExpanded = false;
-      }
-      sections[index].isExpanded = !sections[index].isExpanded;
+      expanded[title] = !(expanded[title] ?? true);
     });
   }
 
@@ -128,9 +45,6 @@ class _ProductsState extends State<Products> {
   int get totalItemsInCart =>
       cart.values.fold(0, (previous, current) => previous + current);
 
-  // ---------------------------------------------------------------------------
-  // BUILD UI
-  // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -138,98 +52,92 @@ class _ProductsState extends State<Products> {
         backgroundColor: const Color(0xfffefefe),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: totalItemsInCart > 0 ? 80 : 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 🔍 Search Bar Row
-                  Padding(
-                    padding: EdgeInsets.all(Get.width / 30),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: Get.width / 40,
-                              bottom: Get.height / 100,
-                            ),
+            Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xffF78520)),
+                );
+              }
+              if (controller.errorMessage.isNotEmpty) {
+                return Center(child: Text(controller.errorMessage.value));
+              }
+              final grouped = controller.groupedProducts;
+
+              return SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: totalItemsInCart > 0 ? 80 : 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSearchBar(),
+                    ...grouped.entries.map((entry) {
+                      final title = entry.key;
+                      final products = entry.value;
+                      final isExpanded = expanded[title] ?? true;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () => toggleSection(title),
                             child: Container(
-                              height: Get.height / 16,
+                              color: Colors.grey.shade100,
                               padding: EdgeInsets.symmetric(
-                                horizontal: Get.width / 25,
-                                vertical: Get.height / 100,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(
-                                  Get.width / 27,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.4),
-                                    blurRadius: Get.width / 50,
-                                    offset: Offset(0, Get.height / 200),
-                                  ),
-                                ],
+                                horizontal: Get.width / 30,
+                                vertical: Get.height / 70,
                               ),
                               child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Image.asset(
-                                    "asset/icons/search.png",
-                                    height: Get.width / 22,
-                                  ),
-                                  SizedBox(width: Get.width / 40),
-                                  Expanded(
-                                    child: TextField(
-                                      style: GoogleFonts.poppins(
-                                        fontSize: Get.width / 28,
-                                        color: Colors.black87,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: 'Search "papad poha"',
-                                        hintStyle: GoogleFonts.poppins(
-                                          fontSize: Get.width / 28,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                        border: InputBorder.none,
-                                        isDense: true,
-                                      ),
+                                  Text(
+                                    title,
+                                    style: TextStyle(
+                                      fontSize: Get.width / 22,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  Image.asset(
-                                    "asset/icons/microphone.png",
-                                    height: Get.width / 22,
+                                  Icon(
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: Get.width / 20),
-                        Image.asset(
-                          "asset/images/home/3_dot.png",
-                          height: Get.width / 15,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // 📦 Collapsible Sections
-                  Column(
-                    children: sections
-                        .asMap()
-                        .entries
-                        .map(
-                          (entry) =>
-                              buildCollapsibleSection(entry.value, entry.key),
-                        )
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
+                          AnimatedCrossFade(
+                            duration: const Duration(milliseconds: 300),
+                            sizeCurve: Curves.easeInOut,
+                            crossFadeState: isExpanded
+                                ? CrossFadeState.showFirst
+                                : CrossFadeState.showSecond,
+                            firstChild: Column(
+                              children: products.map((product) {
+                                final qty = cart[product.productName] ?? 0;
+                                return FoodItemContainer(
+                                  title: product.productName,
+                                  description: product.description,
+                                  price: '₹ ${product.sellingPrice}',
+                                  imageUrl:
+                                      // product.productImage ??
+                                      'asset/images/home/khaman.png',
+                                  quantity: qty,
+                                  onAdd: () => addToCart(product.productName),
+                                  onRemove: () =>
+                                      removeFromCart(product.productName),
+                                );
+                              }).toList(),
+                            ),
+                            secondChild: const SizedBox.shrink(),
+                          ),
+                          Divider(height: Get.height / 200),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
+              );
+            }),
 
             // 🛒 Bottom Cart Summary
             if (totalItemsInCart > 0)
@@ -239,7 +147,7 @@ class _ProductsState extends State<Products> {
                   height: Get.height / 12,
                   margin: EdgeInsets.all(Get.width / 25),
                   decoration: BoxDecoration(
-                    color: Colors.orange,
+                    color: Color(0xffF78520),
                     borderRadius: BorderRadius.circular(Get.width / 25),
                   ),
                   child: Row(
@@ -273,7 +181,7 @@ class _ProductsState extends State<Products> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Icon(
+                              const Icon(
                                 Icons.keyboard_arrow_right_outlined,
                                 color: Colors.white,
                               ),
@@ -291,64 +199,51 @@ class _ProductsState extends State<Products> {
     );
   }
 
-  Widget buildCollapsibleSection(FoodSection section, int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: () => toggleSection(index),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: Get.width / 30,
-              vertical: Get.height / 70,
-            ),
-            color: Colors.grey.shade100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  section.title,
-                  style: TextStyle(
-                    fontSize: Get.width / 22,
-                    fontWeight: FontWeight.w600,
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: EdgeInsets.all(Get.width / 30),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: Get.height / 16,
+              padding: EdgeInsets.symmetric(horizontal: Get.width / 25),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(Get.width / 27),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.4),
+                    blurRadius: Get.width / 50,
+                    offset: Offset(0, Get.height / 200),
                   ),
-                ),
-                Icon(
-                  section.isExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: Get.width / 18,
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                children: [
+                  Image.asset("asset/icons/search.png", height: Get.width / 22),
+                  SizedBox(width: Get.width / 40),
+                  Expanded(
+                    child: TextField(
+                      onChanged: controller.searchProducts,
+                      style: GoogleFonts.poppins(
+                        fontSize: Get.width / 28,
+                        color: Colors.black87,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search products...',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-
-        AnimatedCrossFade(
-          duration: const Duration(milliseconds: 300),
-          sizeCurve: Curves.easeInOut,
-          crossFadeState: section.isExpanded
-              ? CrossFadeState.showFirst
-              : CrossFadeState.showSecond,
-          firstChild: Column(
-            children: section.items.map((item) {
-              final quantity = cart[item.title] ?? 0;
-              return FoodItemContainer(
-                imageUrl: item.imageUrl,
-                title: item.title,
-                price: item.price,
-                description: item.description,
-                quantity: quantity,
-                onAdd: () => addToCart(item.title),
-                onRemove: () => removeFromCart(item.title),
-              );
-            }).toList(),
-          ),
-          secondChild: const SizedBox.shrink(),
-        ),
-
-        Divider(height: Get.height / 200),
-      ],
+          SizedBox(width: Get.width / 20),
+          Image.asset("asset/images/home/3_dot.png", height: Get.width / 15),
+        ],
+      ),
     );
   }
 }

@@ -15,7 +15,9 @@ class CustomerDetailScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Obx(() {
         if (customerDetailController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xffF78520)),
+          );
         }
 
         if (customerDetailController.customerList.isEmpty) {

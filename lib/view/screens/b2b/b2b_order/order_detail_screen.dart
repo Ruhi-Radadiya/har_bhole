@@ -204,7 +204,9 @@ class OrderDetailScreen extends StatelessWidget {
                           onPressed: () {},
                           child: Text(
                             'Edit',
-                            style: GoogleFonts.poppins(color: Colors.orange),
+                            style: GoogleFonts.poppins(
+                              color: Color(0xffF78520),
+                            ),
                           ),
                         ),
                       ],
@@ -319,15 +321,15 @@ class OrderDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
-        color: isActive ? Colors.orange : Colors.white,
+        color: isActive ? Color(0xffF78520) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange),
+        border: Border.all(color: Color(0xffF78520)),
       ),
       child: Text(
         text,
         style: GoogleFonts.poppins(
           fontSize: Get.width / 32.5,
-          color: isActive ? Colors.white : Colors.orange,
+          color: isActive ? Colors.white : Color(0xffF78520),
           fontWeight: FontWeight.w500,
         ),
       ),

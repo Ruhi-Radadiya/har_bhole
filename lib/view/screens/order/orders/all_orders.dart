@@ -46,7 +46,9 @@ class AllOrders extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if (allOrdersController.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xffF78520)),
+                );
               }
 
               return SingleChildScrollView(

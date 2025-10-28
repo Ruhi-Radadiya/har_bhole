@@ -180,7 +180,7 @@ class _StockState extends State<Stock> {
                     title: 'Raw Material',
                     iconColor: Color(0xffF78520),
                     onTap: () {
-                      Get.toNamed(Routes.addNewRawMaterial);
+                      Get.toNamed(Routes.rawMaterial);
                     },
                   ),
                   _buildMenuItemTile(

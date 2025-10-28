@@ -51,28 +51,34 @@ class RawMaterialModel {
 
   factory RawMaterialModel.fromJson(Map<String, dynamic> json) {
     return RawMaterialModel(
-      stockId: json['stock_id'] ?? '',
-      materialCode: json['material_code'] ?? '',
-      materialName: json['material_name'] ?? '',
-      categoryId: json['category_id'] ?? '',
-      currentQuantity: json['currentQuantity']?.toString() ?? '0',
-      unitOfMeasure: json['unit_of_measure'] ?? '',
-      minStockLevel: json['min_stock_level'] ?? '',
-      maxStockLevel: json['max_stock_level'] ?? '',
-      reorderPoint: json['reorder_point'] ?? '',
-      costPrice: json['cost_price'] ?? '',
-      supplierId: json['supplier_id']?.toString(),
-      location: json['location'] ?? '',
-      description: json['description'] ?? '',
-      materialImage: json['material_image'],
-      status: json['status'],
-      createdBy: json['created_by'],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'] ?? '',
-      stock: (json['stock'] ?? 0).toDouble(),
-      costPerUnit: (json['cost_per_unit'] ?? 0).toDouble(),
-      totalValue: (json['total_value'] ?? 0).toDouble(),
-      lowStockAlert: json['low_stock_alert'] ?? false,
+      stockId: json['stock_id']?.toString() ?? '',
+      materialCode: json['material_code']?.toString() ?? '',
+      materialName: json['material_name']?.toString() ?? '',
+      categoryId: json['category_id']?.toString() ?? '',
+      currentQuantity: json['current_quantity']?.toString() ?? '0',
+      unitOfMeasure: json['unit_of_measure']?.toString() ?? '',
+      minStockLevel: json['min_stock_level']?.toString() ?? '',
+      maxStockLevel: json['max_stock_level']?.toString() ?? '',
+      reorderPoint: json['reorder_point']?.toString() ?? '',
+      costPrice: json['cost_price']?.toString() ?? '',
+      supplierId: json['supplier_id']?.toString() ?? '',
+      location: json['location']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      materialImage: json['material_image']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      createdBy: json['created_by']?.toString() ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
+      stock: (json['stock'] is num)
+          ? (json['stock'] as num).toDouble()
+          : double.tryParse(json['stock']?.toString() ?? '0') ?? 0.0,
+      costPerUnit: (json['cost_per_unit'] is num)
+          ? (json['cost_per_unit'] as num).toDouble()
+          : double.tryParse(json['cost_per_unit']?.toString() ?? '0') ?? 0.0,
+      totalValue: (json['total_value'] is num)
+          ? (json['total_value'] as num).toDouble()
+          : double.tryParse(json['total_value']?.toString() ?? '0') ?? 0.0,
+      lowStockAlert: json['low_stock_alert'] == true,
       recentMovement: json['recent_movement'] != null
           ? RecentMovement.fromJson(json['recent_movement'])
           : null,
@@ -89,9 +95,9 @@ class RecentMovement {
 
   factory RecentMovement.fromJson(Map<String, dynamic> json) {
     return RecentMovement(
-      movementType: json['movement_type'] ?? '',
-      changeQty: json['change_qty'] ?? '',
-      createdAt: json['created_at'] ?? '',
+      movementType: json['movement_type']?.toString() ?? '',
+      changeQty: json['change_qty']?.toString() ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
     );
   }
 }

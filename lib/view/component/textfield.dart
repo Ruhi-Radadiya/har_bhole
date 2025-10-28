@@ -512,7 +512,7 @@ class _CustomDateFieldState extends State<CustomDateField> {
     if (pickedDate != null) {
       setState(() {
         widget.controller.text =
-            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }

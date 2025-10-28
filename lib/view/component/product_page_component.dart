@@ -44,10 +44,12 @@ class FoodItemContainer extends StatelessWidget {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
         children: [
           // LEFT — Texts
-          Expanded(
-            flex: 2,
+          Flexible(
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -103,81 +105,82 @@ class FoodItemContainer extends StatelessWidget {
               ],
             ),
           ),
-
           SizedBox(width: Get.width * 0.04),
-
           // RIGHT — Image + Add Button or Counter
-          Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(Get.width / 30),
-                child: Image.asset(
-                  imageUrl,
-                  width: Get.width / 2.8,
-                  height: Get.width / 3.5,
-                  fit: BoxFit.cover,
+          Flexible(
+            flex: 2,
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(Get.width / 30),
+                  child: Image.asset(
+                    imageUrl,
+                    width: Get.width / 2.8,
+                    height: Get.width / 3.5,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              SizedBox(height: Get.height / 100),
-              quantity == 0
-                  ? GestureDetector(
-                      onTap: onAdd,
-                      child: Container(
-                        width: Get.width / 2.8,
-                        height: Get.height / 25,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(Get.width / 40),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Add to Cart",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: Get.width / 30,
+                SizedBox(height: Get.height / 100),
+                quantity == 0
+                    ? GestureDetector(
+                        onTap: onAdd,
+                        child: Container(
+                          width: Get.width / 2.8,
+                          height: Get.height / 25,
+                          decoration: BoxDecoration(
+                            color: Color(0xffF78520),
+                            borderRadius: BorderRadius.circular(Get.width / 40),
                           ),
-                        ),
-                      ),
-                    )
-                  : Container(
-                      width: Get.width / 2.8,
-                      height: Get.height / 25,
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(Get.width / 40),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          GestureDetector(
-                            onTap: onRemove,
-                            child: Icon(
-                              Icons.remove,
-                              color: Colors.white,
-                              size: Get.width / 24,
-                            ),
-                          ),
-                          Text(
-                            "$quantity",
+                          alignment: Alignment.center,
+                          child: Text(
+                            "Add to Cart",
                             style: GoogleFonts.poppins(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               fontSize: Get.width / 30,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: onAdd,
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: Get.width / 24,
+                        ),
+                      )
+                    : Container(
+                        width: Get.width / 2.8,
+                        height: Get.height / 25,
+                        decoration: BoxDecoration(
+                          color: Color(0xffF78520),
+                          borderRadius: BorderRadius.circular(Get.width / 40),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            GestureDetector(
+                              onTap: onRemove,
+                              child: Icon(
+                                Icons.remove,
+                                color: Colors.white,
+                                size: Get.width / 24,
+                              ),
                             ),
-                          ),
-                        ],
+                            Text(
+                              "$quantity",
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: Get.width / 30,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: onAdd,
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: Get.width / 24,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

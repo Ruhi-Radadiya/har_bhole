@@ -23,7 +23,9 @@ class StockMovementEntryScreen extends StatelessWidget {
         body: Obx(() {
           // 🔹 Loading State
           if (stockMovementController.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xffF78520)),
+            );
           }
 
           // 🔹 Empty State

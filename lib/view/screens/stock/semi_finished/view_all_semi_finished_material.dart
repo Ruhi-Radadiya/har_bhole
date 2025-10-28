@@ -150,7 +150,9 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
                         SizedBox(height: Get.height / 50),
                         Obx(() {
                           if (semiFinishedController.isLoading.value) {
-                            return CircularProgressIndicator();
+                            return CircularProgressIndicator(
+                              color: Color(0xffF78520),
+                            );
                           }
 
                           return Column(

@@ -46,6 +46,7 @@ import '../view/screens/shopping/checkout.dart';
 import '../view/screens/stock/finished_product/create_new_finished_product_screen.dart';
 import '../view/screens/stock/finished_product/view_new_finished_product_screen.dart';
 import '../view/screens/stock/raw_material/add_new_raw_material.dart';
+import '../view/screens/stock/raw_material/raw_material_screen.dart';
 import '../view/screens/stock/raw_material/view_all_material.dart';
 import '../view/screens/stock/semi_finished/create_new_semi_finished.dart';
 import '../view/screens/stock/semi_finished/view_all_semi_finished_material.dart';
@@ -110,6 +111,7 @@ class Routes {
   static String viewCustomerOrder = '/view-customer-order';
   static String customerOrderInvoice = '/customer-order-invoice';
   static String addVoucherScreen = '/add-voucher-screen';
+  static String rawMaterial = '/raw-material';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -213,5 +215,6 @@ class Routes {
       page: () => const CustomerOrderInvoice(),
     ),
     GetPage(name: addVoucherScreen, page: () => AddVouchersScreen()),
+    GetPage(name: rawMaterial, page: () => RawMaterialScreen()),
   ];
 }

@@ -57,7 +57,10 @@ RawMaterialController rawMaterialController = Get.put(RawMaterialController());
 SemiFinishedController semiFinishedController = Get.put(
   SemiFinishedController(),
 );
-CashbookController cashbookController = Get.put(CashbookController());
+CashbookController cashbookController = Get.put(
+  CashbookController(),
+  permanent: true,
+);
 FinishedGoodsStockController finishedGoodsStockController = Get.put(
   FinishedGoodsStockController(),
 );

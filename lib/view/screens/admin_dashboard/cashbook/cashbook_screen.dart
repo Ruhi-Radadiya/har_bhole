@@ -213,47 +213,139 @@ class CashbookScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-
                           SizedBox(height: Get.height / 50),
-
-                          // --- Search Box ---
                           CustomTextField(
                             hint: "Reference/Description",
                             icon: Icons.search,
+                            controller: cashbookController.searchController,
+                            onChanged: (value) {
+                              cashbookController.searchEntries(value);
+                            },
                           ),
-
-                          SizedBox(height: Get.height / 40),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          SizedBox(height: Get.height / 100),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     _buildFilterField(
+                          //       label: "Type",
+                          //       child: _buildFilterField(
+                          //         label: "Type",
+                          //         child: _buildFilterDropdown(
+                          //           label: "All",
+                          //           options: ["All", "in", "out"],
+                          //           selectedValue:
+                          //               cashbookController.selectedType,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     // _buildFilterField(
+                          //     //   label: "Status",
+                          //     //   child: _buildFilterField(
+                          //     //     label: "Type",
+                          //     //     child: _buildFilterDropdown(
+                          //     //       label: "All",
+                          //     //       options: ["All", "in", "out"],
+                          //     //       selectedValue:
+                          //     //           cashbookController.selectedType,
+                          //     //     ),
+                          //     //   ),
+                          //     // ),
+                          //     _buildFilterField(
+                          //       label: "From",
+                          //       child: _buildDateFilter(
+                          //         dateVar: cashbookController.fromDate,
+                          //       ),
+                          //     ),
+                          //     _buildFilterField(
+                          //       label: "To",
+                          //       child: _buildDateFilter(
+                          //         dateVar: cashbookController.toDate,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildFilterField(
-                                label: "Type",
-                                child: _buildFilterDropdown(label: "All"),
+                              // 🟩 CLEAR ALL BUTTON ON TOP RIGHT
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      cashbookController.clearFilters();
+                                    },
+
+                                    label: Text(
+                                      "Clear All",
+                                      style: TextStyle(
+                                        color: Color(0xffF78520),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: Get.width / 30,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              _buildFilterField(
-                                label: "Status",
-                                child: _buildFilterDropdown(label: "All"),
-                              ),
-                              _buildFilterField(
-                                label: "From",
-                                child: _buildDateFilter(date: "25/09/2024"),
-                              ),
-                              _buildFilterField(
-                                label: "To",
-                                child: _buildDateFilter(date: "25/09/2024"),
+                              SizedBox(height: Get.height / 80),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildCompactFilter(
+                                      label: "Type",
+                                      child: _buildFilterDropdown(
+                                        label: "All",
+                                        options: ["All", "in", "out"],
+                                        selectedValue:
+                                            cashbookController.selectedType,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: Get.width / 36),
+                                  Expanded(
+                                    child: _buildCompactFilter(
+                                      label: "Status",
+                                      child: _buildFilterDropdown(
+                                        label: "All",
+                                        options: ["All", "Active", "Inactive"],
+                                        selectedValue:
+                                            cashbookController.selectedStatus,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: Get.width / 36),
+                                  Expanded(
+                                    child: _buildCompactFilter(
+                                      label: "From",
+                                      child: _buildDateFilter(
+                                        dateVar: cashbookController.fromDate,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: Get.width / 36),
+                                  Expanded(
+                                    child: _buildCompactFilter(
+                                      label: "To",
+                                      child: _buildDateFilter(
+                                        dateVar: cashbookController.toDate,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                           SizedBox(height: Get.height / 30),
                           Obx(() {
-                            if (cashbookController.entries.isEmpty) {
+                            if (cashbookController.filteredEntries.isEmpty) {
                               return const Center(
                                 child: Text("No entries found"),
                               );
                             }
-
                             return Column(
-                              children: cashbookController.entries.map((entry) {
+                              children: cashbookController.filteredEntries.map((
+                                entry,
+                              ) {
                                 return Container(
                                   padding: EdgeInsets.all(Get.width / 30),
                                   margin: EdgeInsets.only(
@@ -278,9 +370,11 @@ class CashbookScreen extends StatelessWidget {
                                             entry.paymentMethod.isNotEmpty
                                                 ? entry.paymentMethod
                                                 : "Unknown",
-                                            style: TextStyle(
-                                              fontSize: Get.width / 26,
-                                              fontWeight: FontWeight.w600,
+                                            style: GoogleFonts.poppins(
+                                              textStyle: TextStyle(
+                                                fontSize: Get.width / 26,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
                                           SizedBox(height: 4),
@@ -328,6 +422,7 @@ class CashbookScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(height: Get.height / 15),
             ],
           ),
         ),
@@ -362,21 +457,86 @@ class CashbookScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterDropdown({required String label}) {
-    return Container(
-      width: Get.width / 4.5,
-      height: Get.height / 22,
-      padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey.shade300),
+  Widget _buildFilterDropdown({
+    required String label,
+    required List<String> options,
+    required RxString selectedValue,
+  }) {
+    return Obx(
+      () => Container(
+        width: Get.width / 4.5,
+        height: Get.height / 22,
+        padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            isExpanded: true,
+            value: selectedValue.value,
+            icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
+            style: TextStyle(
+              fontSize: Get.width / 40, // ✅ same as date picker text
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w400,
+            ),
+            items: options
+                .map(
+                  (option) => DropdownMenuItem(
+                    value: option,
+                    child: Text(
+                      option,
+                      style: TextStyle(
+                        fontSize: Get.width / 40, // ✅ small like date field
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              if (value != null) {
+                selectedValue.value = value;
+                cashbookController.applyFilters();
+              }
+            },
+          ),
+        ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
+    );
+  }
+
+  Widget _buildDateFilter({required RxString dateVar}) {
+    return Obx(
+      () => InkWell(
+        onTap: () async {
+          DateTime? picked = await showDatePicker(
+            context: Get.context!,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(2020),
+            lastDate: DateTime(2100),
+          );
+          if (picked != null) {
+            dateVar.value = picked.toIso8601String().split('T').first;
+            cashbookController.applyFilters();
+          }
+        },
+        child: Container(
+          width: Get.width / 4.5,
+          height: Get.height / 22,
+          padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            dateVar.value.isEmpty
+                ? "Select"
+                : dateVar.value.split('-').reversed.join('/'),
             style: GoogleFonts.poppins(
               textStyle: TextStyle(
                 fontSize: Get.width / 40,
@@ -384,52 +544,26 @@ class CashbookScreen extends StatelessWidget {
               ),
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateFilter({required String date}) {
-    return Container(
-      width: Get.width / 4.5,
-      height: Get.height / 22,
-      padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        date,
-        style: GoogleFonts.poppins(
-          textStyle: TextStyle(
-            fontSize: Get.width / 40,
-            color: Colors.grey.shade700,
-          ),
         ),
       ),
     );
   }
 
-  Widget _buildFilterField({required String label, required Widget child}) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: Get.width / 30,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
+  Widget _buildCompactFilter({required String label, required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: Get.width / 32,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
           ),
-          SizedBox(height: Get.height / 140),
-          child,
-        ],
-      ),
+        ),
+        SizedBox(height: Get.height / 150),
+        SizedBox(height: Get.height / 30 + Get.height / 80, child: child),
+      ],
     );
   }
 }

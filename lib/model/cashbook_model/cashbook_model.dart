@@ -22,7 +22,11 @@ class CashbookEntry {
   factory CashbookEntry.fromJson(Map<String, dynamic> json) {
     return CashbookEntry(
       entryId: json['entry_id'],
-      entryDate: json['entry_date'],
+      entryDate:
+          (json['entry_date'] != null && json['entry_date'] != '0000-00-00'
+              ? json['entry_date']
+              : json['created_at']) ??
+          '',
       entryType: json['entry_type'] ?? '',
       amount: json['amount'] ?? '0',
       paymentMethod: json['payment_method'] ?? '',

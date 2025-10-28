@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../main.dart';
-import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
 class AddNewRawMaterial extends StatefulWidget {
@@ -85,32 +84,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Get.toNamed(Routes.viewAllRawMaterial);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Color(0xffF78520),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'View All Material',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: Get.width / 34.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Get.height / 40),
                       CustomTextField(
                         label: "Material Code",
                         controller:

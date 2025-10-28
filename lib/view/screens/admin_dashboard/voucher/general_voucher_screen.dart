@@ -196,7 +196,9 @@ class GeneralVouchersScreen extends StatelessWidget {
                               child: Obx(() {
                                 if (vouchersController.isLoading.value) {
                                   return const Center(
-                                    child: CircularProgressIndicator(),
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xffF78520),
+                                    ),
                                   );
                                 } else if (vouchersController
                                     .filteredVouchers
@@ -303,7 +305,7 @@ class GeneralVouchersScreen extends StatelessWidget {
                         fontSize: Get.width / 33,
                         color: (voucher.status?.toLowerCase() == "approved")
                             ? const Color(0xff4E6B37)
-                            : Colors.orange,
+                            : Color(0xffF78520),
                       ),
                     ),
                   ),
