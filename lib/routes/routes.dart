@@ -44,11 +44,13 @@ import '../view/screens/products/products.dart';
 import '../view/screens/set_new_password/set_new_password.dart';
 import '../view/screens/shopping/checkout.dart';
 import '../view/screens/stock/finished_product/create_new_finished_product_screen.dart';
+import '../view/screens/stock/finished_product/finished_goods_screen.dart';
 import '../view/screens/stock/finished_product/view_new_finished_product_screen.dart';
 import '../view/screens/stock/raw_material/add_new_raw_material.dart';
 import '../view/screens/stock/raw_material/raw_material_screen.dart';
 import '../view/screens/stock/raw_material/view_all_material.dart';
 import '../view/screens/stock/semi_finished/create_new_semi_finished.dart';
+import '../view/screens/stock/semi_finished/semi_finished_material.dart';
 import '../view/screens/stock/semi_finished/view_all_semi_finished_material.dart';
 import '../view/screens/stock/stock_movement/add_stock_movement_screen.dart';
 import '../view/screens/stock/stock_movement/stock_movement_screen.dart';
@@ -112,6 +114,8 @@ class Routes {
   static String customerOrderInvoice = '/customer-order-invoice';
   static String addVoucherScreen = '/add-voucher-screen';
   static String rawMaterial = '/raw-material';
+  static String semiFinished = '/semi-finished';
+  static String finishedGoods = '/finished-goods';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -216,5 +220,7 @@ class Routes {
     ),
     GetPage(name: addVoucherScreen, page: () => AddVouchersScreen()),
     GetPage(name: rawMaterial, page: () => RawMaterialScreen()),
+    GetPage(name: semiFinished, page: () => SemiFinishedMaterial()),
+    GetPage(name: finishedGoods, page: () => FinishedGoodsScreen()),
   ];
 }

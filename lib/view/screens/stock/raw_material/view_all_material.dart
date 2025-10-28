@@ -47,8 +47,6 @@ class ViewAllRawMaterial extends StatelessWidget {
               ],
             ),
           ),
-
-          // --- BODY CONTENT ---
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(Get.width / 30),
@@ -166,7 +164,6 @@ class ViewAllRawMaterial extends StatelessWidget {
                         ),
 
                         SizedBox(height: Get.height / 20),
-
                         SizedBox(
                           height: Get.height / 18,
                           width: double.infinity,

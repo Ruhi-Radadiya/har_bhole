@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../main.dart';
 import '../../../routes/routes.dart';
 import '../../component/food_card.dart';
+import '../products/products.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -240,46 +241,46 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     SizedBox(height: Get.height / 50),
-                    // Obx(() {
-                    //   if (premiumCollectionController.isLoading.value) {
-                    //     return SizedBox(
-                    //       height: Get.height / 7,
-                    //       child: Center(child: CircularProgressIndicator()),
-                    //     );
-                    //   }
-                    //   return SizedBox(
-                    //     height: Get.height / 7,
-                    //     child: ListView.builder(
-                    //       scrollDirection: Axis.horizontal,
-                    //       itemCount: premiumCollectionController
-                    //           .premiumCollection
-                    //           .length,
-                    //       physics: const BouncingScrollPhysics(),
-                    //       padding: EdgeInsets.symmetric(
-                    //         horizontal: Get.width / 33,
-                    //       ),
-                    //       itemBuilder: (context, index) {
-                    //         final category = premiumCollectionController
-                    //             .premiumCollection[index];
-                    //         return GestureDetector(
-                    //           onTap: () {
-                    //             Get.to(
-                    //               Products(defaultType: category.categoryName),
-                    //             );
-                    //           },
-                    //           child: Padding(
-                    //             padding: EdgeInsets.only(right: Get.width / 42),
-                    //             child: Image.network(
-                    //               category.categoryImage,
-                    //               width: Get.width / 4,
-                    //               fit: BoxFit.cover,
-                    //             ),
-                    //           ),
-                    //         );
-                    //       },
-                    //     ),
-                    //   );
-                    // }),
+                    Obx(() {
+                      if (premiumCollectionController.isLoading.value) {
+                        return SizedBox(
+                          height: Get.height / 7,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return SizedBox(
+                        height: Get.height / 7,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: premiumCollectionController
+                              .premiumCollection
+                              .length,
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Get.width / 33,
+                          ),
+                          itemBuilder: (context, index) {
+                            final category = premiumCollectionController
+                                .premiumCollection[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Get.to(
+                                  Products(defaultType: category.categoryName),
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(right: Get.width / 42),
+                                child: Image.network(
+                                  category.categoryImage,
+                                  width: Get.width / 4,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }),
                     SizedBox(height: Get.height / 40),
                     Row(
                       children: [

@@ -188,7 +188,7 @@ class _StockState extends State<Stock> {
                     title: 'Semi-Finished',
                     iconColor: Color(0xffF78520),
                     onTap: () {
-                      Get.toNamed(Routes.createNewSemiFinishedProductScreen);
+                      Get.toNamed(Routes.semiFinished);
                     },
                   ),
                   _buildMenuItemTile(
@@ -196,7 +196,7 @@ class _StockState extends State<Stock> {
                     title: 'Finished Goods',
                     iconColor: Color(0xffF78520),
                     onTap: () {
-                      Get.toNamed(Routes.createNewFinishedProduct);
+                      Get.toNamed(Routes.finishedGoods);
                     },
                   ),
                   _buildMenuItemTile(

@@ -1,19 +1,181 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/main.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
-class CreateNewSemiFinishedProductScreen extends StatelessWidget {
+class CreateNewSemiFinishedProductScreen extends StatefulWidget {
   const CreateNewSemiFinishedProductScreen({super.key});
 
+  @override
+  State<CreateNewSemiFinishedProductScreen> createState() =>
+      _CreateNewSemiFinishedProductScreenState();
+}
+
+class _CreateNewSemiFinishedProductScreenState
+    extends State<CreateNewSemiFinishedProductScreen> {
   final Color mainOrange = const Color(0xffF78520);
   final Color lightGrayBackground = const Color(0xffF3F7FC);
 
-  final String? _selectedCategory = null;
-  final String? _selectedRawMaterial = null;
-  final String? _selectedOutputType = null;
+  String? _selectedCategory;
+  String? _selectedRawMaterial;
+  String? _selectedOutputType;
+
+  final itemCodeController = TextEditingController();
+  final itemNameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final quantityRequiredController = TextEditingController();
+  final unitController = TextEditingController();
+  final wastageController = TextEditingController();
+  final quantityCreatedController = TextEditingController();
+  final boxWeightController = TextEditingController();
+  final boxDimensionsController = TextEditingController();
+
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateItemCode();
+  }
+
+  Future<void> _generateItemCode() async {
+    try {
+      final url = Uri.parse(
+        'https://harbhole.eihlims.com/Api/semi_finished_stock_api.php?action=list',
+      );
+      final response = await http.get(url);
+
+      log("📦 Fetching last item codes...");
+      log("📤 API Status: ${response.statusCode}");
+      log("📤 Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Some APIs return data["data"], others use data["items"]
+        final List<dynamic> items =
+            (data["data"] ?? data["items"] ?? []) as List;
+
+        if (items.isEmpty) {
+          itemCodeController.text = "SF001";
+          log("⚠️ No items found, starting from SF001");
+          return;
+        }
+
+        // Extract all valid codes starting with SF
+        final List<String> sfCodes = items
+            .map((e) => e["item_code"]?.toString() ?? "")
+            .where((code) => code.startsWith("SF"))
+            .toList();
+
+        if (sfCodes.isEmpty) {
+          itemCodeController.text = "SF001";
+          log("⚠️ No SF codes found, starting from SF001");
+          return;
+        }
+
+        // Extract numeric parts and find the largest
+        final List<int> numbers = sfCodes.map((code) {
+          final numericPart = code.replaceAll(RegExp(r'[^0-9]'), '');
+          return int.tryParse(numericPart) ?? 0;
+        }).toList();
+
+        numbers.sort();
+        final int nextNumber = (numbers.isNotEmpty ? numbers.last + 1 : 1);
+
+        final String newCode = "SF${nextNumber.toString().padLeft(3, '0')}";
+
+        setState(() {
+          itemCodeController.text = newCode;
+        });
+
+        log("✅ Generated new code: $newCode");
+      } else {
+        itemCodeController.text = "SF001";
+        log("⚠️ API call failed, using fallback SF001");
+      }
+    } catch (e) {
+      itemCodeController.text = "SF001";
+      log("❌ Error generating item code: $e");
+    }
+  }
+
+  Future<void> _addSemiFinishedProduct() async {
+    if (itemNameController.text.isEmpty ||
+        _selectedCategory == null ||
+        _selectedOutputType == null) {
+      Get.snackbar(
+        "Error",
+        "Please fill all required fields",
+        backgroundColor: Colors.red.shade100,
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    final Map<String, dynamic> payload = {
+      "item_name": itemNameController.text.trim(),
+      "category_id": 3,
+      "current_quantity": quantityCreatedController.text.isEmpty
+          ? 0
+          : double.parse(quantityCreatedController.text),
+      "unit_of_measure": unitController.text.isEmpty
+          ? "kg"
+          : unitController.text.trim(),
+      "reorder_point": 50,
+      "location": "Warehouse B",
+      "description": descriptionController.text.trim(),
+      "output_type": _selectedOutputType ?? "",
+      "box_weight": boxWeightController.text.trim(),
+      "box_dimensions": boxDimensionsController.text.trim(),
+      "created_by": 1,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+          "https://harbhole.eihlims.com/Api/semi_finished_stock_api.php?action=add",
+        ),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(payload),
+      );
+
+      final data = json.decode(response.body);
+      log("🧾 Response: $data");
+
+      if (data["success"] == true) {
+        Get.snackbar(
+          "Success",
+          "Semi-Finished Product Added Successfully",
+          backgroundColor: Colors.green.shade100,
+        );
+        Get.toNamed(Routes.viewAllSemiFinishedMaterial);
+      } else {
+        Get.snackbar(
+          "Failed",
+          data["message"] ?? "Something went wrong",
+          backgroundColor: Colors.red.shade100,
+        );
+      }
+    } catch (e) {
+      log("❌ Error adding semi-finished material: $e");
+      Get.snackbar(
+        "Error",
+        "Unable to connect to the server",
+        backgroundColor: Colors.red.shade100,
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,35 +260,72 @@ class CreateNewSemiFinishedProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: 'Item Code',
                         hint: 'SF023',
+                        controller: itemCodeController,
                         isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: 'Item Name',
                         hint: 'Enter Product Name',
+                        controller: itemNameController,
                       ),
                       SizedBox(height: Get.height / 60),
+                      Obx(() {
+                        if (premiumCollectionController.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-                      CustomDropdownField<String>(
-                        label: 'Category',
-                        items: const ['Category A', 'Category B', 'Category C'],
-                        value: _selectedCategory,
-                        getLabel: (val) => val,
-                        onChanged: (val) {},
-                        hint: 'Select Category',
-                      ),
+                        if (premiumCollectionController
+                            .errorMessage
+                            .isNotEmpty) {
+                          return Text(
+                            premiumCollectionController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          );
+                        }
+
+                        if (premiumCollectionController
+                            .filteredCategories
+                            .isEmpty) {
+                          return const Text('No categories available');
+                        }
+
+                        // Remove duplicate category names to prevent "exactly one item" error
+                        final uniqueCategories = premiumCollectionController
+                            .filteredCategories
+                            .map((e) => e.categoryName)
+                            .toSet()
+                            .toList();
+
+                        // Ensure selected category is valid
+                        if (_selectedCategory != null &&
+                            !uniqueCategories.contains(_selectedCategory)) {
+                          _selectedCategory = null;
+                        }
+
+                        return CustomDropdownField<String>(
+                          label: 'Category',
+                          items: uniqueCategories,
+                          value: _selectedCategory,
+                          getLabel: (val) => val,
+                          onChanged: (val) {
+                            setState(() => _selectedCategory = val);
+                          },
+                          hint: 'Select Category',
+                        );
+                      }),
                       SizedBox(height: Get.height / 60),
-
                       UploadFileField(
                         label: 'Product Image',
                         onFileSelected: (path) {},
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: 'Description',
-                        hint: 'Enter Product discription or note',
+                        hint: 'Enter Product description or note',
+                        controller: descriptionController,
                         maxLines: 2,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -138,49 +337,83 @@ class CreateNewSemiFinishedProductScreen extends StatelessWidget {
                       ),
                       SizedBox(height: Get.height / 60),
 
-                      CustomDropdownField<String>(
-                        label: 'Raw Material',
-                        items: const ['Raw Mat A', 'Raw Mat B', 'Raw Mat C'],
-                        value: _selectedRawMaterial,
-                        getLabel: (val) => val,
-                        onChanged: (val) {},
-                        hint: 'Select raw Material',
-                      ),
+                      Obx(() {
+                        if (rawMaterialController.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (rawMaterialController.errorMessage.isNotEmpty) {
+                          return Text(
+                            rawMaterialController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          );
+                        }
+
+                        if (rawMaterialController.filteredMaterials.isEmpty) {
+                          return const Text('No raw materials available');
+                        }
+
+                        // Extract material names (unique)
+                        final materialNames = rawMaterialController
+                            .filteredMaterials
+                            .map((e) => e.materialName ?? '')
+                            .toSet()
+                            .toList();
+
+                        // Fix if current selection no longer exists
+                        if (_selectedRawMaterial != null &&
+                            !materialNames.contains(_selectedRawMaterial)) {
+                          _selectedRawMaterial = null;
+                        }
+
+                        return CustomDropdownField<String>(
+                          label: 'Raw Material',
+                          items: materialNames,
+                          value: _selectedRawMaterial,
+                          getLabel: (val) => val,
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedRawMaterial = val;
+                            });
+                          },
+                          hint: 'Select Raw Material',
+                        );
+                      }),
+
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: 'Quantity Required',
                         hint: '0.00',
+                        controller: quantityRequiredController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: 'Unit',
-                        hint: '0',
-                        keyboardType: TextInputType.number,
+                        hint: 'kg',
+                        controller: unitController,
                       ),
                       SizedBox(height: Get.height / 60),
 
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Wastage+',
-                            style: TextStyle(
-                              fontSize: Get.width / 26,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xff000000),
-                            ),
-                          ),
-                          SizedBox(height: Get.height / 150),
-                          CustomTextField(
-                            hint: '0.00',
-                            keyboardType: TextInputType.number,
-                          ),
-                          SizedBox(height: Get.height / 60),
-                        ],
+                      Text(
+                        'Wastage+',
+                        style: TextStyle(
+                          fontSize: Get.width / 26,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff000000),
+                        ),
                       ),
+                      SizedBox(height: Get.height / 150),
+                      CustomTextField(
+                        hint: '0.00',
+                        controller: wastageController,
+                        keyboardType: TextInputType.number,
+                      ),
+                      SizedBox(height: Get.height / 60),
 
                       Padding(
                         padding: EdgeInsets.only(bottom: Get.height / 50),
@@ -207,7 +440,9 @@ class CreateNewSemiFinishedProductScreen extends StatelessWidget {
                         items: const ['Type A', 'Type B', 'Type C'],
                         value: _selectedOutputType,
                         getLabel: (val) => val,
-                        onChanged: (val) {},
+                        onChanged: (val) {
+                          setState(() => _selectedOutputType = val);
+                        },
                         hint: 'Select Output Type',
                       ),
                       SizedBox(height: Get.height / 60),
@@ -215,6 +450,7 @@ class CreateNewSemiFinishedProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: 'Quantity Created',
                         hint: '0.00',
+                        controller: quantityCreatedController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -222,6 +458,7 @@ class CreateNewSemiFinishedProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: 'Box Weight (kg)',
                         hint: '0.00',
+                        controller: boxWeightController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -229,8 +466,10 @@ class CreateNewSemiFinishedProductScreen extends StatelessWidget {
                       CustomTextField(
                         label: 'Box Dimensions (cm)',
                         hint: 'L x W x H',
+                        controller: boxDimensionsController,
                       ),
                       SizedBox(height: Get.height / 30),
+
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,
@@ -241,15 +480,19 @@ class CreateNewSemiFinishedProductScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: () {},
-                          child: Text(
-                            "Add Semi-Finished Materials",
-                            style: GoogleFonts.poppins(
-                              fontSize: Get.width / 22.5,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          onPressed: isLoading ? null : _addSemiFinishedProduct,
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  "Add Semi-Finished Materials",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: Get.width / 22.5,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
                     ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/model/semi_finished_material_model/semi_finished_material_model.dart';
 
 import '../../../../main.dart';
 import '../../../component/textfield.dart';
@@ -14,6 +15,7 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SemiFinishedMaterialModel item = Get.arguments;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -26,21 +28,24 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
               bottom: Get.height / 100,
             ),
             decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
+            child: Row(
               children: [
-                SizedBox(height: Get.height / 100),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Color(0xffF78520),
-                      ),
-                      onPressed: () => Get.back(),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(minWidth: Get.width / 15),
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xffF78520)),
+                  onPressed: () => Get.back(),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: Get.width / 15),
+                ),
+                SizedBox(width: Get.width / 100),
+                Text(
+                  'Semi Finished Material',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 20,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xffF78520),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -50,8 +55,6 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
               padding: EdgeInsets.all(Get.width / 30),
               child: Column(
                 children: [
-                  _buildInfoGridFromApi(),
-                  SizedBox(height: Get.height / 30),
                   Container(
                     padding: EdgeInsets.all(Get.width / 20),
                     decoration: BoxDecoration(
@@ -68,162 +71,188 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Semi-Finished Materials',
-                              style: GoogleFonts.poppins(
-                                textStyle: TextStyle(
-                                  fontSize: Get.width / 22.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xffF78520),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(7),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Color(0xffF78520),
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      'Edit',
-                                      style: TextStyle(
-                                        color: Color(0xffF78520),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: Get.width / 36,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: Get.width / 100),
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Color(0xffF78520),
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    'cancel',
-                                    style: TextStyle(
-                                      color: Color(0xffF78520),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: Get.width / 36,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: Get.height / 50),
-
-                        // --- Dropdown Filters ---
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildFilterField(
-                              label: "Search",
-                              child: _buildFilterDropdown(label: "Code/Name"),
-                            ),
-                            _buildFilterField(
-                              label: "Category",
-                              child: _buildFilterDropdown(
-                                label: "All Category",
-                              ),
-                            ),
-                            _buildFilterField(
-                              label: "Unit",
-                              child: _buildFilterDropdown(label: "All Units"),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: Get.height / 50),
-                        Obx(() {
-                          if (semiFinishedController.isLoading.value) {
-                            return CircularProgressIndicator(
+                        Text(
+                          'Semi-Finished Materials',
+                          style: GoogleFonts.poppins(
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 22.5,
+                              fontWeight: FontWeight.bold,
                               color: Color(0xffF78520),
-                            );
-                          }
+                            ),
+                          ),
+                        ),
+                        // SizedBox(height: Get.height / 50),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     _buildFilterField(
+                        //       label: "Search",
+                        //       child: _buildFilterDropdown(label: "Code/Name"),
+                        //     ),
+                        //     _buildFilterField(
+                        //       label: "Category",
+                        //       child: _buildFilterDropdown(
+                        //         label: "All Category",
+                        //       ),
+                        //     ),
+                        //     _buildFilterField(
+                        //       label: "Unit",
+                        //       child: _buildFilterDropdown(label: "All Units"),
+                        //     ),
+                        //   ],
+                        // ),
+                        SizedBox(height: Get.height / 50),
+                        Column(
+                          children: [
+                            CustomTextField(
+                              label: 'Code',
+                              hint: item.itemCode,
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'Name',
+                              hint: item.itemName,
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'Category',
+                              hint: item.categoryId,
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'BOM',
+                              hint: '${item.bomItems.length.toString()} items',
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'Current Stock',
+                              hint:
+                                  '${item.currentQuantity} ${item.unitOfMeasure}',
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'Unit',
+                              hint: item.unitOfMeasure,
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'Output Type',
+                              hint: item.outputType,
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'Box Weight (kg)',
+                              hint: item.boxWeight,
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 60),
+                            CustomTextField(
+                              label: 'Box Dimensions',
+                              hint: item.boxDimensions,
+                              isReadOnly: true,
+                            ),
+                            SizedBox(height: Get.height / 50),
 
-                          return Column(
-                            children: semiFinishedController.materials.map((
-                              material,
-                            ) {
-                              return Column(
-                                children: [
-                                  CustomTextField(
-                                    label: 'Code',
-                                    hint: material.itemCode,
-                                    isReadOnly: true,
+                            SizedBox(
+                              height: Get.height / 18,
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xffF78520),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
                                   ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'Name',
-                                    hint: material.itemName,
-                                    isReadOnly: true,
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  'Edit',
+                                  style: GoogleFonts.poppins(
+                                    textStyle: TextStyle(
+                                      fontSize: Get.width / 22.5,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'Category',
-                                    hint: material.categoryId,
-                                    isReadOnly: true,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: Get.height / 50),
+                            SizedBox(
+                              height: Get.height / 18,
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  await Get.defaultDialog(
+                                    title: "Delete Raw Material",
+                                    titleStyle: TextStyle(
+                                      color: const Color(0xffF78520),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: Get.width / 20,
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    radius: 20,
+                                    barrierDismissible: false,
+                                    content: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: Get.width / 20,
+                                        vertical: Get.height / 50,
+                                      ),
+                                      child: Text(
+                                        "Are you sure you want to delete this raw material?",
+                                        style: TextStyle(
+                                          color: const Color(0xffF78520),
+                                          fontSize: Get.width / 30,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    textConfirm: "Yes",
+                                    textCancel: "No",
+                                    confirmTextColor: const Color(0xffF78520),
+                                    cancelTextColor: const Color(0xffF78520),
+                                    buttonColor: Colors.white,
+                                    onConfirm: () async {
+                                      if (Get.isDialogOpen ?? false) Get.back();
+                                      print(
+                                        '🟠 Trying to delete Stock ID: ${item.stockId}',
+                                      );
+
+                                      await semiFinishedController
+                                          .deleteSemiFinishedMaterial(
+                                            item.stockId.toString(),
+                                          );
+                                    },
+                                    onCancel: () {
+                                      if (Get.isDialogOpen ?? false) Get.back();
+                                    },
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Color(0xffF78520),
+                                    width: 1,
                                   ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'BOM',
-                                    hint:
-                                        '${material.bomItems.length.toString()} items',
-                                    isReadOnly: true,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
                                   ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'Current Stock',
-                                    hint:
-                                        '${material.currentQuantity} ${material.unitOfMeasure}',
-                                    isReadOnly: true,
-                                  ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'Unit',
-                                    hint: material.unitOfMeasure,
-                                    isReadOnly: true,
-                                  ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'Output Type',
-                                    hint: material.outputType,
-                                    isReadOnly: true,
-                                  ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'Box Weight (kg)',
-                                    hint: '${material.boxWeight}',
-                                    isReadOnly: true,
-                                  ),
-                                  SizedBox(height: Get.height / 60),
-                                  CustomTextField(
-                                    label: 'Box Dimensions',
-                                    hint: material.boxDimensions,
-                                    isReadOnly: true,
-                                  ),
-                                  SizedBox(height: Get.height / 50),
-                                  const Divider(),
-                                  SizedBox(height: Get.height / 50),
-                                ],
-                              );
-                            }).toList(),
-                          );
-                        }),
+                                ),
+                                child: const Text(
+                                  'Delete',
+                                  style: TextStyle(color: Color(0xffF78520)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -259,7 +288,11 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
               ),
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
+          Icon(
+            Icons.keyboard_arrow_down,
+            size: Get.width / 20,
+            color: Colors.grey,
+          ),
         ],
       ),
     );
@@ -283,114 +316,6 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
           SizedBox(height: 6),
           child,
         ],
-      ),
-    );
-  }
-
-  Widget _buildInfoGridFromApi() {
-    int parseQty(String? qty) {
-      if (qty == null) return 0;
-      // Parse string like "12.000" to int
-      return (double.tryParse(qty) ?? 0).toInt();
-    }
-
-    return Obx(() {
-      final infoData = [
-        {
-          'count': semiFinishedController.materials.length.toString(),
-          'label': 'Total item',
-        },
-        {
-          'count': semiFinishedController.materials
-              .where((item) => parseQty(item.currentQuantity as String?) > 0)
-              .length
-              .toString(),
-          'label': 'In Stock',
-        },
-        {
-          'count': semiFinishedController.materials
-              .where(
-                (item) =>
-                    parseQty(item.currentQuantity as String?) > 0 &&
-                    parseQty(item.currentQuantity as String?) < 5,
-              )
-              .length
-              .toString(),
-          'label': 'Low Stock',
-        },
-        {
-          'count': semiFinishedController.materials
-              .where((item) => parseQty(item.currentQuantity as String?) == 0)
-              .length
-              .toString(),
-          'label': 'Out Of Stock',
-        },
-      ];
-
-      return _buildInfoGrid(infoData);
-    });
-  }
-
-  Widget _buildInfoGrid(List<Map<String, String>> data) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: data.length,
-      padding: EdgeInsets.symmetric(horizontal: Get.width / 25),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: Get.height / 80,
-        crossAxisSpacing: Get.width / 25,
-        childAspectRatio: 1.2,
-      ),
-      itemBuilder: (context, index) {
-        final item = data[index];
-        return _buildInfoCard(item['count']!, item['label']!);
-      },
-    );
-  }
-
-  Widget _buildInfoCard(String count, String label) {
-    double size = Get.width / 3.5; // square dimension
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.09),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(Get.width / 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              count,
-              style: GoogleFonts.poppins(
-                fontSize: Get.width / 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            SizedBox(height: Get.height / 150),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: Get.width / 32,
-                color: Colors.black87,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
