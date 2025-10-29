@@ -159,7 +159,6 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
                               isReadOnly: true,
                             ),
                             SizedBox(height: Get.height / 50),
-
                             SizedBox(
                               height: Get.height / 18,
                               width: double.infinity,

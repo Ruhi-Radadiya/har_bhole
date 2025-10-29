@@ -54,7 +54,9 @@ import '../view/screens/stock/semi_finished/semi_finished_material.dart';
 import '../view/screens/stock/semi_finished/view_all_semi_finished_material.dart';
 import '../view/screens/stock/stock_movement/add_stock_movement_screen.dart';
 import '../view/screens/stock/stock_movement/stock_movement_screen.dart';
+import '../view/screens/stock/stock_movement/view_stock_movement_screen.dart';
 import '../view/screens/stock/supplier/add_new_supplier.dart';
+import '../view/screens/stock/supplier/supplier_screen.dart';
 import '../view/screens/stock/supplier/view_supplier_screen.dart';
 
 class Routes {
@@ -99,7 +101,7 @@ class Routes {
   static String createNewFinishedProduct = '/create-new-finished-frenchies';
   static String viewNewFinishedProductScreen =
       '/view-new-finished-frenchies-screen';
-  static String stockMovement = '/stock-movement';
+  static String viewStockMovementScreen = '/view-stock-movement';
   static String addStockMovement = '/add-stock-movement';
   static String addNewSupplier = '/add-new-supplier';
   static String viewAllSupplier = '/view-all-supplier';
@@ -116,6 +118,8 @@ class Routes {
   static String rawMaterial = '/raw-material';
   static String semiFinished = '/semi-finished';
   static String finishedGoods = '/finished-goods';
+  static String stockMovement = '/stock-movement';
+  static String supplierScreen = '/supplier-screen';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -193,7 +197,10 @@ class Routes {
       name: viewNewFinishedProductScreen,
       page: () => ViewNewFinishedProductScreen(),
     ),
-    GetPage(name: stockMovement, page: () => StockMovementEntryScreen()),
+    GetPage(
+      name: viewStockMovementScreen,
+      page: () => ViewStockMovementScreen(),
+    ),
     GetPage(name: addStockMovement, page: () => AddStockMovementScreen()),
     GetPage(name: addNewSupplier, page: () => AddNewSupplier()),
     GetPage(name: viewAllSupplier, page: () => ViewSupplierScreen()),
@@ -222,5 +229,7 @@ class Routes {
     GetPage(name: rawMaterial, page: () => RawMaterialScreen()),
     GetPage(name: semiFinished, page: () => SemiFinishedMaterial()),
     GetPage(name: finishedGoods, page: () => FinishedGoodsScreen()),
+    GetPage(name: stockMovement, page: () => StockMovementScreen()),
+    GetPage(name: supplierScreen, page: () => SupplierScreen()),
   ];
 }

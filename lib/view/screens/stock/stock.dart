@@ -212,7 +212,7 @@ class _StockState extends State<Stock> {
                     title: 'Suppiler',
                     iconColor: Color(0xffF78520),
                     onTap: () {
-                      Get.toNamed(Routes.addNewSupplier);
+                      Get.toNamed(Routes.supplierScreen);
                     },
                   ),
                   SizedBox(height: Get.height / 40),

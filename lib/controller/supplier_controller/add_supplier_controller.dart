@@ -4,7 +4,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:har_bhole/main.dart';
 import 'package:http/http.dart' as http;
+
+import '../../model/supplier_model/supplier_model.dart';
 
 class AddSupplierController extends GetxController {
   /// Text Controllers
@@ -26,8 +29,29 @@ class AddSupplierController extends GetxController {
   final notesController = TextEditingController();
   final statusController = TextEditingController();
 
+  void fillSupplierData(Supplier supplier) {
+    supplierCodeController.text = supplier.supplierCode ?? '';
+    supplierNameController.text = supplier.supplierName ?? '';
+    contactPersonController.text = supplier.contactPerson ?? '';
+    phoneController.text = supplier.phone ?? '';
+    emailController.text = supplier.email ?? '';
+    websiteController.text = supplier.website ?? '';
+    addressController.text = supplier.address ?? '';
+    cityController.text = supplier.city ?? '';
+    stateController.text = supplier.state ?? '';
+    pinCodeController.text = supplier.pinCode ?? '';
+    countryController.text = supplier.country ?? '';
+    gstNumberController.text = supplier.gstNumber ?? '';
+    panNumberController.text = supplier.panNumber ?? '';
+    paymentTermsController.text = supplier.paymentTerms ?? '';
+    creditLimitController.text = supplier.creditLimit ?? '';
+    notesController.text = supplier.notes ?? '';
+    statusController.text = supplier.status ?? 'Active';
+  }
+
   /// Loading state
   RxBool isLoading = false.obs;
+  var selectedStatus = ''.obs;
 
   @override
   void onInit() {
@@ -93,6 +117,89 @@ class AddSupplierController extends GetxController {
     }
   }
 
+  Future<bool> updateSupplier(String supplierId) async {
+    isLoading.value = true;
+
+    const String url =
+        "https://harbhole.eihlims.com/Api/suppliers_api.php?action=edit";
+
+    try {
+      // ✅ Build correct body (matching backend exactly)
+      final Map<String, dynamic> body = {
+        "supplier_id": supplierId,
+        "supplier_code": supplierCodeController.text,
+        "supplier_name": supplierNameController.text,
+        "contact_person": contactPersonController.text,
+        "phone": phoneController.text,
+        "email": emailController.text,
+        "website": websiteController.text,
+        "address": addressController.text,
+        "city": cityController.text,
+        "state": stateController.text,
+        "pin_code": pinCodeController.text,
+        "country": countryController.text,
+        "gst_number": gstNumberController.text,
+        "pan_number": panNumberController.text,
+        "payment_terms": paymentTermsController.text,
+        "credit_limit": creditLimitController.text,
+        "notes": notesController.text,
+        "status": statusController.text.isEmpty
+            ? "Active"
+            : statusController.text,
+        "is_active": "1",
+        "created_by": "1",
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      log("🔹 Update Supplier Status: ${response.statusCode}");
+      log("🔹 Update Supplier Raw Response: ${response.body}");
+
+      // 🧩 Check if response contains HTML (invalid JSON)
+      if (response.body.trim().startsWith('<')) {
+        showToast("Invalid response from server (HTML).", success: false);
+        log("❌ Response is HTML, not JSON.");
+        return false;
+      }
+
+      // 🧩 Try decoding safely
+      dynamic result;
+      try {
+        result = jsonDecode(response.body);
+      } catch (e) {
+        showToast("Invalid JSON response from server.", success: false);
+        log("❌ JSON decode failed: $e");
+        log("❌ Raw Response: ${response.body}");
+        return false;
+      }
+
+      // 🧩 Handle backend success
+      if (response.statusCode == 200 && result["success"] == true) {
+        showToast("Supplier updated successfully!", success: true);
+        clearAllFields();
+        supplierController.fetchSuppliers();
+        Get.back();
+        return true;
+      } else {
+        showToast(
+          "Failed to update supplier: ${result["message"] ?? "Unknown error"}",
+          success: false,
+        );
+        return false;
+      }
+    } catch (e) {
+      log("❌ Error updating supplier: $e");
+      showToast("Something went wrong: $e", success: false);
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   /// POST API - Add Supplier
   Future<void> addSupplier() async {
     isLoading.value = true;
@@ -155,34 +262,6 @@ class AddSupplierController extends GetxController {
       log('Error adding supplier: $e');
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  /// Delete supplier
-  Future<void> deleteSupplier(String supplierId) async {
-    final url = Uri.parse(
-      'https://harbhole.eihlims.com/Api/suppliers_api.php?action=delete',
-    );
-
-    try {
-      final response = await http.post(url, body: {'supplier_id': supplierId});
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true) {
-          showToast('Supplier deleted successfully!', success: true);
-        } else {
-          showToast(
-            data['message'] ?? 'Failed to delete supplier',
-            success: false,
-          );
-          log('Failed to delete supplier: ${data['message']}');
-        }
-      } else {
-        showToast('Server error: ${response.statusCode}', success: false);
-      }
-    } catch (e) {
-      showToast('Something went wrong: $e', success: false);
     }
   }
 

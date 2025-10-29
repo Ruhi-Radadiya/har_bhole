@@ -5,14 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../main.dart';
 import '../../../../model/supplier_model/supplier_model.dart';
 import '../../../component/textfield.dart';
+import 'add_new_supplier.dart';
 
 class ViewSupplierScreen extends StatelessWidget {
   const ViewSupplierScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Fetch suppliers when the screen loads
-    supplierController.fetchSuppliers();
+    // Get the selected supplier passed from the previous screen
+    final Supplier supplier = Get.arguments;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -21,6 +22,7 @@ class ViewSupplierScreen extends StatelessWidget {
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
+
             // Header
             Container(
               padding: EdgeInsets.only(
@@ -39,7 +41,10 @@ class ViewSupplierScreen extends StatelessWidget {
                           Icons.arrow_back,
                           color: Color(0xffF78520),
                         ),
-                        onPressed: () => Get.back(),
+                        onPressed: () {
+                          supplierController.isActive.value = true;
+                          Get.back();
+                        },
                         padding: EdgeInsets.zero,
                         constraints: BoxConstraints(minWidth: Get.width / 15),
                       ),
@@ -59,213 +64,190 @@ class ViewSupplierScreen extends StatelessWidget {
                 ],
               ),
             ),
-            // Supplier list
+
+            // Details section
             Expanded(
-              child: Obx(() {
-                if (supplierController.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xffF78520)),
-                  );
-                }
-
-                if (supplierController.suppliersList.isEmpty) {
-                  return const Center(child: Text("No suppliers found"));
-                }
-
-                return SingleChildScrollView(
-                  padding: EdgeInsets.all(Get.width / 30),
-                  child: Column(
-                    children: supplierController.suppliersList.map<Widget>((
-                      Supplier supplier,
-                    ) {
-                      return Container(
-                        margin: EdgeInsets.only(bottom: Get.height / 30),
-                        padding: EdgeInsets.all(Get.width / 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Buttons Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                // Edit Button
-                                GestureDetector(
-                                  onTap: () {
-                                    // Navigate to edit supplier screen
-                                    // Get.to(() => EditSupplierScreen(supplier: supplier));
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(7),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: const Color(0xffF78520),
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      'Edit',
-                                      style: TextStyle(
-                                        color: const Color(0xffF78520),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: Get.width / 36,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: Get.width / 100),
-                                // Delete Button
-                                GestureDetector(
-                                  onTap: () async {
-                                    // Show custom styled confirmation dialog
-                                    await Get.defaultDialog(
-                                      title: "Delete Supplier",
-                                      titleStyle: TextStyle(
-                                        color: const Color(0xffF78520),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: Get.width / 20,
-                                      ),
-                                      backgroundColor: Colors.white,
-                                      radius: 20,
-                                      barrierDismissible: false,
-                                      content: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: Get.width / 20,
-                                          vertical: Get.height / 50,
-                                        ),
-                                        child: Text(
-                                          "Are you sure you want to delete this supplier?",
-                                          style: TextStyle(
-                                            color: const Color(0xffF78520),
-                                            fontSize: Get.width / 30,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                      textConfirm: "Yes",
-                                      textCancel: "No",
-                                      confirmTextColor: const Color(0xffF78520),
-                                      cancelTextColor: const Color(0xffF78520),
-                                      buttonColor: Colors.white,
-                                      onConfirm: () async {
-                                        // Call delete function
-                                        await addSupplierController
-                                            .deleteSupplier(
-                                              supplier.supplierId,
-                                            );
-
-                                        // Refresh supplier list
-                                        supplierController.fetchSuppliers();
-
-                                        // Close dialog
-                                        if (Get.isDialogOpen ?? false)
-                                          Get.back();
-                                      },
-                                      onCancel: () {
-                                        if (Get.isDialogOpen ?? false)
-                                          Get.back();
-                                      },
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: const Color(0xffF78520),
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      'Delete',
-                                      style: TextStyle(
-                                        color: const Color(0xffF78520),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: Get.width / 36,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: Get.height / 30),
-                            // Filter Fields Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildFilterField(
-                                  label: "Status",
-                                  child: _buildFilterDropdown(
-                                    label: supplier.status,
-                                  ),
-                                ),
-                                _buildFilterField(
-                                  label: "City",
-                                  child: _buildFilterDropdown(
-                                    label: supplier.city,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: Get.height / 40),
-                            // Supplier Details Fields
-                            CustomTextField(
-                              label: "Code",
-                              hint: supplier.supplierCode ?? "-",
-                            ),
-                            SizedBox(height: Get.height / 60),
-                            CustomTextField(
-                              label: "Name",
-                              hint: supplier.supplierName,
-                            ),
-                            SizedBox(height: Get.height / 60),
-                            CustomTextField(
-                              label: "Phone Number",
-                              hint: supplier.phone,
-                            ),
-                            SizedBox(height: Get.height / 60),
-                            CustomTextField(
-                              label: "Email Id",
-                              hint: supplier.email,
-                            ),
-                            SizedBox(height: Get.height / 60),
-                            CustomTextField(
-                              label: "Location",
-                              hint:
-                                  "${supplier.address}, ${supplier.city}, ${supplier.state}",
-                            ),
-                            SizedBox(height: Get.height / 60),
-                            CustomTextField(
-                              label: "Payment Terms",
-                              hint: supplier.paymentTerms,
-                            ),
-                            SizedBox(height: Get.height / 60),
-                            CustomTextField(
-                              label: "Credit Limit",
-                              hint: "₹${supplier.creditLimit}",
-                            ),
-                            SizedBox(height: Get.height / 60),
-                            CustomTextField(
-                              label: "Status",
-                              hint: supplier.status,
-                            ),
-                            SizedBox(height: Get.height / 60),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(Get.width / 20),
+                child: Container(
+                  padding: EdgeInsets.all(Get.width / 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
-                );
-              }),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     _buildFilterField(
+                      //       label: "Status",
+                      //       child: _buildFilterDropdown(
+                      //         label: supplier.status ?? "-",
+                      //       ),
+                      //     ),
+                      //     _buildFilterField(
+                      //       label: "City",
+                      //       child: _buildFilterDropdown(
+                      //         label: supplier.city ?? "-",
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // SizedBox(height: Get.height / 30),
+                      CustomTextField(
+                        label: "Supplier Code",
+                        hint: supplier.supplierCode ?? "-",
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      CustomTextField(
+                        label: "Supplier Name",
+                        hint: supplier.supplierName ?? "-",
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      CustomTextField(
+                        label: "Phone Number",
+                        hint: supplier.phone ?? "-",
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      CustomTextField(
+                        label: "Email ID",
+                        hint: supplier.email ?? "-",
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      CustomTextField(
+                        label: "Location",
+                        hint:
+                            "${supplier.address ?? '-'}, ${supplier.city ?? '-'}, ${supplier.state ?? '-'}",
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      CustomTextField(
+                        label: "Payment Terms",
+                        hint: supplier.paymentTerms ?? "-",
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      CustomTextField(
+                        label: "Credit Limit",
+                        hint: supplier.creditLimit != null
+                            ? "₹${supplier.creditLimit}"
+                            : "-",
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      SizedBox(
+                        height: Get.height / 18,
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            addSupplierController.fillSupplierData(
+                              supplier,
+                            ); // ✅ fill data first
+                            Get.to(
+                              () => const AddNewSupplier(),
+                              arguments: {"isEdit": true, "supplier": supplier},
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xffF78520),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            'Edit',
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                fontSize: Get.width / 22.5,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: Get.height / 50),
+                      SizedBox(
+                        height: Get.height / 18,
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            await Get.defaultDialog(
+                              title: "Delete Supplier",
+                              titleStyle: TextStyle(
+                                color: const Color(0xffF78520),
+                                fontWeight: FontWeight.bold,
+                                fontSize: Get.width / 20,
+                              ),
+                              backgroundColor: Colors.white,
+                              radius: 20,
+                              barrierDismissible: false,
+                              content: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: Get.width / 20,
+                                  vertical: Get.height / 50,
+                                ),
+                                child: Text(
+                                  "Are you sure you want to delete ${supplier.supplierName}?",
+                                  style: TextStyle(
+                                    color: const Color(0xffF78520),
+                                    fontSize: Get.width / 30,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              textConfirm: "Yes",
+                              textCancel: "No",
+                              confirmTextColor: const Color(0xffF78520),
+                              cancelTextColor: const Color(0xffF78520),
+                              buttonColor: Colors.white,
+                              onConfirm: () async {
+                                if (Get.isDialogOpen ?? false) Get.back();
+                                await supplierController.deleteSupplier(
+                                  supplier.supplierId.toString(),
+                                );
+
+                                // Give a short delay before navigating back to list
+                                Future.delayed(
+                                  const Duration(milliseconds: 300),
+                                  () {
+                                    Get.back(); // return to supplier list
+                                  },
+                                );
+                              },
+                              onCancel: () {
+                                if (Get.isDialogOpen ?? false) Get.back();
+                              },
+                            );
+                          },
+
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Color(0xffF78520),
+                              width: 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          child: const Text(
+                            'Delete',
+                            style: TextStyle(color: Color(0xffF78520)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: Get.height / 20),
           ],
@@ -309,12 +291,15 @@ class ViewSupplierScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 36,
-                color: Colors.grey.shade700,
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: Get.width / 36,
+                  color: Colors.grey.shade700,
+                ),
               ),
             ),
           ),

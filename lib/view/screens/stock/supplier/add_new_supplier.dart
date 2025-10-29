@@ -3,14 +3,39 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/main.dart';
 
-import '../../../../routes/routes.dart';
+import '../../../../model/supplier_model/supplier_model.dart';
 import '../../../component/textfield.dart';
 
-class AddNewSupplier extends StatelessWidget {
+class AddNewSupplier extends StatefulWidget {
   const AddNewSupplier({super.key});
 
   @override
+  State<AddNewSupplier> createState() => _AddNewSupplierState();
+}
+
+class _AddNewSupplierState extends State<AddNewSupplier> {
+  bool isEdit = false;
+  Supplier? supplier;
+
+  @override
+  void initState() {
+    super.initState();
+    final args = Get.arguments;
+    if (args != null && args['isEdit'] == true && args['supplier'] != null) {
+      isEdit = true;
+      supplier = args['supplier'] as Supplier;
+      addSupplierController.fillSupplierData(supplier!);
+    } else {
+      isEdit = false;
+      addSupplierController.clearAllFields();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String screenTitle = isEdit ? "Edit Supplier" : "Add New Supplier";
+    final String buttonText = isEdit ? "Update Supplier" : "Add Supplier";
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -18,47 +43,44 @@ class AddNewSupplier extends StatelessWidget {
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
+
+            // ---------------- App Bar ----------------
             Container(
-              padding: EdgeInsets.only(
-                left: Get.width / 25,
-                right: Get.width / 25,
-                bottom: Get.height / 100,
+              padding: EdgeInsets.symmetric(
+                horizontal: Get.width / 25,
+                vertical: Get.height / 100,
               ),
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
+              color: Colors.white,
+              child: Row(
                 children: [
-                  SizedBox(height: Get.height / 100),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: Color(0xffF78520),
-                        ),
-                        onPressed: () => Get.back(),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(minWidth: Get.width / 15),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            'Add New Supplier',
-                            style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: Get.width / 18,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: Get.width / 15),
-                    ],
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xffF78520),
+                    ),
+                    onPressed: () {
+                      Get.back();
+                      addSupplierController.clearAllFields();
+                    },
                   ),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        screenTitle,
+                        style: GoogleFonts.poppins(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: Get.width / 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: Get.width / 15),
                 ],
               ),
             ),
+
+            // ---------------- Form Section ----------------
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 30),
@@ -71,57 +93,13 @@ class AddNewSupplier extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
                         blurRadius: 10,
-                        offset: Offset(0, 5),
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Get.toNamed(Routes.viewAllSupplier);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Color(0xffF78520),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'View All Supplier',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: Get.width / 34.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: Get.width / 50),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Color(0xffF78520),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              'cancel',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: Get.width / 34.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Get.height / 40),
-
-                      // Connect controllers here
                       CustomTextField(
                         label: "Supplier Code",
                         hint: "SUP001",
@@ -132,7 +110,7 @@ class AddNewSupplier extends StatelessWidget {
                         "Unique supplier identifier",
                         style: TextStyle(
                           fontSize: Get.width / 41.5,
-                          color: Color(0xff868686),
+                          color: const Color(0xff868686),
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
@@ -249,36 +227,65 @@ class AddNewSupplier extends StatelessWidget {
                       ),
                       SizedBox(height: Get.height / 60),
 
-                      CustomTextField(
-                        label: "Status",
-                        hint: "Active",
-                        controller: addSupplierController.statusController,
-                      ),
+                      // ✅ Custom Dropdown for Status
+                      Obx(() {
+                        return CustomDropdownField<String>(
+                          label: "Status",
+                          items: const ["Active", "Inactive"],
+                          value:
+                              addSupplierController
+                                  .selectedStatus
+                                  .value
+                                  .isNotEmpty
+                              ? addSupplierController.selectedStatus.value
+                              : null,
+                          hint: "Select Status",
+                          getLabel: (val) => val,
+                          onChanged: (val) {
+                            if (val != null) {
+                              addSupplierController.selectedStatus.value = val;
+                              addSupplierController.statusController.text = val;
+                            }
+                          },
+                        );
+                      }),
                       SizedBox(height: Get.height / 60),
 
-                      // Button with API call
+                      // ---------- Submit Button ----------
                       Obx(
                         () => SizedBox(
                           width: double.infinity,
                           height: Get.height / 18,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffF78520),
+                              backgroundColor: const Color(0xffF78520),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            onPressed: addSupplierController.isLoading.value
-                                ? null
-                                : () {
-                                    addSupplierController.addSupplier();
-                                  },
+                            onPressed: () async {
+                              bool success = false;
+
+                              if (isEdit && supplier?.supplierId != null) {
+                                success = await addSupplierController
+                                    .updateSupplier(supplier!.supplierId);
+                              } else {
+                                await addSupplierController.addSupplier();
+                                success = true;
+                              }
+
+                              if (success) {
+                                await supplierController.fetchSuppliers();
+                                Get.back();
+                              }
+                            },
+
                             child: addSupplierController.isLoading.value
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
                                 : Text(
-                                    "Add Movement",
+                                    buttonText,
                                     style: GoogleFonts.poppins(
                                       fontSize: Get.width / 22.5,
                                       color: Colors.white,

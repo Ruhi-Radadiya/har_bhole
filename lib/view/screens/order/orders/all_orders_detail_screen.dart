@@ -8,310 +8,6 @@ const Color mainOrange = Color(0xffF78520);
 class AllOrdersDetailScreen extends StatelessWidget {
   const AllOrdersDetailScreen({super.key});
 
-  // --- Helper Methods ---
-
-  Widget _buildIconText(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: mainOrange),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: Get.width / 30,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 30,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 30,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // NOTE: This original helper is kept but is now redundant, as the table view is used for items.
-  Widget _buildItemRow(String name, String quantityDetails, String price) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          name,
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: Get.width / 22.5,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        SizedBox(height: Get.height / 200),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              'Qty $quantityDetails',
-              style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: Get.width / 30,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            ),
-            Text(
-              price,
-              style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: Get.width / 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPriceRow(
-    String label,
-    String value, {
-    required bool isTotal,
-    Color? valueColor,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-                color: isTotal ? Colors.black : Colors.grey.shade700,
-              ),
-            ),
-          ),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-                color: valueColor ?? (isTotal ? Colors.black : Colors.black),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- NEW 5-Column Item Table Widget ---
-  Widget _buildItemTable({required List<Map<String, String>> items}) {
-    // Define the base style for all item details
-    final TextStyle baseStyle = GoogleFonts.poppins(
-      textStyle: TextStyle(
-        fontSize: Get.width / 30,
-        color: Colors.grey.shade700,
-      ),
-    );
-
-    // Header Row with 5 columns
-    Widget buildHeaderRow() {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 5.0),
-        child: Row(
-          children: [
-            // Flex distribution adjusted for mobile screen size
-            Expanded(
-              flex: 4,
-              child: Text(
-                'Product',
-                style: baseStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: Get.width / 28,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(
-                'Net Wt.',
-                textAlign: TextAlign.center,
-                style: baseStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: Get.width / 28,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(
-                'Price',
-                textAlign: TextAlign.right,
-                style: baseStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: Get.width / 28,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Text(
-                'Qty',
-                textAlign: TextAlign.center,
-                style: baseStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: Get.width / 28,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(
-                'Total',
-                textAlign: TextAlign.right,
-                style: baseStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: Get.width / 28,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Single Item Data Row
-    Widget buildItemRow(Map<String, String> item) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 4,
-              child: Text(
-                item['name']!,
-                style: baseStyle.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(
-                item['netWt']!,
-                textAlign: TextAlign.center,
-                style: baseStyle,
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(
-                item['price']!,
-                textAlign: TextAlign.right,
-                style: baseStyle,
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Text(
-                item['qty']!,
-                textAlign: TextAlign.center,
-                style: baseStyle,
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(
-                item['total']!,
-                textAlign: TextAlign.right,
-                style: baseStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Table Title
-        Text(
-          'Items',
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: Get.width / 22.5,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        SizedBox(height: Get.height / 100),
-
-        // Header and separator
-        buildHeaderRow(),
-        const Divider(thickness: 1, height: 1),
-        const SizedBox(height: 5),
-
-        // Item Rows
-        ...items.map((item) => buildItemRow(item)).toList(),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Example data for the 5-column table
@@ -367,7 +63,7 @@ class AllOrdersDetailScreen extends StatelessWidget {
                       constraints: BoxConstraints(minWidth: Get.width / 15),
                     ),
                     Text(
-                      'Order Details', // Adding a title to the custom AppBar region
+                      'Order Details',
                       style: GoogleFonts.poppins(
                         textStyle: TextStyle(
                           fontSize: Get.width / 20,
@@ -577,6 +273,306 @@ class AllOrdersDetailScreen extends StatelessWidget {
           SizedBox(height: Get.height / 20),
         ],
       ),
+    );
+  }
+
+  Widget _buildIconText(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: mainOrange),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: Get.width / 30,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              textStyle: TextStyle(
+                fontSize: Get.width / 30,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              textStyle: TextStyle(
+                fontSize: Get.width / 30,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemRow(String name, String quantityDetails, String price) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          name,
+          style: GoogleFonts.poppins(
+            textStyle: TextStyle(
+              fontSize: Get.width / 22.5,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        SizedBox(height: Get.height / 200),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              'Qty $quantityDetails',
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: Get.width / 30,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ),
+            Text(
+              price,
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: Get.width / 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceRow(
+    String label,
+    String value, {
+    required bool isTotal,
+    Color? valueColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              textStyle: TextStyle(
+                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
+                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+                color: isTotal ? Colors.black : Colors.grey.shade700,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              textStyle: TextStyle(
+                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
+                fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+                color: valueColor ?? (isTotal ? Colors.black : Colors.black),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemTable({required List<Map<String, String>> items}) {
+    // Define the base style for all item details
+    final TextStyle baseStyle = GoogleFonts.poppins(
+      textStyle: TextStyle(
+        fontSize: Get.width / 30,
+        color: Colors.grey.shade700,
+      ),
+    );
+
+    // Header Row with 5 columns
+    Widget buildHeaderRow() {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 5.0),
+        child: Row(
+          children: [
+            // Flex distribution adjusted for mobile screen size
+            Expanded(
+              flex: 4,
+              child: Text(
+                'Product',
+                style: baseStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: Get.width / 28,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                'Net Wt.',
+                textAlign: TextAlign.center,
+                style: baseStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: Get.width / 28,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                'Price',
+                textAlign: TextAlign.right,
+                style: baseStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: Get.width / 28,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                'Qty',
+                textAlign: TextAlign.center,
+                style: baseStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: Get.width / 28,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                'Total',
+                textAlign: TextAlign.right,
+                style: baseStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: Get.width / 28,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Single Item Data Row
+    Widget buildItemRow(Map<String, String> item) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 4,
+              child: Text(
+                item['name']!,
+                style: baseStyle.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                item['netWt']!,
+                textAlign: TextAlign.center,
+                style: baseStyle,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                item['price']!,
+                textAlign: TextAlign.right,
+                style: baseStyle,
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                item['qty']!,
+                textAlign: TextAlign.center,
+                style: baseStyle,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                item['total']!,
+                textAlign: TextAlign.right,
+                style: baseStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Table Title
+        Text(
+          'Items',
+          style: GoogleFonts.poppins(
+            textStyle: TextStyle(
+              fontSize: Get.width / 22.5,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        SizedBox(height: Get.height / 100),
+
+        // Header and separator
+        buildHeaderRow(),
+        const Divider(thickness: 1, height: 1),
+        const SizedBox(height: 5),
+
+        // Item Rows
+        ...items.map((item) => buildItemRow(item)).toList(),
+      ],
     );
   }
 }
