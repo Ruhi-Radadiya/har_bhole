@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:har_bhole/main.dart';
 import 'package:http/http.dart' as http;
 
 class AddFinishedGoodsStockController extends GetxController {
@@ -25,10 +26,12 @@ class AddFinishedGoodsStockController extends GetxController {
   Rx<File?> selectedImage = Rx<File?>(null);
   RxBool isLoading = false.obs;
 
+  // 👇 For editing
+  String? editingStockId;
+
   @override
   void onInit() {
     super.onInit();
-
     weightGramsController.addListener(_updateTotalWeight);
     quantityProducedController.addListener(_updateTotalWeight);
     generateNextProductCode();
@@ -37,21 +40,86 @@ class AddFinishedGoodsStockController extends GetxController {
   void _updateTotalWeight() {
     double weight = double.tryParse(weightGramsController.text) ?? 0.0;
     int quantity = int.tryParse(quantityProducedController.text) ?? 0;
-
     double total = weight * quantity;
     totalWeightController.text = total.toStringAsFixed(2);
   }
 
+  // 🟠 FILL FORM FOR EDIT
+  void fillFormForEdit(Map<String, dynamic> data) {
+    editingStockId = data['stock_id']?.toString(); // store ID for edit
+
+    productCodeController.text = data['product_code'] ?? '';
+    productNameController.text = data['product_name'] ?? '';
+    descriptionController.text = data['description'] ?? '';
+    reorderPointController.text = data['reorder_point'] ?? '';
+    unitOfMeasureController.text = data['unit_of_measure'] ?? '';
+    weightGramsController.text = data['weight_grams'] ?? '';
+    totalWeightController.text = data['produced_total_weight_grams'] ?? '';
+    quantityProducedController.text = data['quantity_produced'] ?? '';
+
+    // Parse variants and BOM lists if available
+    if (data['variants_json'] != null &&
+        data['variants_json'].toString().isNotEmpty) {
+      try {
+        variantsList.assignAll(
+          List<Map<String, dynamic>>.from(jsonDecode(data['variants_json'])),
+        );
+      } catch (e) {
+        variantsList.clear();
+      }
+    }
+
+    if (data['bom_json'] != null && data['bom_json'].toString().isNotEmpty) {
+      try {
+        bomList.assignAll(
+          List<Map<String, dynamic>>.from(jsonDecode(data['bom_json'])),
+        );
+      } catch (e) {
+        bomList.clear();
+      }
+    }
+
+    log('✅ Form filled for edit (ID: $editingStockId)');
+  }
+
+  // 🟢 ADD NEW
   Future<void> addFinishedGood() async {
     isLoading.value = true;
-
     const String url =
         "https://harbhole.eihlims.com/Api/finished_goods_stock_api.php?action=add";
 
+    await _submitFinishedGood(url, isEdit: false);
+  }
+
+  // 🟣 EDIT EXISTING
+  Future<void> editFinishedGood() async {
+    if (editingStockId == null || editingStockId!.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Stock ID is missing for edit!',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    isLoading.value = true;
+    final String url =
+        "https://harbhole.eihlims.com/Api/finished_goods_stock_api.php?action=edit";
+
+    await _submitFinishedGood(url, isEdit: true);
+  }
+
+  // COMMON METHOD for both ADD & EDIT
+  Future<void> _submitFinishedGood(String url, {required bool isEdit}) async {
     try {
       final request = http.MultipartRequest('POST', Uri.parse(url));
 
-      // Required Fields
+      // Add ID only if editing
+      if (isEdit) {
+        request.fields['stock_id'] = editingStockId!;
+      }
+
       request.fields['product_code'] = productCodeController.text;
       request.fields['product_name'] = productNameController.text;
       request.fields['category_id'] = '12';
@@ -72,13 +140,9 @@ class AddFinishedGoodsStockController extends GetxController {
           ? '0'
           : weightGramsController.text;
 
-      // Variants JSON
       request.fields['variants_json'] = jsonEncode(variantsList);
-
-      // BOM JSON
       request.fields['bom_json'] = jsonEncode(bomList);
 
-      // Image Upload
       if (selectedImage.value != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -92,43 +156,39 @@ class AddFinishedGoodsStockController extends GetxController {
       final responseBody = await response.stream.bytesToString();
       final result = jsonDecode(responseBody);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && result['success'] == true) {
         Get.snackbar(
           'Success',
-          'Finished Good Added Successfully!',
+          isEdit
+              ? 'Finished Good Updated Successfully!'
+              : 'Finished Good Added Successfully!',
           backgroundColor: Colors.green,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
 
-        log('Finished Good Added Successfully: $result');
-
-        // Clear all fields
+        log('✅ Response: $result');
+        finishedGoodsStockController.fetchFinishedGoodsStock();
         clearAllFields();
-
-        // Navigate back or show success UI
         Get.back();
       } else {
         Get.snackbar(
           'Error',
-          'Failed to add finished good: ${result['message'] ?? 'Unknown error'}',
+          'Failed: ${result['message'] ?? 'Unknown error'}',
           backgroundColor: Colors.red,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
-        log(
-          'Failed to add finished good: ${result['message'] ?? 'Unknown error'}',
-        );
+        log('❌ Failed Response: $result');
       }
-    } catch (e) {
+    } catch (e, st) {
       Get.snackbar(
         'Error',
         'Something went wrong: $e',
         backgroundColor: Colors.red,
         colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
       );
-      log('Something went wrong: $e');
+      log('Exception: $e\n$st');
     } finally {
       isLoading.value = false;
     }
@@ -150,6 +210,7 @@ class AddFinishedGoodsStockController extends GetxController {
     weightGramsController.clear();
     selectedRawMaterial.value = '';
     selectedVariantWeight.value = '';
+    editingStockId = null;
   }
 
   Future<void> generateNextProductCode() async {
@@ -158,17 +219,11 @@ class AddFinishedGoodsStockController extends GetxController {
 
     try {
       final response = await http.get(Uri.parse(getApiUrl));
-      log('API Response status: ${response.statusCode}');
-      log('API Response body: ${response.body}');
-
       if (response.statusCode == 200 && response.body.trim().isNotEmpty) {
         final data = jsonDecode(response.body);
-
         if (data['success'] == true && data['items'] != null) {
           final items = List.from(data['items']);
-
           int maxNumber = 0;
-
           for (var item in items) {
             final code = item['product_code']?.toString() ?? '';
             final numberPart = int.tryParse(
@@ -179,17 +234,16 @@ class AddFinishedGoodsStockController extends GetxController {
             }
           }
           final nextNumber = maxNumber + 1;
-          final newCode = 'FG${nextNumber.toString().padLeft(3, '0')}';
-          log('Generated product code: $newCode');
-          productCodeController.text = newCode;
+          productCodeController.text =
+              'FG${nextNumber.toString().padLeft(3, '0')}';
         } else {
           productCodeController.text = 'FG001';
         }
       } else {
         productCodeController.text = 'FG001';
       }
-    } catch (e, stackTrace) {
-      log('Error generating next product code: $e', stackTrace: stackTrace);
+    } catch (e, st) {
+      log('Error generating code: $e\n$st');
       productCodeController.text = 'FG001';
     }
   }

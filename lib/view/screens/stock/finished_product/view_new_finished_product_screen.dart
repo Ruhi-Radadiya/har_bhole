@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/main.dart';
 
 import '../../../../model/finished_goods_stock/finished_goods_stock_model.dart';
+import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
 class ViewNewFinishedProductScreen extends StatelessWidget {
@@ -154,8 +155,15 @@ class ViewNewFinishedProductScreen extends StatelessWidget {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              // TODO: Navigate to edit screen if needed
+                              Get.toNamed(
+                                Routes.createNewFinishedProduct,
+                                arguments: {
+                                  'isEdit': true,
+                                  'productData': item.toJson(),
+                                },
+                              );
                             },
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xffF78520),
                               shape: RoundedRectangleBorder(

@@ -96,9 +96,11 @@ class SemiFinishedMaterial extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Navigate to create category screen
+                          semiFinishedController.clearForm();
+
                           Get.toNamed(
                             Routes.createNewSemiFinishedProductScreen,
+                            arguments: {'isEdit': false},
                           );
                         },
                         style: ElevatedButton.styleFrom(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -110,6 +111,148 @@ class FinishedGoodsStockController extends GetxController {
       log("❌ Delete failed: $e");
       _showToast("Error: $e", Colors.red);
     }
+  }
+
+  // --------------------- FORM CONTROLLERS ---------------------
+  final productCodeController = TextEditingController();
+  final productNameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final unitOfMeasureController = TextEditingController();
+  final quantityProducedController = TextEditingController();
+  final totalWeightController = TextEditingController();
+  final weightGramsController = TextEditingController();
+  final selectedCategory = ''.obs;
+  final selectedRawMaterial = ''.obs;
+  final selectedImage = Rxn<File>();
+  final selectedStockId = ''.obs;
+  var isEditMode = false.obs;
+
+  // --------------------- ADD FINISHED GOOD ---------------------
+  Future<void> addFinishedGood() async {
+    isLoading.value = true;
+    try {
+      final payload = {
+        "product_code": productCodeController.text,
+        "product_name": productNameController.text,
+        "category_id": selectedCategory.value,
+        "description": descriptionController.text,
+        "unit_of_measure": unitOfMeasureController.text,
+        "quantity_produced": quantityProducedController.text,
+        "total_weight": totalWeightController.text,
+      };
+
+      final response = await http.post(
+        Uri.parse(
+          "https://harbhole.eihlims.com/Api/finished_goods_stock_api.php?action=add",
+        ),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(payload),
+      );
+
+      final data = json.decode(response.body);
+      log("🟢 Add Finished Good Payload: $payload");
+      log("🟢 Add Finished Good Response: $data");
+
+      if (data["success"] == true) {
+        Fluttertoast.showToast(
+          msg: "Finished Good Added Successfully ✅",
+          backgroundColor: Colors.green,
+        );
+        clearForm();
+        fetchFinishedGoodsStock();
+        Get.back();
+      } else {
+        Fluttertoast.showToast(
+          msg: data["message"] ?? "Failed to add finished good ❌",
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error: $e", backgroundColor: Colors.red);
+      log("❌ Error adding finished good: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // --------------------- EDIT FINISHED GOOD ---------------------
+  Future<void> editFinishedGood() async {
+    isLoading.value = true;
+    try {
+      final payload = {
+        "stock_id": selectedStockId.value,
+        "product_code": productCodeController.text,
+        "product_name": productNameController.text,
+        "category_id": selectedCategory.value,
+        "description": descriptionController.text,
+        "unit_of_measure": unitOfMeasureController.text,
+        "quantity_produced": quantityProducedController.text,
+        "total_weight": totalWeightController.text,
+      };
+
+      final response = await http.post(
+        Uri.parse(
+          "https://harbhole.eihlims.com/Api/finished_goods_stock_api.php?action=edit",
+        ),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(payload),
+      );
+
+      final data = json.decode(response.body);
+      log("🟡 Edit Payload: $payload");
+      log("🟢 Edit Response: $data");
+
+      if (data["success"] == true) {
+        Fluttertoast.showToast(
+          msg: "Finished Good Updated Successfully ✅",
+          backgroundColor: Colors.green,
+        );
+        clearForm();
+        fetchFinishedGoodsStock();
+        Get.back();
+      } else {
+        Fluttertoast.showToast(
+          msg: data["message"] ?? "Failed to update ❌",
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error editing: $e",
+        backgroundColor: Colors.red,
+      );
+      log("❌ Error editing finished good: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // --------------------- FILL FORM FOR EDIT ---------------------
+  void fillFormForEdit(FinishedGoodsStockModel product) {
+    isEditMode.value = true;
+    selectedStockId.value = product.stockId ?? '';
+    productCodeController.text = product.productCode ?? '';
+    productNameController.text = product.productName ?? '';
+    selectedCategory.value = product.categoryId ?? '';
+    descriptionController.text = product.description ?? '';
+    unitOfMeasureController.text = product.unitOfMeasure ?? '';
+    quantityProducedController.text = product.currentQuantity ?? '';
+    totalWeightController.text = product.producedTotalWeightGrams ?? '';
+  }
+
+  // --------------------- CLEAR FORM ---------------------
+  void clearForm() {
+    productCodeController.clear();
+    productNameController.clear();
+    descriptionController.clear();
+    unitOfMeasureController.clear();
+    quantityProducedController.clear();
+    totalWeightController.clear();
+    selectedCategory.value = '';
+    selectedRawMaterial.value = '';
+    selectedImage.value = null;
+    selectedStockId.value = '';
+    isEditMode.value = false;
   }
 
   // --------------------- TOAST HELPER ---------------------

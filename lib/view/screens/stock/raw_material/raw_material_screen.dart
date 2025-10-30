@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -96,8 +94,14 @@ class RawMaterialScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Navigate to create category screen
-                          Get.toNamed(Routes.addNewRawMaterial);
+                          // 🧹 Clear any previously entered data before adding new
+                          rawMaterialController.clearAllFields();
+
+                          // 🧭 Navigate to Add Raw Material screen (Add mode)
+                          Get.toNamed(
+                            Routes.addNewRawMaterial,
+                            arguments: {"isEdit": false},
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: mainOrange,
@@ -107,7 +111,7 @@ class RawMaterialScreen extends StatelessWidget {
                           elevation: 0,
                         ),
                         child: Text(
-                          'Add Raw Materials',
+                          'Add Raw Material',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
                               fontSize: Get.width / 22.5,
@@ -488,10 +492,6 @@ class RawMaterialScreen extends StatelessWidget {
               SizedBox(height: Get.height / 200),
               GestureDetector(
                 onTap: () {
-                  log(
-                    '🧾 ${item.materialName} - Quantity: ${item.currentQuantity}',
-                  );
-
                   Get.to(() => ViewAllRawMaterial(), arguments: item);
                 },
                 child: Text(

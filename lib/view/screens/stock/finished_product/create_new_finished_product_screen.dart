@@ -8,17 +8,30 @@ import '../../../../main.dart';
 import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
-class CreateNewFinishedProductScreen extends StatelessWidget {
+class CreateNewFinishedProductScreen extends StatefulWidget {
   const CreateNewFinishedProductScreen({super.key});
-  final Color mainOrange = const Color(0xffF78520);
-  final Color lightGrayBackground = const Color(0xffF3F7FC);
 
-  final String? _selectedCategory = null;
-  final String? _selectedRawMaterial = null;
-  final String? _selectedOutputType = null;
+  @override
+  State<CreateNewFinishedProductScreen> createState() =>
+      _CreateNewFinishedProductScreenState();
+}
+
+class _CreateNewFinishedProductScreenState
+    extends State<CreateNewFinishedProductScreen> {
+  final Color mainOrange = const Color(0xffF78520);
 
   @override
   Widget build(BuildContext context) {
+    // 🔹 Check if screen is opened in edit mode
+    final args = Get.arguments ?? {};
+    final bool isEdit = args['isEdit'] ?? false;
+    final productData = args['productData'];
+    String? _selectedCategory;
+
+    if (isEdit && productData != null) {
+      addFinishedGoodsStockController.fillFormForEdit(productData);
+    }
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -26,6 +39,8 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
+
+            // 🔹 Header
             Container(
               padding: EdgeInsets.only(
                 left: Get.width / 25,
@@ -33,25 +48,42 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                 bottom: Get.height / 100,
               ),
               decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
+              child: Row(
                 children: [
-                  SizedBox(height: Get.height / 100),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: Color(0xffF78520),
-                        ),
-                        onPressed: () => Get.back(),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(minWidth: Get.width / 15),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xffF78520),
+                    ),
+                    onPressed: () => Get.back(),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(minWidth: Get.width / 15),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () =>
+                        Get.toNamed(Routes.viewNewFinishedProductScreen),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Color(0xffF78520),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ],
+                      child: Text(
+                        'View All Material',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: Get.width / 34.5,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
+
+            // 🔹 Form Section
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 30),
@@ -71,32 +103,11 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Get.toNamed(Routes.viewNewFinishedProductScreen);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Color(0xffF78520),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'View All Material',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: Get.width / 34.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      _buildSectionHeader(
+                        isEdit ? 'Edit Finished Good' : 'Add New Finished Good',
                       ),
-                      _buildSectionHeader('Add New Finished Good'),
+
+                      // Product Code
                       CustomTextField(
                         label: 'Product Code',
                         hint: '',
@@ -105,6 +116,8 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .productCodeController,
                       ),
                       SizedBox(height: Get.height / 60),
+
+                      // Product Name
                       CustomTextField(
                         label: 'Product Name',
                         hint: 'Enter Product Name',
@@ -112,35 +125,58 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .productNameController,
                       ),
                       SizedBox(height: Get.height / 60),
-                      Obx(
-                        () => CustomDropdownField<String>(
+                      Obx(() {
+                        if (premiumCollectionController.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (premiumCollectionController
+                            .errorMessage
+                            .isNotEmpty) {
+                          return Text(
+                            premiumCollectionController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          );
+                        }
+
+                        if (premiumCollectionController
+                            .filteredCategories
+                            .isEmpty) {
+                          return const Text('No categories available');
+                        }
+
+                        final uniqueCategories = premiumCollectionController
+                            .filteredCategories
+                            .map((e) => e.categoryName)
+                            .toSet()
+                            .toList();
+
+                        return CustomDropdownField<String>(
                           label: 'Category',
-                          items: const [
-                            'Category A',
-                            'Category B',
-                            'Category C',
-                          ],
+                          items: uniqueCategories,
                           value:
-                              addFinishedGoodsStockController
+                              premiumCollectionController
                                   .selectedCategory
                                   .value
                                   .isEmpty
                               ? null
-                              : addFinishedGoodsStockController
+                              : premiumCollectionController
                                     .selectedCategory
                                     .value,
                           getLabel: (val) => val,
                           onChanged: (val) {
-                            addFinishedGoodsStockController
-                                    .selectedCategory
-                                    .value =
+                            premiumCollectionController.selectedCategory.value =
                                 val ?? '';
+                            print("✅ Selected category: ${val}");
                           },
                           hint: 'Select Category',
-                        ),
-                      ),
-
+                        );
+                      }),
                       SizedBox(height: Get.height / 60),
+
+                      // Product Image
                       UploadFileField(
                         label: 'Product Image',
                         onFileSelected: (path) {
@@ -148,22 +184,26 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                               File(path);
                         },
                       ),
-
                       SizedBox(height: Get.height / 60),
+
+                      // Description
                       CustomTextField(
                         label: 'Description',
-                        hint: 'Enter Product discription or note',
+                        hint: 'Enter Product Description or note',
                         maxLines: 2,
                         controller: addFinishedGoodsStockController
                             .descriptionController,
                       ),
                       SizedBox(height: Get.height / 60),
+
                       _buildSectionHeader(
                         'Bill of Materials (BOM)',
                         actionText: 'Add',
                         onActionTap: () {},
                       ),
                       SizedBox(height: Get.height / 60),
+
+                      // Semi-finished product dropdown
                       CustomDropdownField<String>(
                         label: 'Semi-Finished Product',
                         items: const [
@@ -182,17 +222,15 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                                   .value,
                         getLabel: (val) => val,
                         onChanged: (val) {
-                          if (val != null) {
-                            addFinishedGoodsStockController
-                                    .selectedRawMaterial
-                                    .value =
-                                val;
-                          }
+                          addFinishedGoodsStockController
+                                  .selectedRawMaterial
+                                  .value =
+                              val ?? '';
                         },
                         hint: 'Select Semi-Finished Material',
                       ),
-
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Quantity Required',
                         hint: '0.00',
@@ -201,12 +239,14 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Unit',
                         hint: '0',
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
+
                       Text(
                         'No semi-finished products added yet. Add products to define the production recipe.',
                         style: GoogleFonts.poppins(
@@ -216,12 +256,15 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+
+                      // Stock management section
                       _buildSectionHeader(
                         'Stock Management',
                         actionText: 'Edit',
                         onActionTap: () {},
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Unit of Measure',
                         hint: 'Enter Unit',
@@ -229,6 +272,7 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .unitOfMeasureController,
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Quantity Produced',
                         hint: '0.00',
@@ -237,6 +281,7 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Total Weight (grams)',
                         hint: '0.00',
@@ -245,12 +290,15 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .totalWeightController,
                         isReadOnly: true,
                       ),
+                      SizedBox(height: Get.height / 60),
+
                       _buildSectionHeader(
                         'Variants (Weight-wise)',
                         actionText: 'Add',
                         onActionTap: () {},
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Weight (grams)',
                         hint: 'e.g. 250',
@@ -259,6 +307,7 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .weightGramsController,
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Quantity (units)',
                         hint: '0',
@@ -267,6 +316,7 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Total Weight (grams)',
                         hint: '0.00',
@@ -275,14 +325,15 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                             .totalWeightController,
                         isReadOnly: true,
                       ),
-
                       SizedBox(height: Get.height / 60),
+
                       _buildSectionHeader(
                         'Ingredients',
                         actionText: 'Add',
                         onActionTap: () {},
                       ),
                       SizedBox(height: Get.height / 60),
+
                       CustomTextField(
                         label: 'Ingredients List',
                         hint: 'List all Ingredients....',
@@ -290,14 +341,17 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                         controller: addFinishedGoodsStockController
                             .descriptionController,
                       ),
+
                       SizedBox(height: Get.height / 30),
+
+                      // 🔹 Submit Button (Add/Edit)
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,
                         child: Obx(
                           () => ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffF78520),
+                              backgroundColor: const Color(0xffF78520),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -306,14 +360,23 @@ class CreateNewFinishedProductScreen extends StatelessWidget {
                                 addFinishedGoodsStockController.isLoading.value
                                 ? null
                                 : () {
-                                    addFinishedGoodsStockController
-                                        .addFinishedGood();
+                                    if (isEdit) {
+                                      addFinishedGoodsStockController
+                                          .editFinishedGood();
+                                    } else {
+                                      addFinishedGoodsStockController
+                                          .addFinishedGood();
+                                    }
                                   },
                             child:
                                 addFinishedGoodsStockController.isLoading.value
-                                ? CircularProgressIndicator(color: Colors.white)
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
                                 : Text(
-                                    "Create Finished Goods",
+                                    isEdit
+                                        ? "Update Finished Goods"
+                                        : "Create Finished Goods",
                                     style: GoogleFonts.poppins(
                                       fontSize: Get.width / 22.5,
                                       color: Colors.white,

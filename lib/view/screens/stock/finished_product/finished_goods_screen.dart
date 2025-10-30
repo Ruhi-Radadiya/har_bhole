@@ -108,11 +108,18 @@ class _FinishedGoodsScreenState extends State<FinishedGoodsScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Navigate to create category screen
-                          Get.toNamed(Routes.createNewFinishedProduct);
+                          addFinishedGoodsStockController
+                              .clearAllFields(); // make sure form is empty for add
+                          addFinishedGoodsStockController
+                              .generateNextProductCode(); // generate new code
+
+                          Get.toNamed(
+                            Routes.createNewFinishedProduct,
+                            arguments: {'isEdit': false}, // 👈 add this flag
+                          );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: mainOrange,
+                          backgroundColor: const Color(0xffF78520),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
                           ),

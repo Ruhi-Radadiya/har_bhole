@@ -12,6 +12,7 @@ class PremiumCollectionController extends GetxController {
   var filteredCategories = <PremiumCollectionModel>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
+  var selectedCategory = ''.obs;
 
   final String baseUrl =
       'https://harbhole.eihlims.com/Api/category_api.php?action=list';

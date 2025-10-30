@@ -5,13 +5,14 @@ import 'package:har_bhole/main.dart';
 
 import '../../../../model/raw_material_model/raw_material_model.dart';
 import '../../../component/textfield.dart';
+import 'add_new_raw_material.dart';
 
 class ViewAllRawMaterial extends StatelessWidget {
   const ViewAllRawMaterial({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final RawMaterialModel item = Get.arguments;
+    final RawMaterialModel item = Get.arguments as RawMaterialModel;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -68,7 +69,6 @@ class ViewAllRawMaterial extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Header Row
                         Text(
                           'Raw Material Details',
                           style: GoogleFonts.poppins(
@@ -79,31 +79,11 @@ class ViewAllRawMaterial extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // SizedBox(height: Get.height / 50),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //   children: [
-                        //     _buildFilterField(
-                        //       label: "Category",
-                        //       child: _buildFilterDropdown(
-                        //         label: "All categories",
-                        //       ),
-                        //     ),
-                        //     _buildFilterField(
-                        //       label: "Status",
-                        //       child: _buildFilterDropdown(label: "All Status"),
-                        //     ),
-                        //     _buildFilterField(
-                        //       label: "Stock Status",
-                        //       child: _buildFilterDropdown(label: "All Stock"),
-                        //     ),
-                        //   ],
-                        // ),
                         SizedBox(height: Get.height / 40),
                         CustomTextField(
                           label: 'Material Code',
                           controller: TextEditingController(
-                            text: item.stockId ?? '',
+                            text: item.materialCode ?? '',
                           ),
                           isReadOnly: true,
                           hint: '',
@@ -130,7 +110,7 @@ class ViewAllRawMaterial extends StatelessWidget {
                         CustomTextField(
                           label: 'Current Quantity',
                           controller: TextEditingController(
-                            text: item.currentQuantity ?? '',
+                            text: item.stock?.toString() ?? '',
                           ),
                           isReadOnly: true,
                           hint: '',
@@ -139,7 +119,7 @@ class ViewAllRawMaterial extends StatelessWidget {
                         CustomTextField(
                           label: 'Cost / Unit',
                           controller: TextEditingController(
-                            text: item.costPerUnit?.toString() ?? '',
+                            text: item.costPrice ?? '',
                           ),
                           isReadOnly: true,
                           hint: '',
@@ -162,13 +142,23 @@ class ViewAllRawMaterial extends StatelessWidget {
                           isReadOnly: true,
                           hint: '',
                         ),
-
                         SizedBox(height: Get.height / 20),
+
+                        /// ✅ EDIT BUTTON
                         SizedBox(
                           height: Get.height / 18,
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              // Fill controller with data (safe conversion done in controller)
+                              rawMaterialController.fillMaterialData(item);
+
+                              // Navigate to Add/Edit screen and pass args
+                              Get.to(
+                                () => const AddNewRawMaterial(),
+                                arguments: {"isEdit": true, "material": item},
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xffF78520),
                               shape: RoundedRectangleBorder(
@@ -188,7 +178,10 @@ class ViewAllRawMaterial extends StatelessWidget {
                             ),
                           ),
                         ),
+
                         SizedBox(height: Get.height / 50),
+
+                        /// ❌ DELETE BUTTON
                         SizedBox(
                           height: Get.height / 18,
                           width: double.infinity,
@@ -225,10 +218,8 @@ class ViewAllRawMaterial extends StatelessWidget {
                                 buttonColor: Colors.white,
                                 onConfirm: () async {
                                   if (Get.isDialogOpen ?? false) Get.back();
-
-                                  // ✅ Call your controller delete method
                                   await rawMaterialController.deleteRawMaterial(
-                                    item.stockId.toString(),
+                                    item.stockId ?? '',
                                   );
                                 },
                                 onCancel: () {
@@ -260,56 +251,6 @@ class ViewAllRawMaterial extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterDropdown({required String label}) {
-    return Container(
-      width: Get.width / 3.6,
-      height: Get.height / 22,
-      padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 40,
-                color: Colors.grey.shade700,
-              ),
-            ),
-          ),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterField({required String label, required Widget child}) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 30,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          SizedBox(height: 6),
-          child,
         ],
       ),
     );

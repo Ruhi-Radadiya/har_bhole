@@ -1,13 +1,9 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/main.dart';
-import 'package:http/http.dart' as http;
 
-import '../../../../routes/routes.dart';
+import '../../../../model/semi_finished_material_model/semi_finished_material_model.dart';
 import '../../../component/textfield.dart';
 
 class CreateNewSemiFinishedProductScreen extends StatefulWidget {
@@ -38,143 +34,69 @@ class _CreateNewSemiFinishedProductScreenState
   final boxDimensionsController = TextEditingController();
 
   bool isLoading = false;
+  bool isEditMode = false;
+  Map<String, dynamic>? editProductData;
+  String? productId;
+
+  // For BOM items
+  List<BomItem> bomItems = [];
 
   @override
   void initState() {
     super.initState();
-    _generateItemCode();
-  }
 
-  Future<void> _generateItemCode() async {
-    try {
-      final url = Uri.parse(
-        'https://harbhole.eihlims.com/Api/semi_finished_stock_api.php?action=list',
-      );
-      final response = await http.get(url);
-
-      log("📦 Fetching last item codes...");
-      log("📤 API Status: ${response.statusCode}");
-      log("📤 Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        // Some APIs return data["data"], others use data["items"]
-        final List<dynamic> items =
-            (data["data"] ?? data["items"] ?? []) as List;
-
-        if (items.isEmpty) {
-          itemCodeController.text = "SF001";
-          log("⚠️ No items found, starting from SF001");
-          return;
-        }
-
-        // Extract all valid codes starting with SF
-        final List<String> sfCodes = items
-            .map((e) => e["item_code"]?.toString() ?? "")
-            .where((code) => code.startsWith("SF"))
-            .toList();
-
-        if (sfCodes.isEmpty) {
-          itemCodeController.text = "SF001";
-          log("⚠️ No SF codes found, starting from SF001");
-          return;
-        }
-
-        // Extract numeric parts and find the largest
-        final List<int> numbers = sfCodes.map((code) {
-          final numericPart = code.replaceAll(RegExp(r'[^0-9]'), '');
-          return int.tryParse(numericPart) ?? 0;
-        }).toList();
-
-        numbers.sort();
-        final int nextNumber = (numbers.isNotEmpty ? numbers.last + 1 : 1);
-
-        final String newCode = "SF${nextNumber.toString().padLeft(3, '0')}";
-
-        setState(() {
-          itemCodeController.text = newCode;
-        });
-
-        log("✅ Generated new code: $newCode");
-      } else {
-        itemCodeController.text = "SF001";
-        log("⚠️ API call failed, using fallback SF001");
-      }
-    } catch (e) {
-      itemCodeController.text = "SF001";
-      log("❌ Error generating item code: $e");
+    // Check if we're in edit mode
+    final arguments = Get.arguments;
+    if (arguments != null && arguments['isEdit'] == true) {
+      isEditMode = true;
+      editProductData = arguments['productData'];
+      productId = editProductData?['stock_id']?.toString();
+      _prefillFormData();
+    } else {
+      semiFinishedController.generateItemCode();
     }
   }
 
-  Future<void> _addSemiFinishedProduct() async {
-    if (itemNameController.text.isEmpty ||
-        _selectedCategory == null ||
-        _selectedOutputType == null) {
-      Get.snackbar(
-        "Error",
-        "Please fill all required fields",
-        backgroundColor: Colors.red.shade100,
-      );
-      return;
-    }
+  void _prefillFormData() {
+    if (editProductData == null) return;
 
-    setState(() => isLoading = true);
+    setState(() {
+      // Main product data
+      itemCodeController.text = editProductData?['item_code']?.toString() ?? '';
+      itemNameController.text = editProductData?['item_name']?.toString() ?? '';
+      descriptionController.text =
+          editProductData?['description']?.toString() ?? '';
 
-    final Map<String, dynamic> payload = {
-      "item_name": itemNameController.text.trim(),
-      "category_id": 3,
-      "current_quantity": quantityCreatedController.text.isEmpty
-          ? 0
-          : double.parse(quantityCreatedController.text),
-      "unit_of_measure": unitController.text.isEmpty
-          ? "kg"
-          : unitController.text.trim(),
-      "reorder_point": 50,
-      "location": "Warehouse B",
-      "description": descriptionController.text.trim(),
-      "output_type": _selectedOutputType ?? "",
-      "box_weight": boxWeightController.text.trim(),
-      "box_dimensions": boxDimensionsController.text.trim(),
-      "created_by": 1,
-    };
+      // Set category - you might need to get category name from ID
+      _selectedCategory = editProductData?['category_id']?.toString();
 
-    try {
-      final response = await http.post(
-        Uri.parse(
-          "https://harbhole.eihlims.com/Api/semi_finished_stock_api.php?action=add",
-        ),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(payload),
-      );
+      // Set output type
+      _selectedOutputType = editProductData?['output_type']?.toString();
 
-      final data = json.decode(response.body);
-      log("🧾 Response: $data");
+      quantityCreatedController.text =
+          editProductData?['current_quantity']?.toString() ?? '';
+      unitController.text =
+          editProductData?['unit_of_measure']?.toString() ?? 'kg';
+      boxWeightController.text =
+          editProductData?['box_weight']?.toString() ?? '';
+      boxDimensionsController.text =
+          editProductData?['box_dimensions']?.toString() ?? '';
 
-      if (data["success"] == true) {
-        Get.snackbar(
-          "Success",
-          "Semi-Finished Product Added Successfully",
-          backgroundColor: Colors.green.shade100,
-        );
-        Get.toNamed(Routes.viewAllSemiFinishedMaterial);
-      } else {
-        Get.snackbar(
-          "Failed",
-          data["message"] ?? "Something went wrong",
-          backgroundColor: Colors.red.shade100,
-        );
+      // Handle BOM items
+      if (editProductData?['bom_items'] != null &&
+          editProductData?['bom_items'] is List) {
+        final List<dynamic> bomData = editProductData?['bom_items'];
+        if (bomData.isNotEmpty) {
+          // Prefill with first BOM item (you might want to handle multiple items)
+          final firstBom = bomData.first;
+          quantityRequiredController.text =
+              firstBom['quantity_required']?.toString() ?? '';
+          wastageController.text =
+              firstBom['wastage_percentage']?.toString() ?? '';
+          _selectedRawMaterial = firstBom['raw_material_id']?.toString();
+        }
       }
-    } catch (e) {
-      log("❌ Error adding semi-finished material: $e");
-      Get.snackbar(
-        "Error",
-        "Unable to connect to the server",
-        backgroundColor: Colors.red.shade100,
-      );
-    } finally {
-      setState(() => isLoading = false);
-    }
+    });
   }
 
   @override
@@ -207,6 +129,20 @@ class _CreateNewSemiFinishedProductScreenState
                         padding: EdgeInsets.zero,
                         constraints: BoxConstraints(minWidth: Get.width / 15),
                       ),
+                      Expanded(
+                        child: Text(
+                          isEditMode ? 'Edit Product' : 'Create New Product',
+                          style: GoogleFonts.poppins(
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(width: Get.width / 15),
                     ],
                   ),
                 ],
@@ -231,32 +167,11 @@ class _CreateNewSemiFinishedProductScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Get.toNamed(Routes.viewAllSemiFinishedMaterial);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Color(0xffF78520),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'View All Material',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: Get.width / 34.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      _buildSectionHeader(
+                        isEditMode
+                            ? 'Edit Semi-Finished Product'
+                            : 'Create Semi-Finished Product',
                       ),
-                      _buildSectionHeader('Create Semi-Finished Product'),
                       CustomTextField(
                         label: 'Item Code',
                         hint: 'SF023',
@@ -292,26 +207,29 @@ class _CreateNewSemiFinishedProductScreenState
                           return const Text('No categories available');
                         }
 
-                        // Remove duplicate category names to prevent "exactly one item" error
                         final uniqueCategories = premiumCollectionController
                             .filteredCategories
                             .map((e) => e.categoryName)
                             .toSet()
                             .toList();
 
-                        // Ensure selected category is valid
-                        if (_selectedCategory != null &&
-                            !uniqueCategories.contains(_selectedCategory)) {
-                          _selectedCategory = null;
-                        }
-
                         return CustomDropdownField<String>(
                           label: 'Category',
                           items: uniqueCategories,
-                          value: _selectedCategory,
+                          value:
+                              premiumCollectionController
+                                  .selectedCategory
+                                  .value
+                                  .isEmpty
+                              ? null
+                              : premiumCollectionController
+                                    .selectedCategory
+                                    .value,
                           getLabel: (val) => val,
                           onChanged: (val) {
-                            setState(() => _selectedCategory = val);
+                            premiumCollectionController.selectedCategory.value =
+                                val ?? '';
+                            print("✅ Selected category: ${val}");
                           },
                           hint: 'Select Category',
                         );
@@ -355,14 +273,12 @@ class _CreateNewSemiFinishedProductScreenState
                           return const Text('No raw materials available');
                         }
 
-                        // Extract material names (unique)
                         final materialNames = rawMaterialController
                             .filteredMaterials
                             .map((e) => e.materialName ?? '')
                             .toSet()
                             .toList();
 
-                        // Fix if current selection no longer exists
                         if (_selectedRawMaterial != null &&
                             !materialNames.contains(_selectedRawMaterial)) {
                           _selectedRawMaterial = null;
@@ -418,7 +334,9 @@ class _CreateNewSemiFinishedProductScreenState
                       Padding(
                         padding: EdgeInsets.only(bottom: Get.height / 50),
                         child: Text(
-                          'No raw materials added yet. add materials to define the production recipe.',
+                          isEditMode && bomItems.isNotEmpty
+                              ? '${bomItems.length} BOM item(s) configured'
+                              : 'No raw materials added yet. Add materials to define the production recipe.',
                           style: GoogleFonts.poppins(
                             textStyle: TextStyle(
                               fontSize: Get.width / 40,
@@ -480,13 +398,19 @@ class _CreateNewSemiFinishedProductScreenState
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: isLoading ? null : _addSemiFinishedProduct,
+                          onPressed: isLoading
+                              ? null
+                              : isEditMode
+                              ? semiFinishedController.editSemiFinishedMaterial
+                              : semiFinishedController.addSemiFinishedMaterial,
                           child: isLoading
                               ? const CircularProgressIndicator(
                                   color: Colors.white,
                                 )
                               : Text(
-                                  "Add Semi-Finished Materials",
+                                  isEditMode
+                                      ? "Update Product"
+                                      : "Add Semi-Finished Materials",
                                   style: GoogleFonts.poppins(
                                     fontSize: Get.width / 22.5,
                                     color: Colors.white,

@@ -1,16 +1,85 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/model/semi_finished_material_model/semi_finished_material_model.dart';
 
 import '../../../../main.dart';
+import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
-class ViewAllSemiFinishedMaterial extends StatelessWidget {
+class ViewAllSemiFinishedMaterial extends StatefulWidget {
   const ViewAllSemiFinishedMaterial({super.key});
+
+  @override
+  State<ViewAllSemiFinishedMaterial> createState() =>
+      _ViewAllSemiFinishedMaterialState();
+}
+
+class _ViewAllSemiFinishedMaterialState
+    extends State<ViewAllSemiFinishedMaterial> {
+  @override
+  void initState() {
+    super.initState();
+
+    final args = Get.arguments;
+
+    // Default: open in Add mode
+    bool openEdit = false;
+    Map<String, dynamic>? productMap;
+
+    if (args == null) {
+      // nothing passed -> Add mode
+      openEdit = false;
+    } else if (args is Map) {
+      // expected case: { 'isEdit': true, 'productData': {...} }
+      if (args.containsKey('isEdit')) {
+        openEdit = args['isEdit'] == true;
+      }
+      if (args.containsKey('productData')) {
+        final pd = args['productData'];
+        // pd might already be a Map or might be a model instance
+        if (pd is Map<String, dynamic>) {
+          productMap = pd;
+        } else if (pd is SemiFinishedMaterialModel) {
+          productMap = pd.toJson();
+        }
+      }
+    } else if (args is SemiFinishedMaterialModel) {
+      // some code passed the model directly
+      openEdit = true;
+      productMap = args.toJson();
+    } else if (args is Map<String, dynamic>) {
+      // rare: typed map directly
+      productMap = args;
+      openEdit = productMap['isEdit'] == true;
+    } else {
+      // unknown shape: try best-effort
+      log('⚠️ Unexpected Get.arguments type: ${args.runtimeType}');
+    }
+
+    if (openEdit && productMap != null) {
+      try {
+        final product = SemiFinishedMaterialModel.fromJson(productMap);
+        semiFinishedController.fillFormForEdit(product);
+      } catch (e) {
+        log('❌ Failed to parse productData for edit: $e');
+        semiFinishedController.clearForm();
+        semiFinishedController.generateItemCode();
+      }
+    } else {
+      semiFinishedController.clearForm();
+      semiFinishedController.generateItemCode();
+    }
+  }
+
   final Color mainOrange = const Color(0xffF78520);
+
   final Color inStockGreen = const Color(0xff4F6B1F);
+
   final Color lowStockYellow = const Color(0xffFFC107);
+
   final Color outOfStockRed = const Color(0xffFF3B30);
 
   @override
@@ -163,7 +232,17 @@ class ViewAllSemiFinishedMaterial extends StatelessWidget {
                               height: Get.height / 18,
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  // Navigate to edit screen with product data
+                                  Get.toNamed(
+                                    Routes.createNewSemiFinishedProductScreen,
+                                    arguments: {
+                                      'isEdit': true,
+                                      'productData': item
+                                          .toJson(), // pass JSON map
+                                    },
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xffF78520),
                                   shape: RoundedRectangleBorder(
