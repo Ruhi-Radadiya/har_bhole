@@ -19,7 +19,6 @@ class _CreateNewSemiFinishedProductScreenState
   final Color mainOrange = const Color(0xffF78520);
   final Color lightGrayBackground = const Color(0xffF3F7FC);
 
-  String? _selectedCategory;
   String? _selectedRawMaterial;
   String? _selectedOutputType;
 
