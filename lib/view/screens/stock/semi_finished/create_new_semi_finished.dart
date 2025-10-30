@@ -61,18 +61,12 @@ class _CreateNewSemiFinishedProductScreenState
     if (editProductData == null) return;
 
     setState(() {
-      // Main product data
       itemCodeController.text = editProductData?['item_code']?.toString() ?? '';
       itemNameController.text = editProductData?['item_name']?.toString() ?? '';
       descriptionController.text =
           editProductData?['description']?.toString() ?? '';
-
-      // Set category - you might need to get category name from ID
       _selectedCategory = editProductData?['category_id']?.toString();
-
-      // Set output type
       _selectedOutputType = editProductData?['output_type']?.toString();
-
       quantityCreatedController.text =
           editProductData?['current_quantity']?.toString() ?? '';
       unitController.text =
@@ -81,13 +75,10 @@ class _CreateNewSemiFinishedProductScreenState
           editProductData?['box_weight']?.toString() ?? '';
       boxDimensionsController.text =
           editProductData?['box_dimensions']?.toString() ?? '';
-
-      // Handle BOM items
       if (editProductData?['bom_items'] != null &&
           editProductData?['bom_items'] is List) {
         final List<dynamic> bomData = editProductData?['bom_items'];
         if (bomData.isNotEmpty) {
-          // Prefill with first BOM item (you might want to handle multiple items)
           final firstBom = bomData.first;
           quantityRequiredController.text =
               firstBom['quantity_required']?.toString() ?? '';
