@@ -6,6 +6,7 @@ import 'package:har_bhole/controller/b2b_order/b2b_order_controller.dart';
 import 'package:har_bhole/controller/cashbook_controller/create_cashbook_entery_controller.dart';
 import 'package:har_bhole/controller/category_controller/edit_category_controller.dart';
 import 'package:har_bhole/controller/finished_goods_stock_controller/finished_goods_stock_controller.dart';
+import 'package:har_bhole/controller/order_analytics_controller/order_analytics_controller.dart';
 import 'package:har_bhole/controller/product_controller/delete_product_controller.dart';
 import 'package:har_bhole/controller/product_controller/product_controller.dart';
 import 'package:har_bhole/controller/raw_material_controller/raw_material_controller.dart';
@@ -101,6 +102,10 @@ LoginController loginController = Get.put(LoginController());
 StockMovementController stockMovementController = Get.put(
   StockMovementController(),
 );
+OrderAnalyticsController orderAnalyticsController = Get.put(
+  OrderAnalyticsController(),
+);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();

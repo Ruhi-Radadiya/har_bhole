@@ -11,9 +11,8 @@ class StockMovementController extends GetxController {
   static StockMovementController get instance => Get.find();
 
   var isLoading = false.obs;
-  var materials = <StockMovementModel>[].obs; // 👈 full list
-  var filteredMaterials =
-      <StockMovementModel>[].obs; // 👈 filtered list for search
+  var materials = <StockMovementModel>[].obs;
+  var filteredMaterials = <StockMovementModel>[].obs;
   var errorMessage = ''.obs;
 
   final String apiUrl = "https://harbhole.eihlims.com/Api/stock_movements.php";

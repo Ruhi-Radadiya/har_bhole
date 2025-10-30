@@ -11,7 +11,7 @@ class ViewAllRawMaterial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RawMaterialModel item = Get.arguments; // ✅ Get passed material
+    final RawMaterialModel item = Get.arguments;
 
     return Scaffold(
       backgroundColor: Colors.white,

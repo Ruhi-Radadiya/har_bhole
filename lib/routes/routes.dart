@@ -39,6 +39,7 @@ import '../view/screens/order/orders/all_orders.dart';
 import '../view/screens/order/orders/all_orders_detail_screen.dart';
 import '../view/screens/order/orders_analytics/order_analytics.dart';
 import '../view/screens/order/orders_analytics/order_analytics_invoice.dart';
+import '../view/screens/order/orders_analytics/view_order_analytics.dart';
 import '../view/screens/otp_screen/otp_screen.dart';
 import '../view/screens/products/products.dart';
 import '../view/screens/set_new_password/set_new_password.dart';
@@ -105,7 +106,7 @@ class Routes {
   static String addStockMovement = '/add-stock-movement';
   static String addNewSupplier = '/add-new-supplier';
   static String viewAllSupplier = '/view-all-supplier';
-  static String orderAnalytics = '/order-analytics';
+  static String viewOrderAnalytics = '/order-analytics';
   static String orderAnalyticsInvoice = '/order-analytics-invoice';
   static String allOrders = '/all-orders';
   static String allOrdersDetailScreen = '/all-orders-detail-screen';
@@ -120,6 +121,7 @@ class Routes {
   static String finishedGoods = '/finished-goods';
   static String stockMovement = '/stock-movement';
   static String supplierScreen = '/supplier-screen';
+  static String orderAnalytics = '/order-analytics';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -204,7 +206,7 @@ class Routes {
     GetPage(name: addStockMovement, page: () => AddStockMovementScreen()),
     GetPage(name: addNewSupplier, page: () => AddNewSupplier()),
     GetPage(name: viewAllSupplier, page: () => ViewSupplierScreen()),
-    GetPage(name: orderAnalytics, page: () => const OrderAnalytics()),
+    GetPage(name: viewOrderAnalytics, page: () => const ViewOrderAnalytics()),
     GetPage(name: orderAnalyticsInvoice, page: () => OrderAnalyticsInvoice()),
     GetPage(name: allOrders, page: () => AllOrders()),
     GetPage(
@@ -231,5 +233,6 @@ class Routes {
     GetPage(name: finishedGoods, page: () => FinishedGoodsScreen()),
     GetPage(name: stockMovement, page: () => StockMovementScreen()),
     GetPage(name: supplierScreen, page: () => SupplierScreen()),
+    GetPage(name: orderAnalytics, page: () => const OrderAnalytics()),
   ];
 }
