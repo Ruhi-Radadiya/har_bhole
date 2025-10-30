@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 
 import '../../model/orders_model/orders_model.dart';
 
-class AllOrdersController extends GetxController {
-  static AllOrdersController get instance => Get.find();
+class OrdersController extends GetxController {
+  static OrdersController get instance => Get.find();
 
   RxList<Order> allOrders = <Order>[].obs; // all data from API
   RxList<Order> paginatedOrders = <Order>[].obs; // current page data

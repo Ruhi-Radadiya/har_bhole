@@ -238,56 +238,6 @@ class OrderAnalytics extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterDropdown({required String label}) {
-    return Container(
-      width: Get.width / 3.6,
-      height: Get.height / 22,
-      padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 40,
-                color: Colors.grey.shade700,
-              ),
-            ),
-          ),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterField({required String label, required Widget child}) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 30,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          SizedBox(height: 6),
-          child,
-        ],
-      ),
-    );
-  }
-
   // Widget _buildInfoGridFromApi() {
   //   double parseQty(String? qty) {
   //     if (qty == null) return 0;
@@ -467,7 +417,7 @@ class OrderAnalytics extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: Text(
-                  item.paymentStatus == 'paid' ? 'paid' : 'pending',
+                  item.paymentStatus == 'paid' ? 'Paid' : 'Pending',
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
                       fontSize: Get.width / 36,

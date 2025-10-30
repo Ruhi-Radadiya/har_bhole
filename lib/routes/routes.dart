@@ -4,10 +4,10 @@ import 'package:har_bhole/view/screens/shopping/shopping_card.dart';
 import '../model/b2b_order/b2b_order_model.dart';
 import '../view/screens/admin_bottom_bar.dart';
 import '../view/screens/admin_dashboard/cashbook/cashbook_screen.dart';
-import '../view/screens/admin_dashboard/cashbook/creat_cashbook_entry.dart';
+import '../view/screens/admin_dashboard/cashbook/create_cashbook_entry.dart';
 import '../view/screens/admin_dashboard/cashbook/view_net_banking.dart';
+import '../view/screens/admin_dashboard/categories/categories_detail_screen.dart';
 import '../view/screens/admin_dashboard/categories/categories_screen.dart';
-import '../view/screens/admin_dashboard/categories/categoris_detail_screen.dart';
 import '../view/screens/admin_dashboard/categories/create_new_category_screen.dart';
 import '../view/screens/admin_dashboard/products/create_new_product_screen.dart';
 import '../view/screens/admin_dashboard/products/product_detail_screen.dart';
@@ -30,13 +30,14 @@ import '../view/screens/forget_password_screen/forget_password_screen.dart';
 import '../view/screens/frenchies/frenchies.dart';
 import '../view/screens/home/home.dart';
 import '../view/screens/login_screen/login_screen.dart';
-import '../view/screens/order/customer_details/customer_detail_screen.dart';
+import '../view/screens/order/customer_details/customer_screen.dart';
 import '../view/screens/order/customer_details/view_customer_detail_screen.dart';
 import '../view/screens/order/customer_orders/customer_order.dart';
 import '../view/screens/order/customer_orders/customer_order_invoice.dart';
 import '../view/screens/order/customer_orders/view_customer_order.dart';
 import '../view/screens/order/orders/all_orders.dart';
 import '../view/screens/order/orders/all_orders_detail_screen.dart';
+import '../view/screens/order/orders/view_all_orders.dart';
 import '../view/screens/order/orders_analytics/order_analytics.dart';
 import '../view/screens/order/orders_analytics/order_analytics_invoice.dart';
 import '../view/screens/order/orders_analytics/view_order_analytics.dart';
@@ -106,9 +107,9 @@ class Routes {
   static String addStockMovement = '/add-stock-movement';
   static String addNewSupplier = '/add-new-supplier';
   static String viewAllSupplier = '/view-all-supplier';
-  static String viewOrderAnalytics = '/order-analytics';
+  static String viewOrderAnalytics = '/view-order-analytics';
   static String orderAnalyticsInvoice = '/order-analytics-invoice';
-  static String allOrders = '/all-orders';
+  static String viewAllOrders = '/view-all-orders';
   static String allOrdersDetailScreen = '/all-orders-detail-screen';
   static String customerDetailScreen = '/customer-detail-screen';
   static String viewCustomerDetailScreen = '/view-customer-detail-screen';
@@ -122,6 +123,8 @@ class Routes {
   static String stockMovement = '/stock-movement';
   static String supplierScreen = '/supplier-screen';
   static String orderAnalytics = '/order-analytics';
+  static String allOrders = '/all-orders';
+  static String customerScreen = '/customer-screen';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -208,15 +211,12 @@ class Routes {
     GetPage(name: viewAllSupplier, page: () => ViewSupplierScreen()),
     GetPage(name: viewOrderAnalytics, page: () => const ViewOrderAnalytics()),
     GetPage(name: orderAnalyticsInvoice, page: () => OrderAnalyticsInvoice()),
-    GetPage(name: allOrders, page: () => AllOrders()),
+    GetPage(name: viewAllOrders, page: () => ViewAllOrders()),
     GetPage(
       name: allOrdersDetailScreen,
       page: () => const AllOrdersDetailScreen(),
     ),
-    GetPage(
-      name: customerDetailScreen,
-      page: () => const CustomerDetailScreen(),
-    ),
+
     GetPage(
       name: viewCustomerDetailScreen,
       page: () => const ViewCustomerDetailScreen(),
@@ -234,5 +234,7 @@ class Routes {
     GetPage(name: stockMovement, page: () => StockMovementScreen()),
     GetPage(name: supplierScreen, page: () => SupplierScreen()),
     GetPage(name: orderAnalytics, page: () => const OrderAnalytics()),
+    GetPage(name: allOrders, page: () => const AllOrders()),
+    GetPage(name: customerScreen, page: () => const CustomerScreen()),
   ];
 }

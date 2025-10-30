@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/view/screens/order/customer_orders/view_customer_order.dart';
 
-import '../../../../routes/routes.dart';
+import '../../../../main.dart';
+import '../../../../model/order_analytics_model/order_analytics_model.dart';
 import '../../../component/textfield.dart';
 
 class CustomerOrder extends StatelessWidget {
@@ -10,290 +12,429 @@ class CustomerOrder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          SizedBox(height: Get.height / 30),
-          Container(
-            padding: EdgeInsets.only(
-              left: Get.width / 25,
-              right: Get.width / 25,
-              bottom: Get.height / 100,
-            ),
-            decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
-              children: [
-                SizedBox(height: Get.height / 100),
-                Row(
+    const Color mainOrange = Color(0xffF78520);
+    orderAnalyticsController.searchMaterial('');
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- Header & Add Button ---
+              Container(
+                padding: EdgeInsets.only(
+                  top: Get.height / 25,
+                  left: Get.width / 25,
+                  right: Get.width / 25,
+                  bottom: Get.height / 50,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  gradient: LinearGradient(
+                    colors: [Color(0xffFFE1C7), Colors.white],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.0, 1.0],
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Color(0xffF78520),
-                      ),
-                      onPressed: () => Get.back(),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(minWidth: Get.width / 15),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Customer Orders',
-                          style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: Get.width / 18,
-                            ),
+                    SizedBox(height: Get.height / 100),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(9),
+                          decoration: BoxDecoration(
+                            color: Color(0xffFAD6B5),
+                            shape: BoxShape.circle,
+                          ),
+                          child: SizedBox(
+                            height: Get.width / 15,
+                            width: Get.width / 15,
+                            child: Image.asset('asset/icons/users_icon.png'),
                           ),
                         ),
-                      ),
-                    ),
-                    SizedBox(width: Get.width / 15),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(Get.width / 30),
-              child: Column(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(Get.width / 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        SizedBox(width: Get.width / 30),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: CustomTextField(
-                                hint: "Search",
-                                icon: Icons.search,
+                            Text(
+                              'Customer Orders',
+                              style: GoogleFonts.poppins(
+                                textStyle: TextStyle(
+                                  fontSize: Get.width / 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
-                            SizedBox(width: Get.width / 90),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      'Show',
-                                      style: GoogleFonts.poppins(
-                                        textStyle: TextStyle(
-                                          fontSize: Get.width / 30,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: Get.width / 100),
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Color(0xffF78520),
-                                        ),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            '10',
-                                            style: TextStyle(
-                                              color: Color(0xffF78520),
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: Get.width / 36,
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.keyboard_arrow_down_outlined,
-                                            color: Color(0xffF78520),
-                                            size: 14,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                            SizedBox(height: Get.height / 200),
+                            Text(
+                              'Manage all orders',
+                              style: GoogleFonts.poppins(
+                                textStyle: TextStyle(
+                                  fontSize: Get.width / 28,
+                                  color: Color(0xff4A4541),
                                 ),
-                                SizedBox(width: Get.width / 100),
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Color(0xffF78520),
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    'Apply',
-                                    style: TextStyle(
-                                      color: Color(0xffF78520),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: Get.width / 36,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
-                        SizedBox(height: Get.height / 50),
-                        CustomTextField(
-                          label: 'Customer ',
-                          hint: 'mantvay',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Mobile',
-                          hint: '78962 54410',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'orders',
-                          hint: '1',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Total Spent',
-                          hint: '+91 98752 36952',
-                          isReadOnly: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Last Order',
-                          hint: 'sep, 13 2025',
-                          isReadOnly: true,
-                        ),
+                      ],
+                    ),
+                    SizedBox(height: Get.height / 50),
+                    // SizedBox(
+                    //   height: Get.height / 18,
+                    //   width: double.infinity,
+                    //   child: ElevatedButton(
+                    //     onPressed: () {
+                    //       // Navigate to create category screen
+                    //       Get.toNamed(Routes.addNewRawMaterial);
+                    //     },
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: mainOrange,
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(12.0),
+                    //       ),
+                    //       elevation: 0,
+                    //     ),
+                    //     child: Text(
+                    //       'Add Raw Materials',
+                    //       style: GoogleFonts.poppins(
+                    //         textStyle: TextStyle(
+                    //           fontSize: Get.width / 22.5,
+                    //           color: Colors.white,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
 
-                        SizedBox(height: Get.height / 60),
-                        _buildPagination(),
-                        SizedBox(height: Get.height / 60),
-                        SizedBox(
-                          width: double.infinity,
-                          height: Get.height / 18,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffF78520),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Get.width / 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: Get.height / 30),
+                    _buildInfoGridFromApi(),
+                    SizedBox(height: Get.height / 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'All Orders',
+                          style: GoogleFonts.poppins(
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 20,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xff747784),
                             ),
-                            onPressed: () {
-                              Get.toNamed(Routes.viewCustomerOrder);
-                            },
-                            child: Text(
-                              "View Order",
-                              style: GoogleFonts.poppins(
-                                fontSize: Get.width / 22.5,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          ),
+                        ),
+                        Text(
+                          'View All',
+                          style: GoogleFonts.poppins(
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 26,
+                              fontWeight: FontWeight.w500,
+                              color: mainOrange,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: Get.height / 20),
-                ],
+                    SizedBox(height: Get.height / 50),
+                    Container(
+                      padding: EdgeInsets.all(Get.width / 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          CustomTextField(
+                            hint: "Search Order",
+                            icon: Icons.search,
+                            onChanged: (value) {
+                              orderAnalyticsController.searchMaterial(value);
+                            },
+                          ),
+                          SizedBox(height: Get.height / 80),
+                          const Divider(height: 1, color: Color(0xffF2F3F5)),
+                          Obx(() {
+                            if (orderAnalyticsController.isLoading.value) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xffF78520),
+                                ),
+                              );
+                            }
+                            if (orderAnalyticsController
+                                .errorMessage
+                                .isNotEmpty) {
+                              return Center(
+                                child: Text(
+                                  orderAnalyticsController.errorMessage.value,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              );
+                            }
+                            if (orderAnalyticsController.filterOrders.isEmpty) {
+                              return const Center(
+                                child: Text('No orders found'),
+                              );
+                            }
+                            return Column(
+                              children: List.generate(
+                                orderAnalyticsController.filterOrders.length,
+                                (index) {
+                                  final item = orderAnalyticsController
+                                      .filterOrders[index];
+                                  return Column(
+                                    children: [
+                                      _buildCategoryTile(item),
+                                      if (index !=
+                                          orderAnalyticsController
+                                                  .filterOrders
+                                                  .length -
+                                              1)
+                                        const Divider(
+                                          height: 1,
+                                          color: Color(0xffF2F3F5),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: Get.height / 15),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildPagination() {
+  Widget _buildInfoGridFromApi() {
+    double parseAmount(String? amount) {
+      if (amount == null) return 0;
+      return double.tryParse(amount) ?? 0;
+    }
+
+    return Obx(() {
+      // Get order list
+      final orderList = orderAnalyticsController.orderList;
+
+      // Total number of orders
+      final totalOrders = orderList.length;
+
+      // Total amount of all orders
+      final totalAmount = orderList.fold<double>(
+        0,
+        (sum, item) => sum + parseAmount(item.totalAmount),
+      );
+
+      // Info data for grid
+      final infoData = [
+        {'count': totalOrders.toString(), 'label': 'Total Order'},
+        {
+          'count': '₹${totalAmount.toStringAsFixed(2)}',
+          'label': 'Total Amount',
+        },
+      ];
+
+      return _buildInfoGrid(infoData);
+    });
+  }
+
+  Widget _buildInfoGrid(List<Map<String, String>> data) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: data.length,
+      padding: EdgeInsets.symmetric(horizontal: Get.width / 25),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: Get.height / 80,
+        crossAxisSpacing: Get.width / 25,
+        childAspectRatio: 1.2,
+      ),
+      itemBuilder: (context, index) {
+        final item = data[index];
+        return _buildInfoCard(item['count']!, item['label']!);
+      },
+    );
+  }
+
+  Widget _buildInfoCard(String count, String label) {
+    double size = Get.width / 3.5;
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.09),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(Get.width / 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              count,
+              style: GoogleFonts.poppins(
+                fontSize: Get.width / 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: Get.height / 150),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: Get.width / 32,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryTile(OrderAnalyticsModel item) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: Get.height / 50),
+      padding: EdgeInsets.symmetric(vertical: Get.height / 80),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
+            width: Get.width / 8,
+            height: Get.width / 8,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffFAF7F6),
-            ),
-            child: const Icon(
-              Icons.keyboard_double_arrow_left,
-              size: 19,
-              color: Colors.black,
-            ),
-          ),
-          SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Color(0xffF78520),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '1',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Get.width / 30,
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(15.0),
+              image: const DecorationImage(
+                image: AssetImage('asset/images/about/jalebi.png'),
+                fit: BoxFit.cover,
               ),
             ),
           ),
-          SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Color(0xffF78520),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '2',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Get.width / 30,
-              ),
+          SizedBox(width: Get.width / 30),
+          Flexible(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.customerName ?? '',
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 24,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      Text(
+                        item.customerMobile ?? '',
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 34.5,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(width: Get.width / 40),
-          Container(
-            width: Get.width / 13,
-            height: Get.width / 13,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xffFAF7F6),
-            ),
-            child: const Icon(
-              Icons.keyboard_double_arrow_right,
-              size: 19,
-              color: Colors.black,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: item.paymentStatus == 'paid'
+                      ? const Color(0xffDCE1D7) // Light green
+                      : const Color(0xffEFCFD2), // Light red
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Text(
+                  item.paymentStatus == 'paid' ? 'Paid' : 'Pending',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 36,
+                      fontWeight: FontWeight.bold,
+                      color: item.paymentStatus == 'paid'
+                          ? const Color(0xff4E6B37) // Dark green
+                          : const Color(0xffAD111E), // Dark red
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: Get.height / 200),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => ViewCustomerOrder(), arguments: item);
+                },
+                child: Text(
+                  'View Details',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 36,
+                      color: const Color(0xff2A86D1),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

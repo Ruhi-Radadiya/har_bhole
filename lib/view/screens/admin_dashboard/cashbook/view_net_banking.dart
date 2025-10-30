@@ -5,7 +5,7 @@ import 'package:har_bhole/main.dart';
 
 import '../../../../model/cashbook_model/cashbook_model.dart';
 import '../../../component/textfield.dart';
-import 'creat_cashbook_entry.dart';
+import 'create_cashbook_entry.dart';
 
 class ViewNetbankingScreen extends StatefulWidget {
   const ViewNetbankingScreen({super.key});

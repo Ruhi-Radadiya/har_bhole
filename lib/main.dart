@@ -16,6 +16,7 @@ import 'package:har_bhole/controller/user_controller/user_controller.dart';
 import 'package:har_bhole/controller/voucher_controller/add_voucher_controller.dart';
 import 'package:har_bhole/routes/routes.dart';
 
+import 'controller/all_orders_controller/all_orders_controller.dart';
 import 'controller/b2b_order/create_b2b_order_controller.dart';
 import 'controller/b2b_user_controller/b2b_user_controller.dart';
 import 'controller/b2b_user_controller/create_b2b_user_controller.dart';
@@ -50,7 +51,7 @@ DashboardUsersController dashboardUsersController = Get.put(
   DashboardUsersController(),
 );
 VouchersController vouchersController = Get.put(VouchersController());
-AllOrdersController allOrdersController = Get.put(AllOrdersController());
+OrdersController ordersController = Get.put(OrdersController());
 CustomerDetailController customerDetailController = Get.put(
   CustomerDetailController(),
 );
@@ -105,6 +106,7 @@ StockMovementController stockMovementController = Get.put(
 OrderAnalyticsController orderAnalyticsController = Get.put(
   OrderAnalyticsController(),
 );
+AllOrdersController allOrdersController = Get.put(AllOrdersController());
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

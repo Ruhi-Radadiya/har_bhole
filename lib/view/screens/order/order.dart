@@ -194,7 +194,7 @@ class _OrderState extends State<Order> {
                     title: 'Customer Details',
                     iconColor: Color(0xffF78520),
                     onTap: () {
-                      Get.toNamed(Routes.customerDetailScreen);
+                      Get.toNamed(Routes.customerScreen);
                     },
                   ),
                   _buildMenuItemTile(

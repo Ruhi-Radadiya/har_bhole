@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Define the main color used across your application
+import '../../../../model/order_analytics_model/order_analytics_model.dart';
+
 const Color mainOrange = Color(0xffF78520);
 
 class OrderAnalyticsInvoice extends StatelessWidget {
@@ -10,9 +11,15 @@ class OrderAnalyticsInvoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final OrderAnalyticsModel order = Get.arguments as OrderAnalyticsModel;
+    double subtotal = order.products.fold(
+      0.0,
+      (sum, product) => sum + (product.subtotal.toDouble()),
+    );
+    double tax = subtotal * 0.12;
+    double total = subtotal + tax;
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-
       body: Column(
         children: [
           SizedBox(height: Get.height / 30),
@@ -23,21 +30,24 @@ class OrderAnalyticsInvoice extends StatelessWidget {
               bottom: Get.height / 100,
             ),
             decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
+            child: Row(
               children: [
-                SizedBox(height: Get.height / 100),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Color(0xffF78520),
-                      ),
-                      onPressed: () => Get.back(),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(minWidth: Get.width / 15),
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xffF78520)),
+                  onPressed: () => Get.back(),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: Get.width / 15),
+                ),
+                SizedBox(width: Get.width / 100),
+                Text(
+                  'Invoice',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 20,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xffF78520),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -54,61 +64,34 @@ class OrderAnalyticsInvoice extends StatelessWidget {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 10,
-                      offset: Offset(0, 5),
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Invoice',
-                          style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                              fontSize: Get.width / 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: Get.height / 70),
-                        Text(
-                          'Order Number: ord202500001. Placed on sep 13, 2025 5:53PM',
-                          style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                              fontSize: Get.width / 30,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: Get.height / 50),
-                        SizedBox(
-                          width: Get.width / 2,
-                          height: Get.height / 18,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffF78520),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {},
-                            child: Text(
-                              "Download PDF",
-                              style: GoogleFonts.poppins(
-                                fontSize: Get.width / 22.5,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    // 🔸 Order Info
+                    Text(
+                      'Order #${order.orderNumber}',
+                      style: GoogleFonts.poppins(
+                        fontSize: Get.width / 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                    SizedBox(height: Get.height / 70),
+                    SizedBox(height: 5),
+                    Text(
+                      'Placed on ${order.createdAt}',
+                      style: GoogleFonts.poppins(
+                        fontSize: Get.width / 30,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+
+                    SizedBox(height: Get.height / 50),
+
+                    // 🔸 Billing Info
                     CustomInvoiceCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,33 +99,29 @@ class OrderAnalyticsInvoice extends StatelessWidget {
                           Text(
                             'Billing & Delivery',
                             style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 22.5,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
+                              fontSize: Get.width / 22.5,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: Get.height / 200),
+                          SizedBox(height: 5),
                           Text(
-                            'admin', // Name
+                            order.customerName,
                             style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 26,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
+                              fontSize: Get.width / 26,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(height: Get.height / 70),
-                          _buildIconText(Icons.call, '8530009777'),
+                          SizedBox(height: 5),
+                          _buildIconText(Icons.call, order.customerMobile),
                           _buildIconText(
                             Icons.location_on,
-                            'Katargam (395001)',
+                            '${order.customerAddress} (${order.customerZipcode})',
                           ),
                         ],
                       ),
                     ),
+
+                    // 🔸 Payment Info
                     CustomInvoiceCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,54 +129,62 @@ class OrderAnalyticsInvoice extends StatelessWidget {
                           Text(
                             'Payment',
                             style: GoogleFonts.poppins(
-                              textStyle: TextStyle(
-                                fontSize: Get.width / 22.5,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
+                              fontSize: Get.width / 22.5,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: Get.height / 200),
-                          _buildDetailRow('Mode:', 'COD'),
-                          _buildDetailRow('Statue:', 'Paid'),
-                          _buildDetailRow('Order Statue:', 'Pending'),
+                          SizedBox(height: 8),
+                          _buildDetailRow('Mode:', order.paymentMethod),
+                          _buildDetailRow('Status:', order.paymentStatus),
+                          _buildDetailRow('Order Status:', order.status),
                         ],
                       ),
                     ),
+
+                    // 🔸 Product List
                     CustomInvoiceCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Item Row
-                          _buildItemRow(
-                            'DRY KACHORI(250.000G)',
-                            '10 * ₹110.00',
-                            '₹1,100.00',
-                          ),
-
-                          const Divider(height: 30, thickness: 1),
-
-                          // Price Summary
+                          ...order.products.map((p) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildItemRow(
+                                  "${p.productName} (${p.netWeight})",
+                                  "${p.quantity} × ₹${p.price}",
+                                  "₹${p.subtotal}",
+                                ),
+                                const Divider(height: 20, thickness: 0.5),
+                              ],
+                            );
+                          }),
                           _buildPriceRow(
                             'Subtotal',
-                            '₹1,100.00',
+                            '₹${subtotal.toStringAsFixed(2)}',
                             isTotal: false,
                           ),
-                          _buildPriceRow('Tax(12.00%)', '₹132', isTotal: false),
+                          _buildPriceRow(
+                            'Tax (12%)',
+                            '₹${tax.toStringAsFixed(2)}',
+                            isTotal: false,
+                          ),
                           _buildPriceRow(
                             'Shipping',
                             'Free',
                             isTotal: false,
-                            valueColor: Colors.green.shade600,
+                            valueColor: Colors.green.shade700,
                           ),
-
-                          SizedBox(height: Get.height / 50),
-                          // Total Amount Row
-                          _buildPriceRow('Total', '₹1,232.00', isTotal: true),
+                          Divider(thickness: 1),
+                          _buildPriceRow(
+                            'Total',
+                            '₹${total.toStringAsFixed(2)}',
+                            isTotal: true,
+                          ),
                         ],
                       ),
                     ),
-                    SizedBox(height: Get.height / 50),
+                    SizedBox(height: Get.height / 40),
                     Row(
                       children: [
                         Expanded(
@@ -282,6 +269,30 @@ class OrderAnalyticsInvoice extends StatelessWidget {
     );
   }
 
+  // 🔹 Helpers
+  Widget _orangeButton(String text, VoidCallback onPressed) {
+    return SizedBox(
+      height: Get.height / 18,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: mainOrange,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.poppins(
+            fontSize: Get.width / 25,
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildIconText(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5.0),
@@ -294,10 +305,8 @@ class OrderAnalyticsInvoice extends StatelessWidget {
             child: Text(
               text,
               style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: Get.width / 30,
-                  color: Colors.grey.shade800,
-                ),
+                fontSize: Get.width / 30,
+                color: Colors.grey.shade800,
               ),
             ),
           ),
@@ -315,20 +324,16 @@ class OrderAnalyticsInvoice extends StatelessWidget {
           Text(
             label,
             style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 30,
-                color: Colors.grey.shade600,
-              ),
+              fontSize: Get.width / 30,
+              color: Colors.grey.shade600,
             ),
           ),
           Text(
             value,
             style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 30,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
-              ),
+              fontSize: Get.width / 30,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
             ),
           ),
         ],
@@ -336,42 +341,33 @@ class OrderAnalyticsInvoice extends StatelessWidget {
     );
   }
 
-  Widget _buildItemRow(String name, String quantityDetails, String price) {
+  Widget _buildItemRow(String name, String qty, String price) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           name,
           style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: Get.width / 22.5,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+            fontSize: Get.width / 26,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: Get.height / 200),
+        SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              'Qty $quantityDetails',
+              'Qty $qty',
               style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: Get.width / 30,
-                  color: Colors.grey.shade700,
-                ),
+                fontSize: Get.width / 30,
+                color: Colors.grey.shade700,
               ),
             ),
             Text(
               price,
               style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: Get.width / 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                fontSize: Get.width / 30,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -387,69 +383,27 @@ class OrderAnalyticsInvoice extends StatelessWidget {
     Color? valueColor,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      padding: const EdgeInsets.symmetric(vertical: 3.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
             style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-                color: isTotal ? Colors.black : Colors.grey.shade700,
-              ),
+              fontSize: isTotal ? Get.width / 26 : Get.width / 30,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              color: Colors.black,
             ),
           ),
           Text(
             value,
             style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-                color: valueColor ?? (isTotal ? Colors.black : Colors.black),
-              ),
+              fontSize: isTotal ? Get.width / 26 : Get.width / 30,
+              fontWeight: FontWeight.w600,
+              color: valueColor ?? Colors.black,
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class InvoiceActionButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-
-  const InvoiceActionButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: mainOrange,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          elevation: 0,
-        ),
-        child: Text(
-          text,
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: Get.width / 22.5,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -457,67 +411,25 @@ class InvoiceActionButton extends StatelessWidget {
 
 class CustomInvoiceCard extends StatelessWidget {
   final Widget child;
-
   const CustomInvoiceCard({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 5,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: child,
-    );
-  }
-}
-
-class OutlineButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final Color color;
-
-  const OutlineButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.color = mainOrange,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
-          side: BorderSide(color: color, width: 2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          elevation: 0,
-        ),
-        child: Text(
-          text,
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: Get.width / 22.5,
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/model/order_analytics_model/order_analytics_model.dart';
 
 const Color mainOrange = Color(0xffF78520);
 
@@ -9,251 +10,295 @@ class CustomerOrderInvoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Get order data dynamically
+    final OrderAnalyticsModel order = Get.arguments as OrderAnalyticsModel;
+
+    // ✅ Extract product list (handle nulls)
+    final products = order.products;
+
+    // ✅ Calculate subtotal
+    double subtotal = 0.0;
+    for (var item in products) {
+      double price = double.tryParse(item.price.toString() ?? '0') ?? 0;
+      double qty = double.tryParse(item.quantity.toString() ?? '0') ?? 0;
+      subtotal += price * qty;
+    }
+
+    // ✅ Apply tax (12%)
+    double tax = subtotal * 0.12;
+    double total = subtotal + tax;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Container(
-          padding: EdgeInsets.all(Get.width / 35),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
+      body: Column(
+        children: [
+          SizedBox(height: Get.height / 30),
+          Container(
+            padding: EdgeInsets.only(
+              left: Get.width / 25,
+              right: Get.width / 25,
+              bottom: Get.height / 100,
+            ),
+            decoration: const BoxDecoration(color: Colors.white),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xffF78520)),
+                  onPressed: () => Get.back(),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: Get.width / 15),
+                ),
+                SizedBox(width: Get.width / 100),
+                Text(
+                  'Customer Order Invoice',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: Get.width / 20,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xffF78520),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(height: Get.height / 30),
-
-              // --- Invoice Header Section ---
-              Text(
-                'Invoice',
-                style: GoogleFonts.poppins(
-                  textStyle: TextStyle(
-                    fontSize: Get.width / 16.4,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Order Number: ord202500001. Placed on Sep 13, 2025 5:53PM',
-                style: GoogleFonts.poppins(
-                  textStyle: TextStyle(
-                    fontSize: Get.width / 30,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              SizedBox(
-                width: Get.width / 2,
-                height: Get.height / 18,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xffF78520),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(Get.width / 30),
+              child: Container(
+                padding: EdgeInsets.all(Get.width / 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
                     ),
-                  ),
-                  onPressed: () {},
-                  child: Text(
-                    "Download PDF",
-                    style: GoogleFonts.poppins(
-                      fontSize: Get.width / 22.5,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 20),
-              InvoiceCard(
-                title: 'Billing & Delivery',
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'admin', // Customer Name
+                      'Invoice',
                       style: GoogleFonts.poppins(
                         textStyle: TextStyle(
-                          fontSize: Get.width / 26,
-                          fontWeight: FontWeight.w600,
+                          fontSize: Get.width / 16.4,
+                          fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    _buildDetailRow(Icons.call, '8530009777'),
-                    _buildDetailRow(Icons.location_on, 'Katargam (395001)'),
-                  ],
-                ),
-              ),
-
-              // --- 2. Payment Card ---
-              InvoiceCard(
-                title: 'Payment',
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPriceRow('Mode:', 'RAZORPAY', isTotal: false),
-                    _buildPriceRow(
-                      'Status:',
-                      'Paid',
-                      isTotal: false,
-                      valueColor: Colors.green.shade600,
-                    ),
-                    _buildPriceRow(
-                      'Order Statue:',
-                      'Pending',
-                      isTotal: false,
-                      valueColor: Colors.orange.shade600,
-                    ),
-                    _buildPriceRow(
-                      'Razorpay Order Id:',
-                      'order_RH5JcFx5Lro0yc',
-                      isTotal: false,
-                      valueColor: Colors.orange.shade600,
-                    ),
-                    _buildPriceRow(
-                      'Razorpay Payment Id:',
-                      'order_RH5Ji3eAyihZz',
-                      isTotal: false,
-                      valueColor: Colors.orange.shade600,
-                    ),
-                  ],
-                ),
-              ),
-
-              // --- 3. Item List & Summary Card ---
-              InvoiceCard(
-                title: 'Items & Summary',
-                showTitle: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // --- ITEM ROWS ---
-                    _buildInvoiceItemRow(
-                      name: 'DRY KACHORI(250.000G)',
-                      quantityDetails: '10 * ₹110.00',
-                      price: '₹1,100.00',
-                    ),
-                    const Divider(height: 1, thickness: 0.5),
-
-                    _buildInvoiceItemRow(
-                      name: 'MORI SEV(1KG)',
-                      quantityDetails: '2 * ₹440.00',
-                      price: '₹880.00',
-                    ),
-                    const Divider(height: 1, thickness: 0.5),
-
-                    // --- PRICE SUMMARY ---
-                    const SizedBox(height: 15),
-                    _buildPriceRow('Subtotal', '₹1,980.00', isTotal: false),
-                    _buildPriceRow('Tax(12.00%)', '₹237.60', isTotal: false),
-                    _buildPriceRow(
-                      'Shipping',
-                      'Free',
-                      isTotal: false,
-                      valueColor: Colors.green.shade600,
+                    SizedBox(height: Get.height / 50),
+                    Text(
+                      'Order Number: ${order.orderNumber}  •  ${order.createdAt ?? ''}',
+                      style: GoogleFonts.poppins(
+                        textStyle: TextStyle(
+                          fontSize: Get.width / 30,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                     ),
 
-                    const SizedBox(height: 8),
-                    const Divider(thickness: 1, height: 1),
-                    const SizedBox(height: 8),
+                    SizedBox(height: Get.height / 50),
 
-                    // Total Amount Row
-                    _buildPriceRow('Total', '₹2,217.60', isTotal: true),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+                    // --- 1. Billing & Delivery ---
+                    InvoiceCard(
+                      title: 'Billing & Delivery',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            order.customerName,
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                fontSize: Get.width / 26,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: Get.height / 48),
+                          _buildDetailRow(Icons.call, order.customerMobile),
+                          _buildDetailRow(
+                            Icons.location_on,
+                            '${order.customerAddress} (${order.customerZipcode})',
+                          ),
+                        ],
+                      ),
+                    ),
 
-              // --- Action Buttons ---
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
+                    // --- 2. Payment ---
+                    InvoiceCard(
+                      title: 'Payment',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildPriceRow(
+                            'Mode:',
+                            order.paymentMethod.toUpperCase() ?? '-',
+                            isTotal: false,
+                          ),
+                          _buildPriceRow(
+                            'Status:',
+                            order.paymentStatus,
+                            isTotal: false,
+                            valueColor: (order.paymentStatus == 'Paid')
+                                ? Colors.green.shade600
+                                : Colors.orange.shade600,
+                          ),
+                          _buildPriceRow(
+                            'Order Status:',
+                            order.status,
+                            isTotal: false,
+                            valueColor: Colors.orange.shade600,
+                          ),
+                          if (order.razorpayOrderId != null)
+                            _buildPriceRow(
+                              'Razorpay Order Id:',
+                              order.razorpayOrderId ?? '-',
+                              isTotal: false,
+                            ),
+                          if (order.razorpayPaymentId != null)
+                            _buildPriceRow(
+                              'Razorpay Payment Id:',
+                              order.razorpayPaymentId ?? '-',
+                              isTotal: false,
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    // --- 3. Items & Summary ---
+                    InvoiceCard(
+                      title: 'Items & Summary',
+                      showTitle: false,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var item in products) ...[
+                            _buildInvoiceItemRow(
+                              name: '${item.productName} (${item.netWeight})',
+                              quantityDetails:
+                                  '${item.quantity} × ₹${item.price}',
+                              price:
+                                  '₹${((double.tryParse(item.price.toString()) ?? 0) * (double.tryParse(item.quantity.toString()) ?? 0)).toStringAsFixed(2)}',
+                            ),
+                            const Divider(height: 1, thickness: 0.5),
+                          ],
+                          SizedBox(height: Get.height / 50),
+                          _buildPriceRow(
+                            'Subtotal',
+                            '₹${subtotal.toStringAsFixed(2)}',
+                            isTotal: false,
+                          ),
+                          _buildPriceRow(
+                            'Tax (12%)',
+                            '₹${tax.toStringAsFixed(2)}',
+                            isTotal: false,
+                          ),
+                          _buildPriceRow(
+                            'Shipping',
+                            'Free',
+                            isTotal: false,
+                            valueColor: Colors.green.shade600,
+                          ),
+                          SizedBox(height: Get.height / 80),
+                          Divider(thickness: 1, height: 1),
+                          SizedBox(height: Get.height / 80),
+                          _buildPriceRow(
+                            'Total',
+                            '₹${total.toStringAsFixed(2)}',
+                            isTotal: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: Get.height / 50),
+
+                    // --- 4. Buttons ---
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: Get.height / 18,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: mainOrange,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () => Get.back(),
+                              child: Text(
+                                "Back to order",
+                                style: GoogleFonts.poppins(
+                                  fontSize: Get.width / 28,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: Get.width / 30),
+                        Expanded(
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: Get.height / 18,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: mainOrange,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {},
+                              child: Text(
+                                "View Pdf",
+                                style: GoogleFonts.poppins(
+                                  fontSize: Get.width / 28,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: Get.height / 50),
+                    SizedBox(
                       width: double.infinity,
                       height: Get.height / 18,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffF78520),
+                          backgroundColor: mainOrange,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         onPressed: () {},
                         child: Text(
-                          "Back to order",
+                          "Download PDF",
                           style: GoogleFonts.poppins(
-                            fontSize: Get.width / 28,
+                            fontSize: Get.width / 22.5,
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: Get.width / 30),
-                  Expanded(
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: Get.height / 18,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffF78520),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        onPressed: () {},
-                        child: Text(
-                          "View Pdf",
-                          style: GoogleFonts.poppins(
-                            fontSize: Get.width / 28,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: Get.height / 50),
-              SizedBox(
-                width: double.infinity,
-                height: Get.height / 18,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xffF78520),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () {},
-                  child: Text(
-                    "Download PDF",
-                    style: GoogleFonts.poppins(
-                      fontSize: Get.width / 22.5,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  ],
                 ),
               ),
-              SizedBox(height: Get.height / 20),
-            ],
+            ),
           ),
-        ),
+          SizedBox(height: Get.height / 20),
+        ],
       ),
     );
   }
@@ -279,7 +324,7 @@ class CustomerOrderInvoice extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: Get.height / 150),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -320,23 +365,29 @@ class CustomerOrderInvoice extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-                color: isTotal ? Colors.black : Colors.grey.shade700,
+          Expanded(
+            flex: 3,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: isTotal ? Get.width / 26 : Get.width / 30,
+                  fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+                  color: isTotal ? Colors.black : Colors.grey.shade700,
+                ),
               ),
             ),
           ),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: isTotal ? Get.width / 26 : Get.width / 30,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-                color: valueColor ?? (isTotal ? Colors.black : Colors.black),
+          Expanded(
+            flex: 5,
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(
+                  fontSize: isTotal ? Get.width / 26 : Get.width / 30,
+                  fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+                  color: valueColor ?? Colors.black,
+                ),
               ),
             ),
           ),
@@ -352,7 +403,7 @@ class CustomerOrderInvoice extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: mainOrange),
-          const SizedBox(width: 8),
+          SizedBox(width: Get.width / 30),
           Expanded(
             child: Text(
               text,
@@ -370,7 +421,7 @@ class CustomerOrderInvoice extends StatelessWidget {
   }
 }
 
-// Reusable Card Widget (adapted from your previous code)
+// --- Reusable Card Widget ---
 class InvoiceCard extends StatelessWidget {
   final Widget child;
   final String? title;
@@ -413,51 +464,10 @@ class InvoiceCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: Get.height / 100),
           ],
           child,
         ],
-      ),
-    );
-  }
-}
-
-// Reusable Button Widget (adapted from your previous code)
-class InvoiceActionButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final Color backgroundColor;
-
-  const InvoiceActionButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.backgroundColor = mainOrange,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          elevation: 0,
-        ),
-        child: Text(
-          text,
-          style: GoogleFonts.poppins(
-            textStyle: const TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
       ),
     );
   }
