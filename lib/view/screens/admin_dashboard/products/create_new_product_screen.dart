@@ -19,9 +19,6 @@ class CreateProductScreen extends StatefulWidget {
 class _CreateProductScreenState extends State<CreateProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Example categories, replace with real ones
-  final List<String> categories = ["Category A", "Category B", "Category C"];
-
   @override
   void initState() {
     super.initState();
@@ -31,7 +28,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     if (productArg != null) {
       _fillFields(productArg);
     } else {
-      // Clear all fields for creating a new product
       createProductController.clearFields();
     }
   }
@@ -41,8 +37,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
 
     ctrl.productCodeController.text = p.productId;
     ctrl.productNameController.text = p.productName;
-    ctrl.selectedCategory.value =
-        p.productId; // Make sure Product has categoryId
     ctrl.basePriceController.text = p.mrp.toString();
     ctrl.sellingPriceController.text = p.sellingPrice.toString();
     ctrl.stockController.text = p.stockQuantity.toString();
@@ -52,6 +46,9 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     ctrl.ingredientsListController.text = p.ingredients;
     ctrl.isActive.value = p.status == '1';
     ctrl.descriptionController.text = p.description ?? "";
+
+    // ✅ Auto fill category name and ID
+    ctrl.selectedCategoryName.value = p.categoryName ?? '';
 
     ctrl.energyController.text = p.nutritionalInfo.energyKcal.toString();
     ctrl.proteinController.text = p.nutritionalInfo.proteinG.toString();
@@ -78,12 +75,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     ctrl.cholesterolController.text = p.nutritionalInfo.cholesterolMg
         .toString();
 
-    // Image
     if (p.productImage.isNotEmpty) ctrl.setImageUrl(p.productImage);
-
-    // // Tags
-    // ctrl.selectedTags.clear();
-    // if (p.tags != null) ctrl.selectedTags.addAll(p.tags);
   }
 
   @override
@@ -109,7 +101,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
         body: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 Container(
@@ -121,7 +113,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
                         blurRadius: 10,
-                        offset: Offset(0, 5),
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
@@ -141,23 +133,71 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         controller:
                             createProductController.productNameController,
                       ),
-                      Obx(
-                        () => CustomDropdownField<String>(
+
+                      // ✅ Category Dropdown
+                      Obx(() {
+                        if (premiumCollectionController.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (premiumCollectionController
+                            .errorMessage
+                            .isNotEmpty) {
+                          return Text(
+                            premiumCollectionController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          );
+                        }
+
+                        final categories = premiumCollectionController
+                            .premiumCollection
+                            .map((e) => e.categoryName)
+                            .where((name) => name.isNotEmpty)
+                            .toSet()
+                            .toList();
+
+                        if (categories.isEmpty) {
+                          return const Text("No categories available");
+                        }
+                        return CustomDropdownField<String>(
                           label: "Category",
                           value:
                               createProductController
-                                  .selectedCategory
+                                  .selectedCategoryName
                                   .value
                                   .isEmpty
                               ? null
-                              : createProductController.selectedCategory.value,
+                              : createProductController
+                                    .selectedCategoryName
+                                    .value,
                           items: categories,
-                          onChanged: (val) =>
-                              createProductController.selectedCategory.value =
-                                  val!,
+                          onChanged: (val) {
+                            if (val != null) {
+                              createProductController
+                                      .selectedCategoryName
+                                      .value =
+                                  val;
+
+                              final selected = premiumCollectionController
+                                  .premiumCollection
+                                  .firstWhereOrNull(
+                                    (e) => e.categoryName == val,
+                                  );
+
+                              if (selected != null) {
+                                createProductController
+                                        .selectedCategoryId
+                                        .value =
+                                    selected.categoryId;
+                              }
+                            }
+                          },
                           getLabel: (item) => item,
-                        ),
-                      ),
+                        );
+                      }),
+
                       CustomTextField(
                         hint: "Description",
                         label: "Description",
@@ -199,7 +239,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                       SizedBox(height: Get.height / 60),
                       Text(
                         "Stock Status",
-                        style: TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Colors.black),
                       ),
                       SizedBox(height: Get.height / 60),
                       Wrap(
@@ -207,18 +247,18 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         children: [
                           _buildStockChip(
                             label: 'In Stock',
-                            color: Color(0xff4E6B37),
-                            bgColor: Color(0xffBDDD9D),
+                            color: const Color(0xff4E6B37),
+                            bgColor: const Color(0xffBDDD9D),
                           ),
                           _buildStockChip(
                             label: 'Low Stock',
-                            color: Color(0xffA67014),
-                            bgColor: Color(0xffF0D996),
+                            color: const Color(0xffA67014),
+                            bgColor: const Color(0xffF0D996),
                           ),
                           _buildStockChip(
                             label: 'Out Of Stock',
-                            color: Color(0xffB52934),
-                            bgColor: Color(0xffEFCFD2),
+                            color: const Color(0xffB52934),
+                            bgColor: const Color(0xffEFCFD2),
                           ),
                         ],
                       ),
@@ -261,7 +301,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                               onChanged: (value) {
                                 createProductController.isActive.value = value!;
                               },
-                              activeColor: Color(0xffF78520),
+                              activeColor: const Color(0xffF78520),
                             ),
                           ),
                           Text(
@@ -297,10 +337,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                               }
 
                               if (success) {
-                                // Refresh product list
                                 await productController.fetchProducts();
-
-                                // Navigate back only once
                                 Get.back();
                               }
                             }
@@ -337,7 +374,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
         style: GoogleFonts.poppins(
           fontWeight: FontWeight.w600,
           fontSize: Get.width / 21,
-          color: Color(0xffF78520),
+          color: const Color(0xffF78520),
         ),
       ),
     );

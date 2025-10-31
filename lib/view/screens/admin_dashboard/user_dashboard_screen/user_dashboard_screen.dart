@@ -8,9 +8,14 @@ import 'package:har_bhole/view/component/textfield.dart';
 
 import '../../../../main.dart';
 
-class UserDashboardScreen extends StatelessWidget {
+class UserDashboardScreen extends StatefulWidget {
   const UserDashboardScreen({super.key});
 
+  @override
+  State<UserDashboardScreen> createState() => _UserDashboardScreenState();
+}
+
+class _UserDashboardScreenState extends State<UserDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -114,7 +119,6 @@ class UserDashboardScreen extends StatelessWidget {
                                 .toString(),
                             label: 'Total Users',
                             valueColor: const Color(0xff004CAF),
-                            changePercent: '+12%',
                             image: "asset/icons/users_icon.png",
                             iconColor: const Color(0xff004CAF),
                             iconBgColor: const Color(0xffCCDBEF),
@@ -124,7 +128,6 @@ class UserDashboardScreen extends StatelessWidget {
                                 .toString(),
                             label: 'Active Users',
                             valueColor: const Color(0xff73A70B),
-                            changePercent: '+8%',
                             image: "asset/icons/active_user_icon.png",
                             iconColor: const Color(0xff73A70B),
                             iconBgColor: const Color(0xffDCE1D2),
@@ -134,7 +137,6 @@ class UserDashboardScreen extends StatelessWidget {
                                 .toString(),
                             label: 'Inactive Users',
                             valueColor: const Color(0xffE91212),
-                            changePercent: '+12%',
                             image: "asset/icons/inactive_user_icon.png",
                             iconColor: const Color(0xffE91212),
                             iconBgColor: const Color(0xffFDD2D2),
@@ -144,7 +146,6 @@ class UserDashboardScreen extends StatelessWidget {
                                 .toString(),
                             label: 'New This Month',
                             valueColor: const Color(0xff273692),
-                            changePercent: '+24%',
                             image: "asset/icons/new_user_icon.png",
                             iconColor: const Color(0xff273692),
                             iconBgColor: const Color(0xffCCD0E9),
@@ -158,7 +159,10 @@ class UserDashboardScreen extends StatelessWidget {
                     // Add User Button
                     _buildPrimaryButton(
                       text: 'Add User',
-                      onPressed: () => Get.toNamed(Routes.addUsers),
+                      onPressed: () => Get.toNamed(
+                        Routes.addUsers,
+                        arguments: {'isEdit': false},
+                      ),
                     ),
 
                     SizedBox(height: Get.height / 40),
@@ -216,19 +220,17 @@ class UserDashboardScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            // Search Field
                             CustomTextField(
                               hint: "Search by Name, Email or Mobile",
                               onChanged: (value) {
                                 dashboardUsersController.searchUsers(value);
                               },
                             ),
-
                             SizedBox(height: Get.height / 80),
                             const Divider(height: 1, color: Colors.grey),
 
-                            // User List
-                            if (dashboardUsersController.recentUsers.isEmpty)
+                            // 🔹 Full user list instead of only 3
+                            if (dashboardUsersController.allUsers.isEmpty)
                               Padding(
                                 padding: EdgeInsets.symmetric(
                                   vertical: Get.height / 40,
@@ -264,27 +266,32 @@ class UserDashboardScreen extends StatelessWidget {
                                 ),
                               )
                             else
-                              Column(
-                                children: dashboardUsersController.recentUsers
-                                    .map(
-                                      (user) => _buildRecentUserTile(
-                                        name: user.userName,
-                                        email: user.userEmail ?? '-',
-                                        mobile: user.userPhone ?? '-',
-                                        status: (user.userEmail != null)
-                                            ? 'Active'
-                                            : 'Inactive',
-                                        statusColor: (user.userEmail != null)
-                                            ? const Color(0xff4E6B37)
-                                            : const Color(0xffAD111E),
-                                        statusBgColour: (user.userEmail != null)
-                                            ? const Color(0xffDCE1D7)
-                                            : const Color(0xffEFCFD2),
-                                        userImagePath: null,
-                                        userCode: user.userCode,
-                                      ),
-                                    )
-                                    .toList(),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount:
+                                    dashboardUsersController.allUsers.length,
+                                itemBuilder: (context, index) {
+                                  final user =
+                                      dashboardUsersController.allUsers[index];
+                                  return _buildRecentUserTile(
+                                    user: user,
+                                    name: user.userName ?? '-',
+                                    email: user.userEmail ?? '-',
+                                    mobile: user.userPhone ?? '-',
+                                    status: (user.userEmail != null)
+                                        ? 'Active'
+                                        : 'Inactive',
+                                    statusColor: (user.userEmail != null)
+                                        ? const Color(0xff4E6B37)
+                                        : const Color(0xffAD111E),
+                                    statusBgColour: (user.userEmail != null)
+                                        ? const Color(0xffDCE1D7)
+                                        : const Color(0xffEFCFD2),
+                                    userImagePath: null,
+                                    userCode: user.userCode ?? '-',
+                                  );
+                                },
                               ),
                           ],
                         ),
@@ -339,7 +346,6 @@ class UserDashboardScreen extends StatelessWidget {
     required String value,
     required String label,
     required Color valueColor,
-    required String changePercent,
     required String image,
     required Color iconColor,
     required Color iconBgColor,
@@ -379,16 +385,6 @@ class UserDashboardScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                changePercent,
-                style: GoogleFonts.poppins(
-                  textStyle: TextStyle(
-                    fontSize: Get.width / 22.5,
-                    fontWeight: FontWeight.bold,
-                    color: valueColor,
-                  ),
-                ),
-              ),
             ],
           ),
           SizedBox(height: Get.height / 80),
@@ -418,6 +414,7 @@ class UserDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildRecentUserTile({
+    required dynamic user,
     required String name,
     required String email,
     required String mobile,
@@ -505,7 +502,10 @@ class UserDashboardScreen extends StatelessWidget {
                   SizedBox(height: 8),
                   GestureDetector(
                     onTap: () {
-                      Get.toNamed(Routes.viewDetails, arguments: userCode);
+                      Get.toNamed(
+                        Routes.viewDetails,
+                        arguments: {'user': user}, // pass full user model
+                      );
                     },
                     child: Text(
                       'View Details',

@@ -1,12 +1,12 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../main.dart';
+import '../../../model/product_model/product_model.dart';
 import '../../../routes/routes.dart';
 import '../../component/food_card.dart';
+import '../products/products.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -120,11 +120,14 @@ class _HomeState extends State<Home> {
                                         ),
                                       ],
                                     ),
-                                    Text(
-                                      "Hammes Freeway, Konop...",
-                                      style: TextStyle(
-                                        fontSize: Get.width / 30,
-                                        fontWeight: FontWeight.w900,
+                                    Obx(
+                                      () => Text(
+                                        locationController.currentAddress.value,
+                                        style: TextStyle(
+                                          fontSize: Get.width / 30,
+                                          fontWeight: FontWeight.w900,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -306,27 +309,57 @@ class _HomeState extends State<Home> {
                       ],
                     ),
                     SizedBox(height: Get.height / 40),
-                    RestaurantFoodCard(
-                      imageUrl: 'asset/images/home/samosa.png',
-                      title: 'Bihari Samosa',
-                      subDetails: '15 - 20 mins  |  1.2 km',
-                      offerText: '40% OFF up to ₹80',
-                      rating: '4.7',
-                      costPerOne: '₹120 for one',
-                      onTap: () {
-                        log("TAPPED");
-                      },
-                    ),
-                    SizedBox(height: Get.height / 50),
-                    RestaurantFoodCard(
-                      imageUrl: 'asset/images/home/samosa.png',
-                      title: 'Bihari Samosa',
-                      subDetails: '15 - 20 mins  |  1.2 km',
-                      offerText: '40% OFF up to ₹80',
-                      rating: '4.7',
-                      costPerOne: '₹120 for one',
-                      onTap: () {},
-                    ),
+                    Obx(() {
+                      if (productController.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (productController.errorMessage.isNotEmpty) {
+                        return Center(
+                          child: Text(
+                            productController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }
+
+                      final products = productController.productList;
+                      if (products.isEmpty) {
+                        return const Center(
+                          child: Text("No products available"),
+                        );
+                      }
+                      final shuffled = List<Product>.from(products)..shuffle();
+                      final limitedProducts = shuffled.take(7).toList();
+
+                      return Column(
+                        children: limitedProducts.map((product) {
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: Get.height / 50),
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.to(
+                                  Products(
+                                    defaultType: product.categoryName ?? 'All',
+                                  ),
+                                );
+                              },
+                              child: RestaurantFoodCard(
+                                imageUrl:
+                                    // product.productImage ??
+                                    'asset/images/home/samosa.png',
+                                title: product.productName ?? 'Unknown Product',
+                                subDetails: product.categoryName ?? '',
+                                offerText: '',
+                                rating: '4.0',
+                                costPerOne:
+                                    '₹${product.sellingPrice ?? '0'} for one',
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    }),
                   ],
                 ),
               ),

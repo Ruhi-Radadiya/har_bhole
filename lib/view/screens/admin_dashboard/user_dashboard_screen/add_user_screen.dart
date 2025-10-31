@@ -1,14 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:har_bhole/model/user_model/dashboard_user_model.dart';
 
 import '../../../../main.dart';
 import '../../../component/textfield.dart';
 
-class CreateNewUserScreen extends StatelessWidget {
-  CreateNewUserScreen({super.key});
+class CreateNewUserScreen extends StatefulWidget {
+  final DashboardUserModel? user; // optional constructor param
+  const CreateNewUserScreen({super.key, this.user});
 
+  @override
+  State<CreateNewUserScreen> createState() => _CreateNewUserScreenState();
+}
+
+class _CreateNewUserScreenState extends State<CreateNewUserScreen> {
   final _formKey = GlobalKey<FormState>();
+  bool isEdit = false;
+  DashboardUserModel? resolvedUser;
+  @override
+  void initState() {
+    super.initState();
+
+    final args = Get.arguments;
+    DashboardUserModel? argUser;
+
+    // ✅ Extract user data from arguments if passed
+    if (args != null &&
+        args is Map<String, dynamic> &&
+        args.containsKey('user')) {
+      final raw = args['user'];
+      if (raw is DashboardUserModel) {
+        argUser = raw;
+      } else if (raw is Map) {
+        argUser = DashboardUserModel.fromJson(Map<String, dynamic>.from(raw));
+      }
+    }
+
+    // ✅ Determine if we are editing or adding new
+    resolvedUser = widget.user ?? argUser;
+    isEdit = resolvedUser != null;
+
+    if (isEdit) {
+      // ✅ Fill data in the SAME controller your form uses
+      createUserController.fillUserData(resolvedUser!);
+    } else {
+      // ✅ Clear all fields and generate new code
+      createUserController.clearForm();
+      createUserController.generateNextUserCode();
+    }
+  }
+
+  // ✅ Auto-generate next user code like U001, U002, etc.
+  void _generateNextUserCode() {
+    // Suppose you already have all users list in controller
+    final users = dashboardUsersController.allUsers;
+    if (users.isNotEmpty) {
+      // Get the last code number from existing users
+      final lastCode =
+          users.last.userCode?.replaceAll(RegExp(r'[^0-9]'), '') ?? '0';
+      final nextNum = int.parse(lastCode) + 1;
+      final newCode = 'U${nextNum.toString().padLeft(3, '0')}';
+      dashboardUsersController.userCodeController.text = newCode;
+    } else {
+      // if no user exists yet
+      dashboardUsersController.userCodeController.text = 'U001';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +82,7 @@ class CreateNewUserScreen extends StatelessWidget {
             onPressed: () => Get.back(),
           ),
           title: Text(
-            'Create New User',
+            isEdit ? 'Edit User' : 'Create New User',
             style: GoogleFonts.poppins(
               textStyle: TextStyle(
                 color: Colors.black,
@@ -50,7 +108,7 @@ class CreateNewUserScreen extends StatelessWidget {
                         color: Colors.black.withOpacity(0.2),
                         spreadRadius: 2,
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
@@ -62,11 +120,13 @@ class CreateNewUserScreen extends StatelessWidget {
                           label: 'User Code *',
                           hint: 'U001',
                           controller: createUserController.userCodeController,
+                          isReadOnly: true,
                         ),
+
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Name *',
-                          hint: 'Enter your full name',
+                          hint: 'Enter full name',
                           controller: createUserController.nameController,
                         ),
                         SizedBox(height: Get.height / 60),
@@ -77,13 +137,17 @@ class CreateNewUserScreen extends StatelessWidget {
                           keyboardType: TextInputType.emailAddress,
                         ),
                         SizedBox(height: Get.height / 60),
-                        CustomTextField(
-                          label: 'Password *',
-                          hint: 'Enter password',
-                          controller: createUserController.passwordController,
-                          isPassword: true,
-                        ),
-                        SizedBox(height: Get.height / 60),
+
+                        // ✅ Show password field only when adding
+                        if (!isEdit)
+                          CustomTextField(
+                            label: 'Password *',
+                            hint: 'Enter password',
+                            controller: createUserController.passwordController,
+                            isPassword: true,
+                          ),
+                        if (!isEdit) SizedBox(height: Get.height / 60),
+
                         CustomTextField(
                           label: 'Contact *',
                           hint: 'Enter phone number',
@@ -91,6 +155,8 @@ class CreateNewUserScreen extends StatelessWidget {
                           keyboardType: TextInputType.phone,
                         ),
                         SizedBox(height: Get.height / 60),
+
+                        // ✅ Designation dropdown
                         Obx(
                           () => CustomDropdownField<String>(
                             label: 'Designation *',
@@ -112,6 +178,7 @@ class CreateNewUserScreen extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: Get.height / 60),
+
                         CustomTextField(
                           label: 'Address *',
                           hint: 'Enter address',
@@ -134,9 +201,8 @@ class CreateNewUserScreen extends StatelessWidget {
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Bank Name *',
-                          controller: createUserController.bankNameController,
-
                           hint: 'Enter bank name',
+                          controller: createUserController.bankNameController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
@@ -160,6 +226,21 @@ class CreateNewUserScreen extends StatelessWidget {
                               createUserController.aadharNumberController,
                           keyboardType: TextInputType.number,
                         ),
+                        // SizedBox(height: Get.height / 60),
+                        // UploadFileField(
+                        //   label: 'User Image',
+                        //   onFileSelected: (file) {
+                        //     createUserController.userImage.value =
+                        //         file as File?;
+                        //   },
+                        // ),
+                        // UploadFileField(
+                        //   label: 'Chequebook Image',
+                        //   onFileSelected: (file) {
+                        //     createUserController.chequebookImage.value =
+                        //         file as File?;
+                        //   },
+                        // ),
                         SizedBox(height: Get.height / 40),
                         SizedBox(
                           width: double.infinity,
@@ -169,9 +250,16 @@ class CreateNewUserScreen extends StatelessWidget {
                                 ? null
                                 : () {
                                     if (_formKey.currentState!.validate()) {
-                                      createUserController.submitForm();
+                                      if (isEdit) {
+                                        createUserController.updateUser(
+                                          createUserController.editingUserId,
+                                        );
+                                      } else {
+                                        createUserController.submitForm();
+                                      }
                                     }
                                   },
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xffF78520),
                               shape: RoundedRectangleBorder(
@@ -183,7 +271,7 @@ class CreateNewUserScreen extends StatelessWidget {
                                     color: Colors.white,
                                   )
                                 : Text(
-                                    'Save User',
+                                    isEdit ? 'Update User' : 'Save User',
                                     style: GoogleFonts.poppins(
                                       textStyle: TextStyle(
                                         fontSize: Get.width / 22.5,

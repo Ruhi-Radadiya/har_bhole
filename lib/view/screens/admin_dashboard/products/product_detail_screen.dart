@@ -131,9 +131,19 @@ class ProductDetailsScreen extends StatelessWidget {
                               ),
                               CustomTextField(
                                 label: 'Category',
-                                hint: product.categoryName,
+                                hint:
+                                    createProductController
+                                        .selectedCategoryName
+                                        .value
+                                        .isNotEmpty
+                                    ? createProductController
+                                          .selectedCategoryName
+                                          .value
+                                    : product
+                                          .categoryName, // fallback for fetched products
                                 isReadOnly: true,
                               ),
+
                               CustomTextField(
                                 label: 'Selling Price',
                                 hint: product.sellingPrice.toString(),

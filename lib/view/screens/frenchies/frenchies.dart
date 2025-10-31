@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../main.dart';
+import '../../../model/product_model/product_model.dart';
 import '../../component/food_card.dart';
 import '../../component/frenchies_food_card.dart';
+import '../products/products.dart';
 
 class Frenchies extends StatelessWidget {
   Frenchies({super.key});
@@ -101,63 +104,56 @@ class Frenchies extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: Get.height / 50),
-                  Row(
-                    children: [
-                      Text(
-                        "Our Premium Collection",
-                        style: GoogleFonts.poppins(
-                          textStyle: TextStyle(
-                            fontSize: Get.width / 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                  Text(
+                    "Our Premium Collection",
+                    style: GoogleFonts.poppins(
+                      textStyle: TextStyle(
+                        fontSize: Get.width / 20,
+                        fontWeight: FontWeight.w600,
                       ),
-                      Spacer(),
-                      Text(
-                        "View All >",
-                        style: GoogleFonts.poppins(
-                          textStyle: TextStyle(
-                            color: Color(0XFFF26E27),
-                            fontSize: Get.width / 33,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: Get.height / 50),
-                  SizedBox(
-                    height: Get.height / 5,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: foodImages.length,
-                      physics: const BouncingScrollPhysics(),
-
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.only(right: Get.width / 42),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Image.asset(
-                                foodImages[index],
-                                fit: BoxFit.cover,
-                                height: Get.height / 7,
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                foodNames[index],
-                                style: TextStyle(
-                                  fontSize: Get.width / 28,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
                     ),
                   ),
+                  SizedBox(height: Get.height / 50),
+                  // Obx(() {
+                  //   if (premiumCollectionController.isLoading.value) {
+                  //     return SizedBox(
+                  //       height: Get.height / 7,
+                  //       child: Center(child: CircularProgressIndicator()),
+                  //     );
+                  //   }
+                  //   return SizedBox(
+                  //     height: Get.height / 7,
+                  //     child: ListView.builder(
+                  //       scrollDirection: Axis.horizontal,
+                  //       itemCount: premiumCollectionController
+                  //           .premiumCollection
+                  //           .length,
+                  //       physics: const BouncingScrollPhysics(),
+                  //       padding: EdgeInsets.symmetric(
+                  //         horizontal: Get.width / 33,
+                  //       ),
+                  //       itemBuilder: (context, index) {
+                  //         final category = premiumCollectionController
+                  //             .premiumCollection[index];
+                  //         return GestureDetector(
+                  //           onTap: () {
+                  //             Get.to(
+                  //               Products(defaultType: category.categoryName),
+                  //             );
+                  //           },
+                  //           child: Padding(
+                  //             padding: EdgeInsets.only(right: Get.width / 42),
+                  //             child: Image.network(
+                  //               category.categoryImage,
+                  //               width: Get.width / 4,
+                  //               fit: BoxFit.cover,
+                  //             ),
+                  //           ),
+                  //         );
+                  //       },
+                  //     ),
+                  //   );
+                  // }),
                   SizedBox(height: Get.height / 40),
                   Row(
                     children: [
@@ -184,29 +180,56 @@ class Frenchies extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: Get.height / 40),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      children: [
-                        SmallFoodItemCard(
-                          imageUrl: 'asset/images/home/samosa.png',
-                          title: 'Bihari Samosa',
-                          timeDistance: '20 - 25 mins',
-                          offerBadgeText: 'FLAT ₹50 OFF',
-                          rating: '4.7',
+                  Obx(() {
+                    if (productController.isLoading.value) {
+                      return SizedBox(
+                        height: Get.height / 7,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    if (productController.errorMessage.isNotEmpty) {
+                      return Center(
+                        child: Text(
+                          productController.errorMessage.value,
+                          style: const TextStyle(color: Colors.red),
                         ),
-                        SizedBox(width: Get.width / 100),
-                        SmallFoodItemCard(
-                          imageUrl: 'asset/images/home/khaman.png',
-                          title: 'Bihari Samosa',
-                          timeDistance: '20 - 25 mins',
-                          offerBadgeText: 'FLAT ₹50 OFF',
-                          rating: '4.7',
-                        ),
-                      ],
-                    ),
-                  ),
+                      );
+                    }
+
+                    final products = productController.productList;
+                    if (products.isEmpty) {
+                      return const Center(child: Text("No products available"));
+                    }
+
+                    // 🔹 Shuffle list and take 7 random products
+                    final randomProducts = List<Product>.from(products)
+                      ..shuffle();
+                    final limitedProducts = randomProducts.take(7).toList();
+
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
+                      child: Row(
+                        children: limitedProducts.map((product) {
+                          return Padding(
+                            padding: EdgeInsets.only(right: Get.width / 100),
+                            child: SmallFoodItemCard(
+                              imageUrl:
+                                  // product.productImage ??
+                                  'asset/images/home/samosa.png',
+                              title: product.productName ?? 'Unnamed Product',
+                              timeDistance:
+                                  '20 - 25 mins', // you can replace with dynamic data later
+                              offerBadgeText: 'FLAT ₹50 OFF',
+                              rating: '4.0',
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }),
                   SizedBox(height: Get.height / 40),
                   Row(
                     children: [
@@ -233,15 +256,55 @@ class Frenchies extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: Get.height / 40),
-                  RestaurantFoodCard(
-                    imageUrl: 'asset/images/home/samosa.png',
-                    title: 'Bihari Samosa',
-                    subDetails: '15 - 20 mins  |  1.2 km',
-                    offerText: '40% OFF up to ₹80',
-                    rating: '4.7',
-                    costPerOne: '₹120 for one',
-                    onTap: () {},
-                  ),
+                  Obx(() {
+                    if (productController.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (productController.errorMessage.isNotEmpty) {
+                      return Center(
+                        child: Text(
+                          productController.errorMessage.value,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    final products = productController.productList;
+                    if (products.isEmpty) {
+                      return const Center(child: Text("No products available"));
+                    }
+                    final shuffled = List<Product>.from(products)..shuffle();
+                    final limitedProducts = shuffled.take(7).toList();
+
+                    return Column(
+                      children: limitedProducts.map((product) {
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: Get.height / 50),
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.to(
+                                Products(
+                                  defaultType: product.categoryName ?? 'All',
+                                ),
+                              );
+                            },
+                            child: RestaurantFoodCard(
+                              imageUrl:
+                                  // product.productImage ??
+                                  'asset/images/home/samosa.png',
+                              title: product.productName ?? 'Unknown Product',
+                              subDetails: product.categoryName ?? '',
+                              offerText: '',
+                              rating: '4.0',
+                              costPerOne:
+                                  '₹${product.sellingPrice ?? '0'} for one',
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }),
                 ],
               ),
             ),

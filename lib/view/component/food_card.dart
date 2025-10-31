@@ -101,9 +101,12 @@ class RestaurantFoodCard extends StatelessWidget {
                       Text(
                         title,
                         style: GoogleFonts.poppins(
-                          fontSize: Get.width / 19,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          textStyle: TextStyle(
+                            fontSize: Get.width / 19,
+                            fontWeight: FontWeight.w600,
+                            overflow: TextOverflow.ellipsis,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
                       Column(

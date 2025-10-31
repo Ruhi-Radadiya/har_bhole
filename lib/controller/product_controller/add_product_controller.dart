@@ -38,7 +38,9 @@ class CreateProductController extends GetxController {
   final cholesterolController = TextEditingController();
 
   // ===== Dropdowns & Tags =====
-  var selectedCategory = "1".obs;
+  var selectedCategoryId = ''.obs;
+  var selectedCategoryName = ''.obs;
+
   var selectedTags = <String>{}.obs;
   final productTags = <String>[
     'Best Seller',
@@ -59,6 +61,7 @@ class CreateProductController extends GetxController {
   var selectedImage = Rxn<File>();
   var productImageUrl = "".obs;
 
+  // ===== Setters =====
   void setImage(File image) {
     selectedImage.value = image;
     productImageUrl.value = "";
@@ -67,6 +70,11 @@ class CreateProductController extends GetxController {
   void setImageUrl(String url) {
     productImageUrl.value = url;
     selectedImage.value = null;
+  }
+
+  void setCategory({required String id, required String name}) {
+    selectedCategoryId.value = id;
+    selectedCategoryName.value = name;
   }
 
   // ===== Toast =====
@@ -101,6 +109,10 @@ class CreateProductController extends GetxController {
     }
     if (netWeightController.text.trim().isEmpty) {
       showToast("Please enter net weight");
+      return false;
+    }
+    if (selectedCategoryId.value.isEmpty) {
+      showToast("Please select a category");
       return false;
     }
     if (selectedImage.value == null && productImageUrl.value.isEmpty) {
@@ -148,7 +160,8 @@ class CreateProductController extends GetxController {
     vitaminDController.clear();
     cholesterolController.clear();
 
-    selectedCategory.value = "1";
+    selectedCategoryId.value = '';
+    selectedCategoryName.value = '';
     selectedTags.clear();
     isActive.value = true;
     selectedImage.value = null;
@@ -177,8 +190,8 @@ class CreateProductController extends GetxController {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      log("Create Status: ${response.statusCode}");
-      log("Create Response: ${response.body}");
+      log("🟢 Create Status: ${response.statusCode}");
+      log("🟢 Create Response: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         showToast("Product created successfully");
@@ -189,7 +202,7 @@ class CreateProductController extends GetxController {
         return false;
       }
     } catch (e) {
-      log("Error creating product: $e");
+      log("❌ Error creating product: $e");
       showToast("Something went wrong: $e");
       return false;
     }
@@ -217,8 +230,8 @@ class CreateProductController extends GetxController {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      log("Update Status: ${response.statusCode}");
-      log("Update Response: ${response.body}");
+      log("🟡 Update Status: ${response.statusCode}");
+      log("🟡 Update Response: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         showToast("Product updated successfully");
@@ -229,7 +242,7 @@ class CreateProductController extends GetxController {
         return false;
       }
     } catch (e) {
-      log("Error updating product: $e");
+      log("❌ Error updating product: $e");
       showToast("Something went wrong: $e");
       return false;
     }
@@ -243,7 +256,8 @@ class CreateProductController extends GetxController {
     final Map<String, String> fields = {
       if (forUpdate && productId != null) "product_id": productId,
       "product_name": productNameController.text,
-      "category_id": selectedCategory.value,
+      "category_id": selectedCategoryId.value,
+      "category_name": selectedCategoryName.value,
       "stock_quantity": stockController.text,
       "net_weight":
           double.tryParse(netWeightController.text)?.toStringAsFixed(3) ??

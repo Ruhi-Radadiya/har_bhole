@@ -41,6 +41,7 @@ import '../view/screens/order/orders/view_all_orders.dart';
 import '../view/screens/order/orders_analytics/order_analytics.dart';
 import '../view/screens/order/orders_analytics/order_analytics_invoice.dart';
 import '../view/screens/order/orders_analytics/view_order_analytics.dart';
+import '../view/screens/otp_screen/login_otp_screen.dart';
 import '../view/screens/otp_screen/otp_screen.dart';
 import '../view/screens/products/products.dart';
 import '../view/screens/set_new_password/set_new_password.dart';
@@ -125,6 +126,7 @@ class Routes {
   static String orderAnalytics = '/order-analytics';
   static String allOrders = '/all-orders';
   static String customerScreen = '/customer-screen';
+  static String logInOTPScreen = '/login-otp-screen';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -149,13 +151,7 @@ class Routes {
     GetPage(name: checkOut, page: () => const CheckoutScreen()),
     GetPage(name: adminBottomBar, page: () => const AdminBottomBarScreen()),
     GetPage(name: userDashboard, page: () => UserDashboardScreen()),
-    GetPage(
-      name: viewDetails,
-      page: () {
-        final userCode = Get.arguments as String;
-        return ViewDetailsScreen(userCode: userCode);
-      },
-    ),
+    GetPage(name: viewDetails, page: () => ViewDetailsScreen()),
     GetPage(name: addUsers, page: () => CreateNewUserScreen()),
     GetPage(name: cashbook, page: () => const CashbookScreen()),
     GetPage(name: viewNetbanking, page: () => const ViewNetbankingScreen()),
@@ -236,5 +232,6 @@ class Routes {
     GetPage(name: orderAnalytics, page: () => const OrderAnalytics()),
     GetPage(name: allOrders, page: () => const AllOrders()),
     GetPage(name: customerScreen, page: () => const CustomerScreen()),
+    GetPage(name: logInOTPScreen, page: () => const LoginOtpScreen()),
   ];
 }

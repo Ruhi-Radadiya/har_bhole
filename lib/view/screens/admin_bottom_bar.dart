@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:har_bhole/controller/navigation_controller/user_dashboard_navigation_controller.dart';
 import 'package:har_bhole/view/screens/b2b/b2b.dart';
 import 'package:har_bhole/view/screens/order/order.dart';
 import 'package:har_bhole/view/screens/stock/stock.dart';
 
+import '../../controller/login_controller.dart';
+import '../../main.dart';
 import 'admin_dashboard/admin_dashboard.dart';
 
 class AdminBottomBarScreen extends StatefulWidget {
@@ -17,77 +19,73 @@ class AdminBottomBarScreen extends StatefulWidget {
 class _AdminBottomBarScreenState extends State<AdminBottomBarScreen> {
   @override
   Widget build(BuildContext context) {
-    UserDashboardController controller = Get.put(UserDashboardController());
+    return Obx(() {
+      // ✅ Role check (admin vs customer)
+      final isAdmin = loginController.userRole.value == UserRole.admin;
 
-    return Scaffold(
-      body: PageView(
-        controller: controller.pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        onPageChanged: (index) {
-          controller.getIndex(index: index);
-        },
-        children: const [AdminDashboard(), B2B(), Stock(), Order()],
-      ),
-      bottomNavigationBar: Obx(() {
-        return BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: const Color(0xffFFFFFF),
-          selectedItemColor: Color(0xffF78520),
-          unselectedItemColor: Color(0xff9EA4B0),
-          currentIndex: controller.bottomNavigationIndex.value,
-          selectedLabelStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: Get.width / 28,
-          ),
-          unselectedLabelStyle: const TextStyle(fontSize: 12),
-          onTap: (value) {
-            controller.getIndex(index: value);
-            controller.changePageView(index: value);
+      // ✅ Show pages based on role
+      final pages = isAdmin
+          ? const [AdminDashboard(), B2B(), Stock(), Order()]
+          : const [AdminDashboard()];
+
+      // ✅ Bottom bar items based on role
+      final items = isAdmin
+          ? [
+              _bottomItem("asset/images/dashboard_image.png", "Dashboard", 0),
+              _bottomItem("asset/images/b2b_image.png", "B2B", 1),
+              _bottomItem("asset/images/stocks_image.png", "Stock", 2),
+              _bottomItem("asset/images/orders_image.png", "Order", 3),
+            ]
+          : [_bottomItem("asset/images/dashboard_image.png", "Dashboard", 0)];
+
+      return Scaffold(
+        body: PageView(
+          controller: userDashboardController.pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) {
+            userDashboardController.getIndex(index: index);
           },
-          items: [
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "asset/images/dashboard_image.png",
-                height: Get.width / 22,
-                color: controller.bottomNavigationIndex.value == 0
-                    ? Color(0xffF78520)
-                    : Color(0xff9EA4B0),
-              ),
-              label: "Dashboard",
+          children: pages,
+        ),
+        bottomNavigationBar: Obx(() {
+          return BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: const Color(0xffFFFFFF),
+            selectedItemColor: const Color(0xffF78520),
+            unselectedItemColor: const Color(0xff9EA4B0),
+            currentIndex: userDashboardController.bottomNavigationIndex.value,
+            selectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: Get.width / 28,
             ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "asset/images/b2b_image.png",
-                height: Get.width / 22,
-                color: controller.bottomNavigationIndex.value == 1
-                    ? Color(0xffF78520)
-                    : Color(0xff9EA4B0),
-              ),
-              label: "B2B",
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "asset/images/stocks_image.png",
-                height: Get.width / 22,
-                color: controller.bottomNavigationIndex.value == 2
-                    ? Color(0xffF78520)
-                    : Color(0xff9EA4B0),
-              ),
-              label: "Stock",
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "asset/images/orders_image.png",
-                height: Get.width / 22,
-                color: controller.bottomNavigationIndex.value == 3
-                    ? Color(0xffF78520)
-                    : Color(0xff9EA4B0),
-              ),
-              label: "Order",
-            ),
-          ],
-        );
-      }),
+            unselectedLabelStyle: const TextStyle(fontSize: 12),
+            onTap: (value) {
+              // Prevent customer from tapping unavailable tabs
+              if (!isAdmin && value > 0) {
+                Fluttertoast.showToast(msg: "Access restricted to admin only");
+                return;
+              }
+
+              userDashboardController.getIndex(index: value);
+              userDashboardController.changePageView(index: value);
+            },
+            items: items,
+          );
+        }),
+      );
+    });
+  }
+
+  BottomNavigationBarItem _bottomItem(String icon, String label, int index) {
+    return BottomNavigationBarItem(
+      icon: Image.asset(
+        icon,
+        height: Get.width / 22,
+        color: userDashboardController.bottomNavigationIndex.value == index
+            ? const Color(0xffF78520)
+            : const Color(0xff9EA4B0),
+      ),
+      label: label,
     );
   }
 }

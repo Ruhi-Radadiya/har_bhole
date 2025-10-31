@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/routes/routes.dart';
 
+import '../../../main.dart';
 import '../../component/textfield.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -116,13 +117,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                     image: "asset/icons/textfield_icon.png",
                                     keyboardType: TextInputType.phone,
                                   ),
-                                  SizedBox(height: Get.height / 40),
-                                  CustomTextField(
-                                    label: 'OTP',
-                                    hint: 'Enter OTP',
-                                    controller: otpController,
-                                    keyboardType: TextInputType.number,
-                                  ),
+                                  // SizedBox(height: Get.height / 40),
+                                  // CustomTextField(
+                                  //   label: 'OTP',
+                                  //   hint: 'Enter OTP',
+                                  //   controller: otpController,
+                                  //   keyboardType: TextInputType.number,
+                                  // ),
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -172,94 +173,94 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ],
                                   ),
                                   SizedBox(height: Get.height / 35),
-
-                                  /// ✅ Login Button Logic
                                   _buildPrimaryButton(
-                                    text: 'Login',
+                                    text: 'Send OTP',
                                     onPressed: () {
-                                      Get.toNamed(Routes.bottomNavigationBar);
+                                      final mobile = emailController.text
+                                          .trim();
+                                      loginController.requestOtp(mobile);
                                     },
-                                    // onPressed: () async {
-                                    //   bool isValid =
-                                    //       FieldValidator.validateRequired({
-                                    //         "Mobile Number": emailController,
-                                    //         "OTP": otpController,
-                                    //       });
-                                    //   if (!isValid) return;
-                                    //
-                                    //   final mobile = emailController.text
-                                    //       .trim();
-                                    //   final otp = otpController.text.trim();
-                                    //   final savedMobile =
-                                    //       loginController.signupMobile.value;
-                                    //
-                                    //   // 1️⃣ Match OTP
-                                    //   if (otp != "123456") {
-                                    //     Get.snackbar(
-                                    //       "Invalid OTP",
-                                    //       "Please enter correct OTP (Hint: 123456)",
-                                    //       backgroundColor: Colors.redAccent,
-                                    //       colorText: Colors.white,
-                                    //       snackPosition: SnackPosition.BOTTOM,
-                                    //     );
-                                    //     return;
-                                    //   }
-                                    //
-                                    //   // 2️⃣ Match mobile with signup mobile
-                                    //   if (mobile != savedMobile) {
-                                    //     Get.snackbar(
-                                    //       "Invalid Mobile Number",
-                                    //       "This number is not registered. Please sign up first.",
-                                    //       backgroundColor: Colors.redAccent,
-                                    //       colorText: Colors.white,
-                                    //       snackPosition: SnackPosition.BOTTOM,
-                                    //     );
-                                    //     return;
-                                    //   }
-                                    //
-                                    //   // 3️⃣ Optional: call your login API
-                                    //   try {
-                                    //     final response = await http.post(
-                                    //       Uri.parse(
-                                    //         "http://192.168.0.118/har_bhole_farsan/api/login_api.php",
-                                    //       ),
-                                    //       body: {"mobile": mobile},
-                                    //     );
-                                    //
-                                    //     final data = jsonDecode(response.body);
-                                    //     if (data["success"] == true) {
-                                    //       Get.snackbar(
-                                    //         "Login Successful",
-                                    //         "Welcome back!",
-                                    //         backgroundColor: Colors.green,
-                                    //         colorText: Colors.white,
-                                    //         snackPosition: SnackPosition.BOTTOM,
-                                    //       );
-                                    //       Get.toNamed(
-                                    //         Routes.bottomNavigationBar,
-                                    //       );
-                                    //     } else {
-                                    //       Get.snackbar(
-                                    //         "Login Failed",
-                                    //         data["message"] ??
-                                    //             "Invalid mobile number",
-                                    //         backgroundColor: Colors.redAccent,
-                                    //         colorText: Colors.white,
-                                    //         snackPosition: SnackPosition.BOTTOM,
-                                    //       );
-                                    //     }
-                                    //   } catch (e) {
-                                    //     Get.snackbar(
-                                    //       "Error",
-                                    //       "Something went wrong: $e",
-                                    //       backgroundColor: Colors.redAccent,
-                                    //       colorText: Colors.white,
-                                    //       snackPosition: SnackPosition.BOTTOM,
-                                    //     );
-                                    //   }
-                                    // },
                                   ),
 
+                                  // onPressed: () async {
+                                  //   bool isValid =
+                                  //       FieldValidator.validateRequired({
+                                  //         "Mobile Number": emailController,
+                                  //         "OTP": otpController,
+                                  //       });
+                                  //   if (!isValid) return;
+                                  //
+                                  //   final mobile = emailController.text
+                                  //       .trim();
+                                  //   final otp = otpController.text.trim();
+                                  //   final savedMobile =
+                                  //       loginController.signupMobile.value;
+                                  //
+                                  //   // 1️⃣ Match OTP
+                                  //   if (otp != "123456") {
+                                  //     Get.snackbar(
+                                  //       "Invalid OTP",
+                                  //       "Please enter correct OTP (Hint: 123456)",
+                                  //       backgroundColor: Colors.redAccent,
+                                  //       colorText: Colors.white,
+                                  //       snackPosition: SnackPosition.BOTTOM,
+                                  //     );
+                                  //     return;
+                                  //   }
+                                  //
+                                  //   // 2️⃣ Match mobile with signup mobile
+                                  //   if (mobile != savedMobile) {
+                                  //     Get.snackbar(
+                                  //       "Invalid Mobile Number",
+                                  //       "This number is not registered. Please sign up first.",
+                                  //       backgroundColor: Colors.redAccent,
+                                  //       colorText: Colors.white,
+                                  //       snackPosition: SnackPosition.BOTTOM,
+                                  //     );
+                                  //     return;
+                                  //   }
+                                  //
+                                  //   // 3️⃣ Optional: call your login API
+                                  //   try {
+                                  //     final response = await http.post(
+                                  //       Uri.parse(
+                                  //         "http://192.168.0.118/har_bhole_farsan/api/login_api.php",
+                                  //       ),
+                                  //       body: {"mobile": mobile},
+                                  //     );
+                                  //
+                                  //     final data = jsonDecode(response.body);
+                                  //     if (data["success"] == true) {
+                                  //       Get.snackbar(
+                                  //         "Login Successful",
+                                  //         "Welcome back!",
+                                  //         backgroundColor: Colors.green,
+                                  //         colorText: Colors.white,
+                                  //         snackPosition: SnackPosition.BOTTOM,
+                                  //       );
+                                  //       Get.toNamed(
+                                  //         Routes.bottomNavigationBar,
+                                  //       );
+                                  //     } else {
+                                  //       Get.snackbar(
+                                  //         "Login Failed",
+                                  //         data["message"] ??
+                                  //             "Invalid mobile number",
+                                  //         backgroundColor: Colors.redAccent,
+                                  //         colorText: Colors.white,
+                                  //         snackPosition: SnackPosition.BOTTOM,
+                                  //       );
+                                  //     }
+                                  //   } catch (e) {
+                                  //     Get.snackbar(
+                                  //       "Error",
+                                  //       "Something went wrong: $e",
+                                  //       backgroundColor: Colors.redAccent,
+                                  //       colorText: Colors.white,
+                                  //       snackPosition: SnackPosition.BOTTOM,
+                                  //     );
+                                  //   }
+                                  // },
                                   SizedBox(height: Get.height / 25),
                                   _buildDividerWithText('Or continue with'),
                                   SizedBox(height: Get.height / 25),
@@ -331,23 +332,25 @@ class _LoginScreenState extends State<LoginScreen> {
     required VoidCallback onPressed,
   }) {
     return SizedBox(
-      width: Get.width,
-      height: Get.height / 20,
+      width: double.infinity,
+      height: Get.height / 18,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xffF78520),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(14),
           ),
-          elevation: 5,
+          elevation: 6,
+          shadowColor: Colors.orangeAccent.withOpacity(0.5),
         ),
         child: Text(
           text,
           style: TextStyle(
-            fontSize: Get.width / 28,
-            fontWeight: FontWeight.bold,
+            fontSize: Get.width / 26,
+            fontWeight: FontWeight.w600,
             color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
       ),

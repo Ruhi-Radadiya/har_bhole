@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:har_bhole/main.dart';
 
 import '../../../routes/routes.dart';
 import '../../component/textfield.dart';
@@ -46,7 +45,7 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
     if (!isValid) return;
 
     // ✅ Save mobile number to controller
-    loginController.setSignupMobile(mobileController.text.trim());
+    // loginController.setSignupMobile(mobileController.text.trim());
 
     Get.snackbar(
       "Success",

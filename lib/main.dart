@@ -4,15 +4,14 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/controller/b2b_order/b2b_order_controller.dart';
 import 'package:har_bhole/controller/cashbook_controller/create_cashbook_entery_controller.dart';
-import 'package:har_bhole/controller/category_controller/edit_category_controller.dart';
 import 'package:har_bhole/controller/finished_goods_stock_controller/finished_goods_stock_controller.dart';
+import 'package:har_bhole/controller/location_controller.dart';
 import 'package:har_bhole/controller/order_analytics_controller/order_analytics_controller.dart';
 import 'package:har_bhole/controller/product_controller/delete_product_controller.dart';
 import 'package:har_bhole/controller/product_controller/product_controller.dart';
 import 'package:har_bhole/controller/raw_material_controller/raw_material_controller.dart';
 import 'package:har_bhole/controller/semi_finished_material_controller/semi_finished_material_controller.dart';
-import 'package:har_bhole/controller/user_controller/create_user_controller.dart';
-import 'package:har_bhole/controller/user_controller/user_controller.dart';
+import 'package:har_bhole/controller/users_controller/create_user_controller.dart';
 import 'package:har_bhole/controller/voucher_controller/add_voucher_controller.dart';
 import 'package:har_bhole/routes/routes.dart';
 
@@ -29,6 +28,7 @@ import 'controller/category_controller/delete_category_controller.dart';
 import 'controller/customer_detail_controller/customer_detail_controller.dart';
 import 'controller/finished_goods_stock_controller/add_finished_goods_stock_controller.dart';
 import 'controller/login_controller.dart';
+import 'controller/navigation_controller/user_dashboard_navigation_controller.dart';
 import 'controller/orders_controller/orders_controller.dart';
 import 'controller/product_controller/add_product_controller.dart';
 import 'controller/raw_material_controller/add_raw_material_controller.dart';
@@ -39,7 +39,6 @@ import 'controller/users_controller/dashboard_users_controller.dart';
 import 'controller/voucher_controller/voucher_controller.dart';
 
 CreateUserController createUserController = Get.put(CreateUserController());
-UserController userController = Get.put(UserController());
 OrderCartController orderCartController = Get.put(OrderCartController());
 PremiumCollectionController premiumCollectionController = Get.put(
   PremiumCollectionController(),
@@ -95,9 +94,6 @@ DeleteCategoryController deleteCategoryController = Get.put(
   DeleteCategoryController(),
 );
 
-EditCategoryController editCategoryController = Get.put(
-  EditCategoryController(),
-);
 BannerController bannerController = Get.put(BannerController());
 LoginController loginController = Get.put(LoginController());
 StockMovementController stockMovementController = Get.put(
@@ -107,7 +103,10 @@ OrderAnalyticsController orderAnalyticsController = Get.put(
   OrderAnalyticsController(),
 );
 AllOrdersController allOrdersController = Get.put(AllOrdersController());
-
+UserDashboardController userDashboardController = Get.put(
+  UserDashboardController(),
+);
+LocationController locationController = Get.put(LocationController());
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
