@@ -209,12 +209,6 @@ class _HomeState extends State<Home> {
                                         ),
                                       ),
                                     ),
-                                    Image(
-                                      image: AssetImage(
-                                        "asset/icons/microphone.png",
-                                      ),
-                                      height: Get.width / 24,
-                                    ),
                                   ],
                                 ),
                               ),
