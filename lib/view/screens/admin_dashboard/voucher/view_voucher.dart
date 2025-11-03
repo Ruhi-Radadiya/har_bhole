@@ -46,7 +46,8 @@ class ViewVouchersScreen extends StatelessWidget {
 
     String selectedType = voucher.voucherType ?? 'Journal';
     String selectedPaymentMode = voucher.paymentMode ?? 'UPI';
-    final selectedStatus = (voucher.status ?? 'Pending').obs; // RxString
+    final selectedStatus =
+        ((voucher.status ?? 'Pending').capitalizeFirst!.trim()).obs;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -131,6 +132,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         label: 'Amount',
                         controller: amountController,
                         keyboardType: TextInputType.number,
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 50),
 
@@ -145,6 +147,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         hint: 'CHB/(PAY)/0002',
                         label: 'Voucher No.',
                         controller: voucherNoController,
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 50),
 
@@ -152,6 +155,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         hint: '69',
                         label: 'Reference No.',
                         controller: refNoController,
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 50),
 
@@ -159,6 +163,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         hint: 'hdfc',
                         label: 'Bank Name',
                         controller: bankNameController,
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 50),
 
@@ -166,6 +171,8 @@ class ViewVouchersScreen extends StatelessWidget {
                         hint: '1234567890',
                         label: 'Account Number',
                         controller: accountNoController,
+                        isReadOnly: true,
+
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 50),
@@ -174,6 +181,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         hint: '5875',
                         label: 'Transaction No.',
                         controller: transactionNoController,
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 50),
 
@@ -181,6 +189,8 @@ class ViewVouchersScreen extends StatelessWidget {
                         hint: 'avghalkash',
                         label: 'Description',
                         controller: descriptionController,
+                        isReadOnly: true,
+
                         maxLines: 3,
                       ),
                       SizedBox(height: Get.height / 50),
@@ -190,6 +200,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         label: 'Price',
                         controller: priceController,
                         keyboardType: TextInputType.number,
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 50),
 
@@ -206,6 +217,7 @@ class ViewVouchersScreen extends StatelessWidget {
                         hint: 'avghalkash',
                         label: 'Bill To',
                         controller: billToController,
+                        isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 50),
 
@@ -216,7 +228,6 @@ class ViewVouchersScreen extends StatelessWidget {
                         },
                       ),
                       SizedBox(height: Get.height / 50),
-
                       Obx(
                         () => CustomDropdownField<String>(
                           label: 'Status',
@@ -230,7 +241,6 @@ class ViewVouchersScreen extends StatelessWidget {
                           hint: 'Select Status',
                         ),
                       ),
-
                       SizedBox(height: Get.height / 50),
                       SizedBox(
                         width: double.infinity,

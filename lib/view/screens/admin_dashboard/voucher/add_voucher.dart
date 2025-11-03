@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/main.dart';
+import 'package:har_bhole/view/component/frenchies_food_card.dart';
 
 import '../../../../model/voucher_model/voucher_model.dart';
 import '../../../component/textfield.dart';
@@ -15,17 +16,13 @@ class AddVouchersScreen extends StatefulWidget {
 
 class _AddVouchersScreenState extends State<AddVouchersScreen> {
   Voucher? editingVoucher;
-
   String selectedType = 'Journal';
   String selectedPaymentMode = 'Cash';
-  final List<String> statusOptions = const ['Approved', 'Pending', 'Rejected'];
   int qtyValue = 1;
 
   @override
   void initState() {
     super.initState();
-
-    // Check if a voucher was passed for editing
     if (Get.arguments != null && Get.arguments is Voucher) {
       editingVoucher = Get.arguments as Voucher;
       _fillFormWithVoucher(editingVoucher!);
@@ -45,9 +42,15 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
     addVoucherController.descriptionController.text = voucher.description ?? '';
     addVoucherController.referenceDocController.text =
         voucher.referenceDoc ?? '';
+    addVoucherController.billToController.text = voucher.billTo ?? '';
+    addVoucherController.voucherCodeController.text = voucher.voucherCode ?? '';
     addVoucherController.selectedStatus.value = voucher.status ?? 'Pending';
     selectedType = voucher.voucherType ?? 'Journal';
     selectedPaymentMode = voucher.paymentMode ?? 'Cash';
+
+    if (voucher.itemsJson != null && voucher.itemsJson!.isNotEmpty) {
+      addVoucherController.items.assignAll(voucher.itemsJson!);
+    }
   }
 
   @override
@@ -60,7 +63,7 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
         backgroundColor: Colors.white,
         body: Column(
           children: [
-            // Header
+            // ---------------- Header ----------------
             Container(
               padding: EdgeInsets.only(
                 top: Get.height / 25,
@@ -68,14 +71,11 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                 right: Get.width / 25,
                 bottom: Get.height / 100,
               ),
-              decoration: const BoxDecoration(color: Colors.white),
               child: Row(
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.black),
                     onPressed: () => Get.back(),
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(minWidth: Get.width / 15),
                   ),
                   Expanded(
                     child: Center(
@@ -96,7 +96,7 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
               ),
             ),
 
-            // Body
+            // ---------------- Body ----------------
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 30),
@@ -107,8 +107,8 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                     borderRadius: BorderRadius.circular(20.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 10,
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 8,
                         offset: const Offset(0, 5),
                       ),
                     ],
@@ -116,13 +116,17 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Voucher Info
+                      // CustomTextField(
+                      //   label: 'Voucher Code',
+                      //   hint: 'GV000015',
+                      //   controller: addVoucherController.voucherCodeController,
+                      // ),
+                      // SizedBox(height: Get.height / 50),
                       CustomDateField(
                         label: 'Date',
                         controller: addVoucherController.voucherDateController,
                       ),
-                      SizedBox(height: Get.height / 60),
-
+                      SizedBox(height: Get.height / 50),
                       _buildChipSelector(
                         label: 'Type',
                         options: const ['Journal', 'Payment', 'Receipt'],
@@ -136,9 +140,9 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                           setState(() => selectedType = value);
                           addVoucherController.voucherTypeController.text =
                               value;
+                          addVoucherController.updateVoucherNo(value);
                         },
                       ),
-
                       CustomTextField(
                         label: 'Amount',
                         hint: '6010.00',
@@ -146,16 +150,15 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 50),
-
                       _buildChipSelector(
                         label: 'Payment Mode',
                         options: const ['UPI', 'Cash', 'NetBanking', 'Card'],
                         selectedValue: selectedPaymentMode,
                         optionColors: [
-                          Colors.black,
-                          Colors.black,
-                          Colors.black,
-                          Colors.black,
+                          mainOrange,
+                          mainOrange,
+                          mainOrange,
+                          mainOrange,
                         ],
                         onSelect: (value) {
                           setState(() => selectedPaymentMode = value);
@@ -163,12 +166,13 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                               value;
                         },
                       ),
-
                       CustomTextField(
                         label: 'Voucher No.',
-                        hint: 'CHB/(PAY)/0002',
+                        hint: 'Auto-generated',
                         controller: addVoucherController.voucherNoController,
+                        isReadOnly: true,
                       ),
+
                       SizedBox(height: Get.height / 50),
 
                       CustomTextField(
@@ -200,11 +204,18 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                         controller:
                             addVoucherController.transactionNumberController,
                       ),
-                      SizedBox(height: Get.height / 50),
+                      SizedBox(height: Get.height / 50), _buildItemsSection(),
+                      SizedBox(height: Get.height / 40),
 
+                      // CustomTextField(
+                      //   label: 'Bill To',
+                      //   hint: 'Client name',
+                      //   controller: addVoucherController.billToController,
+                      // ),
+                      // SizedBox(height: Get.height / 50),
                       CustomTextField(
-                        label: 'Description',
-                        hint: 'Description here',
+                        label: 'Bill To',
+                        hint: 'Optional Notes',
                         controller: addVoucherController.descriptionController,
                         maxLines: 3,
                       ),
@@ -218,7 +229,6 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                         },
                       ),
                       SizedBox(height: Get.height / 50),
-
                       Obx(
                         () => CustomDropdownField<String>(
                           label: 'Status',
@@ -227,7 +237,7 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                               addVoucherController.selectedStatus.value.isEmpty
                               ? null
                               : addVoucherController.selectedStatus.value,
-                          getLabel: (status) => status,
+                          getLabel: (s) => s,
                           onChanged: (newValue) {
                             if (newValue != null) {
                               addVoucherController.selectedStatus.value =
@@ -237,10 +247,9 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                           hint: 'Select Status',
                         ),
                       ),
+                      SizedBox(height: Get.height / 40),
 
-                      SizedBox(height: Get.height / 50),
-
-                      // Save / Update button
+                      // ---------------- Save Button ----------------
                       SizedBox(
                         height: Get.height / 18,
                         width: double.infinity,
@@ -252,15 +261,12 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                                 selectedPaymentMode;
 
                             if (editingVoucher != null) {
-                              // Update existing voucher
                               await addVoucherController.updateVoucher(
                                 editingVoucher!.voucherId,
                               );
                             } else {
-                              // Add new voucher
                               await addVoucherController.submitVoucher();
                             }
-
                             vouchersController.fetchVouchers();
                             Get.back();
                           },
@@ -269,7 +275,6 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.0),
                             ),
-                            elevation: 0,
                           ),
                           child: Text(
                             editingVoucher != null
@@ -285,80 +290,157 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: Get.height / 50),
                     ],
                   ),
                 ),
               ),
             ),
-            SizedBox(height: Get.height / 20),
           ],
         ),
       ),
     );
   }
 
+  // ---------------- Helper Widgets ----------------
   Widget _buildChipSelector({
     required String label,
     required List<String> options,
-    required String selectedValue,
     required List<Color> optionColors,
-    required void Function(String) onSelect,
+    required String selectedValue,
+    required Function(String) onSelect,
   }) {
-    const Color mainOrange = Color(0xffF78520);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
-            textStyle: TextStyle(
-              fontSize: Get.width / 26,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 13),
         ),
-        SizedBox(height: Get.height / 150),
+        SizedBox(height: 6),
         Wrap(
-          spacing: Get.width / 40,
-          runSpacing: Get.height / 150,
-          children: List.generate(options.length, (index) {
-            final option = options[index];
-            final optionColor = optionColors[index];
-            final isSelected = option == selectedValue;
-
-            return InkWell(
-              onTap: () => onSelect(option),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Get.width / 30,
-                  vertical: Get.height / 150,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? mainOrange.withOpacity(0.2)
-                      : Color(0xffF7F3F1),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Text(
-                  option,
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (int i = 0; i < options.length; i++)
+              ChoiceChip(
+                labelPadding: const EdgeInsets.symmetric(horizontal: 10),
+                label: Text(
+                  options[i],
                   style: GoogleFonts.poppins(
-                    textStyle: TextStyle(
-                      fontSize: Get.width / 32,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? mainOrange : optionColor,
-                    ),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: selectedValue == options[i]
+                        ? Colors.white
+                        : Colors.black87,
                   ),
                 ),
+                selected: selectedValue == options[i],
+                selectedColor: optionColors[i],
+                backgroundColor: Colors.grey.shade200,
+                showCheckmark: false, // ❌ hide the check icon
+                side: BorderSide(
+                  color: selectedValue == options[i]
+                      ? optionColors[i]
+                      : Colors.grey.shade400,
+                  width: 1,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                onSelected: (_) => onSelect(options[i]),
               ),
-            );
-          }),
+          ],
         ),
-        SizedBox(height: Get.height / 50),
+        SizedBox(height: Get.height / 60),
       ],
+    );
+  }
+
+  Widget _buildItemsSection() {
+    return Obx(() {
+      final items = addVoucherController.items;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Items',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          ...items.asMap().entries.map(
+            (entry) => ListTile(
+              title: Text(entry.value.item ?? ''),
+              subtitle: Text(
+                'Qty: ${entry.value.qty}, Rate: ${entry.value.rate}, \nTotal: ₹${entry.value.total}',
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.cancel_outlined, color: Colors.red),
+                onPressed: () => addVoucherController.removeItem(entry.key),
+              ),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () async {
+              _showAddItemDialog();
+            },
+            icon: const Icon(Icons.add, color: mainOrange),
+            label: const Text(
+              'Add Item',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  void _showAddItemDialog() {
+    final itemNameController = TextEditingController();
+    final qtyController = TextEditingController(text: '1');
+    final rateController = TextEditingController();
+
+    Get.defaultDialog(
+      title: 'Add Item',
+      content: Column(
+        children: [
+          CustomTextField(
+            label: 'Item Name',
+            controller: itemNameController,
+            hint: '',
+          ),
+          CustomTextField(
+            label: 'Qty',
+            controller: qtyController,
+            keyboardType: TextInputType.number,
+            hint: '',
+          ),
+          CustomTextField(
+            label: 'Rate',
+            controller: rateController,
+            keyboardType: TextInputType.number,
+            hint: '',
+          ),
+        ],
+      ),
+      confirm: ElevatedButton(
+        onPressed: () {
+          final name = itemNameController.text.trim();
+          final qty = int.tryParse(qtyController.text) ?? 1;
+          final rate = double.tryParse(rateController.text) ?? 0;
+          if (name.isNotEmpty && rate > 0) {
+            addVoucherController.addItem(name, qty, rate);
+            Get.back();
+          }
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+        child: const Text('Add'),
+      ),
+      cancel: OutlinedButton(
+        onPressed: () => Get.back(),
+        child: const Text('Cancel'),
+      ),
     );
   }
 }

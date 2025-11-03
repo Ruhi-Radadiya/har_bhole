@@ -170,25 +170,110 @@ class GeneralVouchersScreen extends StatelessWidget {
                                 vouchersController.searchVouchers(val);
                               },
                             ),
-                            SizedBox(height: Get.height / 50),
+                            SizedBox(height: Get.height / 100),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: TextButton(
+                                onPressed: () {
+                                  vouchersController.clearFilters();
+                                },
+                                child: Text(
+                                  "Clear",
+                                  style: TextStyle(
+                                    color: mainOrange,
+                                    fontSize: Get.width / 30,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 _buildFilterField(
                                   label: "Type",
-                                  child: _buildFilterDropdown(label: "All"),
+                                  child: Obx(
+                                    () => _buildFilterDropdown(
+                                      label:
+                                          vouchersController.selectedType.value,
+                                      items: [
+                                        'All',
+                                        'Journal',
+                                        'Payment',
+                                        'Receipt',
+                                      ],
+                                      onChanged: (val) {
+                                        vouchersController.selectedType.value =
+                                            val!;
+                                        vouchersController.applyFilters();
+                                      },
+                                    ),
+                                  ),
                                 ),
                                 _buildFilterField(
                                   label: "Status",
-                                  child: _buildFilterDropdown(label: "All"),
+                                  child: Obx(
+                                    () => _buildFilterDropdown(
+                                      label: vouchersController
+                                          .selectedStatus
+                                          .value,
+                                      items: [
+                                        'All',
+                                        'Pending',
+                                        'Approved',
+                                        'Rejected',
+                                      ],
+                                      onChanged: (val) {
+                                        vouchersController
+                                                .selectedStatus
+                                                .value =
+                                            val!;
+                                        vouchersController.applyFilters();
+                                      },
+                                    ),
+                                  ),
                                 ),
                                 _buildFilterField(
                                   label: "From",
-                                  child: _buildDateFilter(date: "25/09/2024"),
+                                  child: Obx(
+                                    () => _buildDateFilter(
+                                      date: vouchersController.fromDate.value,
+                                      onTap: () async {
+                                        DateTime? picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime(2020),
+                                          lastDate: DateTime(2100),
+                                        );
+                                        if (picked != null) {
+                                          vouchersController.fromDate.value =
+                                              picked.toIso8601String();
+                                          vouchersController.applyFilters();
+                                        }
+                                      },
+                                    ),
+                                  ),
                                 ),
                                 _buildFilterField(
                                   label: "To",
-                                  child: _buildDateFilter(date: "25/09/2024"),
+                                  child: Obx(
+                                    () => _buildDateFilter(
+                                      date: vouchersController.toDate.value,
+                                      onTap: () async {
+                                        DateTime? picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime(2020),
+                                          lastDate: DateTime(2100),
+                                        );
+                                        if (picked != null) {
+                                          vouchersController.toDate.value =
+                                              picked.toIso8601String();
+                                          vouchersController.applyFilters();
+                                        }
+                                      },
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -331,7 +416,11 @@ class GeneralVouchersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterDropdown({required String label}) {
+  Widget _buildFilterDropdown({
+    required String label,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
     return Container(
       width: Get.width / 4.5,
       height: Get.height / 22,
@@ -341,41 +430,57 @@ class GeneralVouchersScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(color: Colors.grey.shade300),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              textStyle: TextStyle(
-                fontSize: Get.width / 40,
-                color: Colors.grey.shade700,
-              ),
-            ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: label,
+          isExpanded: true,
+          items: items
+              .map(
+                (e) => DropdownMenuItem<String>(
+                  value: e,
+                  child: Text(
+                    e,
+                    style: TextStyle(
+                      fontSize: Get.width / 40,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+          onChanged: onChanged,
+          icon: const Icon(
+            Icons.keyboard_arrow_down,
+            size: 18,
+            color: Colors.grey,
           ),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildDateFilter({required String date}) {
-    return Container(
-      width: Get.width / 4.5,
-      height: Get.height / 22,
-      padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        date,
-        style: GoogleFonts.poppins(
-          textStyle: TextStyle(
-            fontSize: Get.width / 40,
-            color: Colors.grey.shade700,
+  Widget _buildDateFilter({required String date, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: Get.width / 4.5,
+        height: Get.height / 22,
+        padding: EdgeInsets.symmetric(horizontal: Get.width / 50),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          date.isEmpty
+              ? "Select"
+              : date.split('T').first, // display only yyyy-mm-dd
+          style: GoogleFonts.poppins(
+            textStyle: TextStyle(
+              fontSize: Get.width / 40,
+              color: Colors.grey.shade700,
+            ),
           ),
         ),
       ),

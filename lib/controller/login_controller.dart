@@ -40,7 +40,6 @@ class LoginController extends GetxController {
           "otp": "", // 👈 send empty string instead of omitting
         },
       );
-
       log("📩 OTP Request Response: ${response.body}");
       final data = jsonDecode(response.body);
 

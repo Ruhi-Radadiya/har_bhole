@@ -15,16 +15,16 @@ class BottomNavigationBarScreen extends StatefulWidget {
 }
 
 class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
+  NavigationController navigationController = Get.put(NavigationController());
+
   @override
   Widget build(BuildContext context) {
-    NavigationController controller = Get.put(NavigationController());
-
     return Scaffold(
       body: PageView(
-        controller: controller.pageController,
+        controller: navigationController.pageController,
         physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
-          controller.getIndex(index: index);
+          navigationController.getIndex(index: index);
         },
         children: [const Home(), Frenchies(), const Products()],
       ),
@@ -34,22 +34,22 @@ class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
           backgroundColor: const Color(0xffFFFFFF),
           selectedItemColor: Color(0xffF78520),
           unselectedItemColor: Color(0xff9EA4B0),
-          currentIndex: controller.bottomNavigationIndex.value,
+          currentIndex: navigationController.bottomNavigationIndex.value,
           selectedLabelStyle: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: Get.width / 28,
           ),
           unselectedLabelStyle: const TextStyle(fontSize: 12),
           onTap: (value) {
-            controller.getIndex(index: value);
-            controller.changePageView(index: value);
+            navigationController.getIndex(index: value);
+            navigationController.changePageView(index: value);
           },
           items: [
             BottomNavigationBarItem(
               icon: Image.asset(
                 "asset/icons/home.png",
                 height: Get.width / 22,
-                color: controller.bottomNavigationIndex.value == 0
+                color: navigationController.bottomNavigationIndex.value == 0
                     ? Color(0xffF78520)
                     : Color(0xff9EA4B0),
               ),
@@ -59,7 +59,7 @@ class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
               icon: Image.asset(
                 "asset/icons/frenchie's.png",
                 height: Get.width / 22,
-                color: controller.bottomNavigationIndex.value == 1
+                color: navigationController.bottomNavigationIndex.value == 1
                     ? Color(0xffF78520)
                     : Color(0xff9EA4B0),
               ),
@@ -69,7 +69,7 @@ class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
               icon: Image.asset(
                 "asset/icons/products.png",
                 height: Get.width / 22,
-                color: controller.bottomNavigationIndex.value == 2
+                color: navigationController.bottomNavigationIndex.value == 2
                     ? Color(0xffF78520)
                     : Color(0xff9EA4B0),
               ),

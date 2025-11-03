@@ -107,6 +107,7 @@ UserDashboardController userDashboardController = Get.put(
   UserDashboardController(),
 );
 LocationController locationController = Get.put(LocationController());
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
