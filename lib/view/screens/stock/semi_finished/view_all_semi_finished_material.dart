@@ -75,11 +75,8 @@ class _ViewAllSemiFinishedMaterialState
   }
 
   final Color mainOrange = const Color(0xffF78520);
-
   final Color inStockGreen = const Color(0xff4F6B1F);
-
   final Color lowStockYellow = const Color(0xffFFC107);
-
   final Color outOfStockRed = const Color(0xffFF3B30);
 
   @override

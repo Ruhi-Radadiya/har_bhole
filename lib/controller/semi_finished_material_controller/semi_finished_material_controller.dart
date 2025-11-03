@@ -55,21 +55,6 @@ class SemiFinishedController extends GetxController {
     super.onInit();
   }
 
-  @override
-  void onClose() {
-    // Dispose all controllers
-    itemCodeController.dispose();
-    itemNameController.dispose();
-    descriptionController.dispose();
-    quantityRequiredController.dispose();
-    unitController.dispose();
-    wastageController.dispose();
-    quantityCreatedController.dispose();
-    boxWeightController.dispose();
-    boxDimensionsController.dispose();
-    super.onClose();
-  }
-
   // --------------------- FORM MANAGEMENT ---------------------
   void clearForm() {
     itemCodeController.clear();

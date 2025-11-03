@@ -72,7 +72,7 @@ class _ProductsState extends State<Products> {
                     ...grouped.entries.map((entry) {
                       final title = entry.key;
                       final products = entry.value;
-                      final isExpanded = expanded[title] ?? false;
+                      final isExpanded = expanded[title] ?? true;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

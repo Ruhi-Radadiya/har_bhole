@@ -122,7 +122,6 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: Routes.loginScreen,
-      // initialRoute: Routes.adminBottomBar,
       getPages: Routes.myRoutes,
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
