@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -296,43 +298,58 @@ class RawMaterialScreen extends StatelessWidget {
   }
 
   Widget _buildInfoGridFromApi() {
-    double parseQty(String? qty) {
-      if (qty == null) return 0;
-      return double.tryParse(qty) ?? 0; // parse string like "4.000"
+    double parseQty(dynamic qty) {
+      // Robust parsing: handles String or numeric input, removes commas and stray chars
+      if (qty == null) return 0.0;
+      final s = qty.toString().trim();
+      if (s.isEmpty) return 0.0;
+      // Remove commas and any non-numeric except dot and minus
+      final cleaned = s
+          .replaceAll(',', '')
+          .replaceAll(RegExp(r'[^0-9\.\-]'), '');
+      if (cleaned.isEmpty) return 0.0;
+      return double.tryParse(cleaned) ?? 0.0;
     }
 
+    const double epsilon = 0.000001; // treat anything <= epsilon as zero
+    const double lowStockThreshold =
+        5.0; // items <= this are considered 'low stock'
+
     return Obx(() {
+      final list = rawMaterialController.materialList;
+
+      // build lists for debugging / accuracy checking
+      final totalCount = list.length;
+      final inStockList = <dynamic>[];
+      final lowStockList = <dynamic>[];
+      final outOfStockList = <dynamic>[];
+
+      for (var item in list) {
+        final q = parseQty(item.currentQuantity);
+        if (q <= epsilon) {
+          outOfStockList.add(item);
+        } else if (q > epsilon && q <= lowStockThreshold) {
+          lowStockList.add(item);
+        } else {
+          inStockList.add(item);
+        }
+      }
+
       final infoData = [
-        {
-          'count': rawMaterialController.materialList.length.toString(),
-          'label': 'Total item',
-        },
-        {
-          'count': rawMaterialController.materialList
-              .where((item) => parseQty(item.currentQuantity) > 0)
-              .length
-              .toString(),
-          'label': 'In Stock',
-        },
-        {
-          'count': rawMaterialController.materialList
-              .where(
-                (item) =>
-                    parseQty(item.currentQuantity) > 0 &&
-                    parseQty(item.currentQuantity) < 5,
-              )
-              .length
-              .toString(),
-          'label': 'Low Stock',
-        },
-        {
-          'count': rawMaterialController.materialList
-              .where((item) => parseQty(item.currentQuantity) == 0)
-              .length
-              .toString(),
-          'label': 'Out Of Stock',
-        },
+        {'count': totalCount.toString(), 'label': 'Total item'},
+        {'count': inStockList.length.toString(), 'label': 'In Stock'},
+        {'count': lowStockList.length.toString(), 'label': 'Low Stock'},
+        {'count': outOfStockList.length.toString(), 'label': 'Out Of Stock'},
       ];
+
+      // Debug logging — remove or comment out when confirmed OK
+      dev.log('--- Inventory counts debug ---');
+      dev.log('Total: $totalCount');
+      dev.log('In Stock (${inStockList.length})');
+      dev.log('Low Stock (${lowStockList.length})');
+      dev.log('Out Of Stock (${outOfStockList.length})');
+
+      dev.log('--- End debug ---');
 
       return _buildInfoGrid(infoData);
     });
