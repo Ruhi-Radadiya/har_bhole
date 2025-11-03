@@ -152,9 +152,7 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
         "show_on_home": int.tryParse(category.showOnHome) ?? 1,
         "category_image": category.categoryImage,
       };
-
       print("Updating category with body: $body");
-
       success = await createCategoryController.updateCategory(category);
     } else {
       success = await createCategoryController.createCategory(category);

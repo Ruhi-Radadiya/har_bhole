@@ -135,24 +135,68 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                             rawMaterialController.materialNameController,
                       ),
                       SizedBox(height: Get.height / 60),
+                      Obx(() {
+                        if (premiumCollectionController.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-                      Obx(
-                        () => CustomDropdownField<String>(
+                        if (premiumCollectionController
+                            .errorMessage
+                            .isNotEmpty) {
+                          return Text(
+                            premiumCollectionController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          );
+                        }
+
+                        final categories = premiumCollectionController
+                            .premiumCollection
+                            .map((e) => e.categoryName)
+                            .where((name) => name.isNotEmpty)
+                            .toSet()
+                            .toList();
+
+                        if (categories.isEmpty) {
+                          return const Text("No categories available");
+                        }
+                        return CustomDropdownField<String>(
                           label: "Category",
                           value:
-                              rawMaterialController
-                                  .selectedCategory
+                              createProductController
+                                  .selectedCategoryName
                                   .value
                                   .isEmpty
                               ? null
-                              : rawMaterialController.selectedCategory.value,
+                              : createProductController
+                                    .selectedCategoryName
+                                    .value,
                           items: categories,
-                          onChanged: (val) =>
-                              rawMaterialController.selectedCategory.value =
-                                  val!,
+                          onChanged: (val) {
+                            if (val != null) {
+                              createProductController
+                                      .selectedCategoryName
+                                      .value =
+                                  val;
+
+                              final selected = premiumCollectionController
+                                  .premiumCollection
+                                  .firstWhereOrNull(
+                                    (e) => e.categoryName == val,
+                                  );
+
+                              if (selected != null) {
+                                createProductController
+                                        .selectedCategoryId
+                                        .value =
+                                    selected.categoryId;
+                              }
+                            }
+                          },
                           getLabel: (item) => item,
-                        ),
-                      ),
+                        );
+                      }),
                       SizedBox(height: Get.height / 60),
 
                       Obx(

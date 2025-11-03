@@ -10,6 +10,7 @@ import '../products/products.dart';
 
 class Frenchies extends StatelessWidget {
   Frenchies({super.key});
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<String> foodImages = [
     'asset/images/home/dahipuri.png',
@@ -314,5 +315,3 @@ class Frenchies extends StatelessWidget {
     );
   }
 }
-
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();

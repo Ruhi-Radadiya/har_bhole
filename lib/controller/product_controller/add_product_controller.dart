@@ -168,6 +168,14 @@ class CreateProductController extends GetxController {
     productImageUrl.value = "";
   }
 
+  String generateProductCode(int nextProductId) {
+    final now = DateTime.now();
+    final year = now.year % 100; // last 2 digits of year
+    final month = now.month.toString().padLeft(2, '0');
+    final idPart = nextProductId.toString().padLeft(4, '0'); // e.g., 0057
+    return '$year$month$idPart';
+  }
+
   // ===== CREATE PRODUCT =====
   Future<bool> createProduct() async {
     if (!validateInputs()) return false;
@@ -248,6 +256,41 @@ class CreateProductController extends GetxController {
     }
   }
 
+  Future<void> autoGenerateProductCode() async {
+    try {
+      final uri = Uri.parse(
+        "https://harbhole.eihlims.com/Api/product_api.php?action=list",
+      );
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final body = response.body;
+        final regex = RegExp(r'"product_id"\s*:\s*"(\d+)"');
+        final ids = regex
+            .allMatches(body)
+            .map((e) => int.parse(e.group(1)!))
+            .toList();
+
+        if (ids.isNotEmpty) {
+          final nextId = (ids.reduce((a, b) => a > b ? a : b)) + 1;
+          final code = generateProductCode(nextId);
+          productCodeController.text = code;
+          log("🟢 Auto-generated product code: $code");
+        } else {
+          // Default starting ID
+          final code = generateProductCode(1);
+          productCodeController.text = code;
+        }
+      } else {
+        log("⚠️ Failed to fetch product list for code generation");
+        productCodeController.text = generateProductCode(1);
+      }
+    } catch (e) {
+      log("❌ Error generating product code: $e");
+      productCodeController.text = generateProductCode(1);
+    }
+  }
+
   // ===== Helper: generate fields map =====
   Map<String, String> _generateFields({
     String? productId,
@@ -255,6 +298,7 @@ class CreateProductController extends GetxController {
   }) {
     final Map<String, String> fields = {
       if (forUpdate && productId != null) "product_id": productId,
+      "product_code": productCodeController.text,
       "product_name": productNameController.text,
       "category_id": selectedCategoryId.value,
       "category_name": selectedCategoryName.value,

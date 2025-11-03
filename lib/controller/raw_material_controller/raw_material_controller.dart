@@ -311,9 +311,6 @@ class RawMaterialController extends GetxController {
     materialImagePath.value = '';
   }
 
-  // ==========================================================
-  // 🔹 ON INIT
-  // ==========================================================
   @override
   void onInit() {
     fetchRawMaterials();

@@ -30,6 +30,9 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     } else {
       createProductController.clearFields();
     }
+    if (productArg == null) {
+      createProductController.autoGenerateProductCode();
+    }
   }
 
   void _fillFields(Product p) {
@@ -122,8 +125,8 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                     children: [
                       _sectionTitle("Basic Product Information"),
                       CustomTextField(
-                        label: "Product Code (8-digit)",
-                        hint: "Enter Product Code",
+                        label: "Product Code",
+                        hint: "-",
                         controller:
                             createProductController.productCodeController,
                       ),
