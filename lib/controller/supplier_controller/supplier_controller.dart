@@ -107,7 +107,7 @@ class SupplierController extends GetxController {
 
   // ---------------------- SEARCH SUPPLIER ----------------------
   void searchSupplier(String query) {
-    if (!isActive.value) return; // 👈 skip search if inactive (navigated away)
+    if (!isActive.value) return;
 
     if (query.isEmpty) {
       filteredSupplier.assignAll(suppliersList);

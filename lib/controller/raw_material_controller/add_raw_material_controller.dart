@@ -31,8 +31,8 @@ class AddRawMaterialController extends GetxController {
   var descriptionText = ''.obs;
   var materialImagePath = ''.obs;
 
-  var selectedCategoryId = ''.obs;
-  var selectedCategoryName = ''.obs;
+  var selectSupplierName = ''.obs;
+  var selectSupplierId = ''.obs;
   final String postApiUrl =
       'https://harbhole.eihlims.com/Api/raw_material_api.php?action=add';
   final String getApiUrl =
@@ -44,9 +44,9 @@ class AddRawMaterialController extends GetxController {
     generateNextMaterialCode(); // auto-generate code when controller starts
   }
 
-  void setCategory({required String id, required String name}) {
-    selectedCategoryId.value = id;
-    selectedCategoryName.value = name;
+  void setSupplier({required String id, required String name}) {
+    selectSupplierId.value = id;
+    selectSupplierName.value = name;
   }
 
   /// ✅ Generate next sequential material code (e.g. RM015 → RM016)
@@ -163,7 +163,7 @@ class AddRawMaterialController extends GetxController {
     descriptionController.clear();
     statusController.clear();
     createdByController.clear();
-    selectedCategoryId.value = '';
-    selectedCategoryName.value = '';
+    selectSupplierId.value = '';
+    selectSupplierName.value = '';
   }
 }

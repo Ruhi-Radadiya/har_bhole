@@ -198,7 +198,62 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         );
                       }),
                       SizedBox(height: Get.height / 60),
-
+                      //                      Obx(() {
+                      //                         if (supplierController.isLoading.value) {
+                      //                           return const Center(
+                      //                             child: CircularProgressIndicator(),
+                      //                           );
+                      //                         }
+                      //
+                      //                         if (supplierController.errorMessage.isNotEmpty) {
+                      //                           return Text(
+                      //                             supplierController.errorMessage.value,
+                      //                             style: const TextStyle(color: Colors.red),
+                      //                           );
+                      //                         }
+                      //                         final supplier = supplierController.suppliersList
+                      //                             .map((e) => e.supplierName)
+                      //                             .where((name) => name.isNotEmpty)
+                      //                             .toSet()
+                      //                             .toList();
+                      //                         if (supplier.isEmpty) {
+                      //                           return const Text("No suppliers available");
+                      //                         }
+                      //                         return CustomDropdownField<String>(
+                      //                           label: "Supplier",
+                      //                           value:
+                      //                               addRawMaterialController
+                      //                                   .selectSupplierName
+                      //                                   .value
+                      //                                   .isEmpty
+                      //                               ? null
+                      //                               : addRawMaterialController
+                      //                                     .selectSupplierName
+                      //                                     .value,
+                      //                           items: supplier,
+                      //                           onChanged: (val) {
+                      //                             if (val != null) {
+                      //                               addRawMaterialController
+                      //                                       .selectSupplierName
+                      //                                       .value =
+                      //                                   val;
+                      //
+                      //                               final selected = supplierController.suppliersList
+                      //                                   .firstWhereOrNull(
+                      //                                     (e) => e.supplierName == val,
+                      //                                   );
+                      //
+                      //                               if (selected != null) {
+                      //                                 addRawMaterialController
+                      //                                         .selectSupplierId
+                      //                                         .value =
+                      //                                     selected.supplierId;
+                      //                               }
+                      //                             }
+                      //                           },
+                      //                           getLabel: (item) => item,
+                      //                         );
+                      //                       }),
                       Obx(
                         () => CustomDropdownField<int>(
                           label: "Supplier",
