@@ -27,7 +27,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
         args is Map &&
         args['isEdit'] == true &&
         args['material'] != null) {
-      // Controller already filled in the list screen, but to be safe call fill again:
       final RawMaterialModel m = args['material'] as RawMaterialModel;
       rawMaterialController.fillMaterialData(m);
       setState(() => isEditMode = true);
@@ -46,8 +45,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
-
-            // ---------- HEADER ----------
             Container(
               padding: EdgeInsets.only(
                 left: Get.width / 25,
@@ -91,8 +88,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                 ],
               ),
             ),
-
-            // ---------- BODY ----------
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(Get.width / 30),
@@ -127,7 +122,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Material Name",
                         hint: "Enter Name",
@@ -141,7 +135,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                             child: CircularProgressIndicator(),
                           );
                         }
-
                         if (premiumCollectionController
                             .errorMessage
                             .isNotEmpty) {
@@ -150,14 +143,12 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                             style: const TextStyle(color: Colors.red),
                           );
                         }
-
                         final categories = premiumCollectionController
                             .premiumCollection
                             .map((e) => e.categoryName)
                             .where((name) => name.isNotEmpty)
                             .toSet()
                             .toList();
-
                         if (categories.isEmpty) {
                           return const Text("No categories available");
                         }
@@ -179,13 +170,11 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                                       .selectedCategoryName
                                       .value =
                                   val;
-
                               final selected = premiumCollectionController
                                   .premiumCollection
                                   .firstWhereOrNull(
                                     (e) => e.categoryName == val,
                                   );
-
                               if (selected != null) {
                                 createProductController
                                         .selectedCategoryId
@@ -257,12 +246,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                       Obx(
                         () => CustomDropdownField<int>(
                           label: "Supplier",
-                          items: [
-                            0,
-                            1,
-                            2,
-                            3,
-                          ], // adapt to your supplier ids list
+                          items: [0, 1, 2, 3],
                           value: rawMaterialController.selectedSupplier.value,
                           getLabel: (val) => val.toString(),
                           onChanged: (val) =>
@@ -271,7 +255,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Unit",
                         hint: "Enter Unit",
@@ -279,7 +262,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                             rawMaterialController.unitOfMeasureController,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Initial Stock",
                         hint: "0",
@@ -288,7 +270,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Minimum Stock Level",
                         hint: "0",
@@ -304,7 +285,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Maximum Stock Level",
                         hint: "0",
@@ -320,7 +300,6 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Cost per Unit",
                         hint: "Enter Cost",
@@ -328,14 +307,12 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Location",
                         hint: "Enter Location",
                         controller: rawMaterialController.locationController,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       Obx(
                         () => CustomDropdownField<String>(
                           label: "Status",
@@ -347,14 +324,12 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         ),
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: "Description",
                         hint: "Description",
                         controller: rawMaterialController.descriptionController,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       UploadFileField(
                         label: "Material Image",
                         onFileSelected: (val) =>
@@ -367,10 +342,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                           color: const Color(0xff868686),
                         ),
                       ),
-
                       SizedBox(height: Get.height / 60),
-
-                      // ---------- SUBMIT BUTTON ----------
                       SizedBox(
                         width: double.infinity,
                         height: Get.height / 18,

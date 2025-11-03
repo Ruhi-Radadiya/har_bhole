@@ -41,7 +41,7 @@ class AddRawMaterialController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    generateNextMaterialCode(); // auto-generate code when controller starts
+    generateNextMaterialCode();
   }
 
   void setSupplier({required String id, required String name}) {
@@ -49,7 +49,6 @@ class AddRawMaterialController extends GetxController {
     selectSupplierName.value = name;
   }
 
-  /// ✅ Generate next sequential material code (e.g. RM015 → RM016)
   Future<void> generateNextMaterialCode() async {
     try {
       final response = await http.get(Uri.parse(getApiUrl));
@@ -98,7 +97,6 @@ class AddRawMaterialController extends GetxController {
     }
   }
 
-  /// ✅ Submit data to API
   Future<void> addRawMaterial() async {
     try {
       isLoading.value = true;
@@ -148,7 +146,6 @@ class AddRawMaterialController extends GetxController {
     }
   }
 
-  /// ✅ Clear all fields except material code
   void clearFields() {
     materialNameController.clear();
     categoryIdController.clear();

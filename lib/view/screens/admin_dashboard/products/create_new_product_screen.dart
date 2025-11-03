@@ -9,7 +9,7 @@ import '../../../../model/product_model/product_model.dart';
 import '../../../component/textfield.dart';
 
 class CreateProductScreen extends StatefulWidget {
-  final Product? product; // Optional for editing
+  final Product? product;
   const CreateProductScreen({super.key, this.product});
 
   @override
@@ -22,9 +22,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
   @override
   void initState() {
     super.initState();
-
     final Product? productArg = widget.product ?? Get.arguments as Product?;
-
     if (productArg != null) {
       _fillFields(productArg);
     } else {
@@ -84,7 +82,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
   @override
   Widget build(BuildContext context) {
     final Product? productArg = widget.product ?? Get.arguments as Product?;
-
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -136,15 +133,12 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         controller:
                             createProductController.productNameController,
                       ),
-
-                      // ✅ Category Dropdown
                       Obx(() {
                         if (premiumCollectionController.isLoading.value) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
                         }
-
                         if (premiumCollectionController
                             .errorMessage
                             .isNotEmpty) {
@@ -153,14 +147,12 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                             style: const TextStyle(color: Colors.red),
                           );
                         }
-
                         final categories = premiumCollectionController
                             .premiumCollection
                             .map((e) => e.categoryName)
                             .where((name) => name.isNotEmpty)
                             .toSet()
                             .toList();
-
                         if (categories.isEmpty) {
                           return const Text("No categories available");
                         }
@@ -182,13 +174,11 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                                       .selectedCategoryName
                                       .value =
                                   val;
-
                               final selected = premiumCollectionController
                                   .premiumCollection
                                   .firstWhereOrNull(
                                     (e) => e.categoryName == val,
                                   );
-
                               if (selected != null) {
                                 createProductController
                                         .selectedCategoryId
@@ -200,7 +190,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                           getLabel: (item) => item,
                         );
                       }),
-
                       CustomTextField(
                         hint: "Description",
                         label: "Description",
@@ -330,7 +319,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               bool success = false;
-
                               if (productArg != null) {
                                 success = await createProductController
                                     .updateProduct(productArg.productId);
@@ -338,7 +326,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                                 success = await createProductController
                                     .createProduct();
                               }
-
                               if (success) {
                                 await productController.fetchProducts();
                                 Get.back();

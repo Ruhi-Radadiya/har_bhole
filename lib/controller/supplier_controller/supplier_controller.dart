@@ -14,12 +14,10 @@ class SupplierController extends GetxController {
   var filteredSupplier = <Supplier>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
-  var isInitialized = false; // 👈 new flag to track lifecycle
+  var isInitialized = false;
   var isActive = true.obs;
-
-  // ---------------------- FETCH SUPPLIERS ----------------------
   Future<void> fetchSuppliers() async {
-    if (isInitialized) return; // ✅ Prevent re-calling after back navigation
+    if (isInitialized) return;
     isInitialized = true;
 
     try {
@@ -55,7 +53,6 @@ class SupplierController extends GetxController {
     }
   }
 
-  // ---------------------- DELETE SUPPLIER ----------------------
   Future<void> deleteSupplier(String supplierId) async {
     try {
       // ✅ Convert string ID to int safely
@@ -105,7 +102,6 @@ class SupplierController extends GetxController {
     }
   }
 
-  // ---------------------- SEARCH SUPPLIER ----------------------
   void searchSupplier(String query) {
     if (!isActive.value) return;
 
@@ -114,9 +110,7 @@ class SupplierController extends GetxController {
     } else {
       filteredSupplier.assignAll(
         suppliersList.where(
-          (s) => (s.supplierName ?? '').toLowerCase().contains(
-            query.toLowerCase(),
-          ),
+          (s) => (s.supplierName).toLowerCase().contains(query.toLowerCase()),
         ),
       );
     }
