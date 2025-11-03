@@ -96,7 +96,6 @@ class SemiFinishedMaterial extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           semiFinishedController.clearForm();
-
                           Get.toNamed(
                             Routes.createNewSemiFinishedProductScreen,
                             arguments: {'isEdit': false},
@@ -405,7 +404,6 @@ class SemiFinishedMaterial extends StatelessWidget {
   Widget _buildCategoryTile(SemiFinishedMaterialModel item) {
     double qty = double.tryParse(item.currentQuantity) ?? 0;
     bool inStock = qty > 0;
-
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Get.height / 80),
       child: Row(
