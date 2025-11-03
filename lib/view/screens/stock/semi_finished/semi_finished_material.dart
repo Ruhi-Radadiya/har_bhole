@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -490,10 +488,6 @@ class SemiFinishedMaterial extends StatelessWidget {
               SizedBox(height: Get.height / 200),
               GestureDetector(
                 onTap: () {
-                  log(
-                    '🧾 ${item.itemName} - Quantity: ${item.currentQuantity}',
-                  );
-
                   Get.to(() => ViewAllSemiFinishedMaterial(), arguments: item);
                 },
                 child: Text(
