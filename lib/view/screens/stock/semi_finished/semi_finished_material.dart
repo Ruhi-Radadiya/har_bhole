@@ -27,7 +27,6 @@ class SemiFinishedMaterial extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- Header & Add Button ---
               Container(
                 padding: EdgeInsets.only(
                   top: Get.height / 25,
@@ -125,7 +124,6 @@ class SemiFinishedMaterial extends StatelessWidget {
                   ],
                 ),
               ),
-
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: Get.width / 30),
                 child: Column(
@@ -167,7 +165,7 @@ class SemiFinishedMaterial extends StatelessWidget {
                         borderRadius: BorderRadius.circular(15.0),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 5,
                             offset: const Offset(0, 3),
                           ),
@@ -300,7 +298,6 @@ class SemiFinishedMaterial extends StatelessWidget {
   Widget _buildInfoGridFromApi() {
     int parseQty(String? qty) {
       if (qty == null) return 0;
-      // Parse string like "12.000" to int
       return (double.tryParse(qty) ?? 0).toInt();
     }
 
@@ -371,7 +368,7 @@ class SemiFinishedMaterial extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.09),
+            color: Colors.black.withValues(alpha: 0.09),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -406,7 +403,7 @@ class SemiFinishedMaterial extends StatelessWidget {
   }
 
   Widget _buildCategoryTile(SemiFinishedMaterialModel item) {
-    double qty = double.tryParse(item.currentQuantity ?? "0") ?? 0;
+    double qty = double.tryParse(item.currentQuantity) ?? 0;
     bool inStock = qty > 0;
 
     return Padding(
@@ -436,7 +433,7 @@ class SemiFinishedMaterial extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.itemName ?? '',
+                        item.itemName,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 24,
@@ -475,8 +472,8 @@ class SemiFinishedMaterial extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: inStock
-                      ? const Color(0xffDCE1D7) // Light green
-                      : const Color(0xffEFCFD2), // Light red
+                      ? const Color(0xffDCE1D7)
+                      : const Color(0xffEFCFD2),
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: Text(
@@ -486,8 +483,8 @@ class SemiFinishedMaterial extends StatelessWidget {
                       fontSize: Get.width / 36,
                       fontWeight: FontWeight.bold,
                       color: inStock
-                          ? const Color(0xff4E6B37) // Dark green
-                          : const Color(0xffAD111E), // Dark red
+                          ? const Color(0xff4E6B37)
+                          : const Color(0xffAD111E),
                     ),
                   ),
                 ),
