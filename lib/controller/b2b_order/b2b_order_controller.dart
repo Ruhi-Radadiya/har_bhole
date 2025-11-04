@@ -30,7 +30,6 @@ class B2BOrderController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Adjust according to your API response structure
         final items = data['items'] as List;
         orders.value = items.map((e) => B2BOrder.fromJson(e)).toList();
         filteredOrders.value = orders;
