@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../main.dart';
-import '../../../../routes/routes.dart';
 import '../../../component/textfield.dart';
 
 class CreateNewFinishedProductScreen extends StatefulWidget {
@@ -39,8 +38,6 @@ class _CreateNewFinishedProductScreenState
         body: Column(
           children: [
             SizedBox(height: Get.height / 30),
-
-            // 🔹 Header
             Container(
               padding: EdgeInsets.only(
                 left: Get.width / 25,
@@ -48,41 +45,39 @@ class _CreateNewFinishedProductScreenState
                 bottom: Get.height / 100,
               ),
               decoration: const BoxDecoration(color: Colors.white),
-              child: Row(
+              child: Column(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Color(0xffF78520),
-                    ),
-                    onPressed: () => Get.back(),
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(minWidth: Get.width / 15),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () =>
-                        Get.toNamed(Routes.viewNewFinishedProductScreen),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Color(0xffF78520),
-                        borderRadius: BorderRadius.circular(10),
+                  SizedBox(height: Get.height / 100),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Color(0xffF78520),
+                        ),
+                        onPressed: () => Get.back(),
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(minWidth: Get.width / 15),
                       ),
-                      child: Text(
-                        'View All Material',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: Get.width / 34.5,
+                      Expanded(
+                        child: Text(
+                          isEdit ? 'Edit Goods' : 'Create Finished Goods',
+                          style: GoogleFonts.poppins(
+                            textStyle: TextStyle(
+                              fontSize: Get.width / 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ),
+                      SizedBox(width: Get.width / 15),
+                    ],
                   ),
                 ],
               ),
             ),
-
             // 🔹 Form Section
             Expanded(
               child: SingleChildScrollView(
