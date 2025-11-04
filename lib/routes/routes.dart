@@ -29,6 +29,7 @@ import '../view/screens/create_your_account/create_your_account.dart';
 import '../view/screens/forget_password_screen/forget_password_screen.dart';
 import '../view/screens/frenchies/frenchies.dart';
 import '../view/screens/home/home.dart';
+import '../view/screens/intro_screen/intro_screen.dart';
 import '../view/screens/login_screen/login_screen.dart';
 import '../view/screens/order/customer_details/customer_screen.dart';
 import '../view/screens/order/customer_details/view_customer_detail_screen.dart';
@@ -46,6 +47,7 @@ import '../view/screens/otp_screen/otp_screen.dart';
 import '../view/screens/products/products.dart';
 import '../view/screens/set_new_password/set_new_password.dart';
 import '../view/screens/shopping/checkout.dart';
+import '../view/screens/splash_screen/splash_screen.dart';
 import '../view/screens/stock/finished_product/create_new_finished_product_screen.dart';
 import '../view/screens/stock/finished_product/finished_goods_screen.dart';
 import '../view/screens/stock/finished_product/view_new_finished_product_screen.dart';
@@ -127,6 +129,8 @@ class Routes {
   static String allOrders = '/all-orders';
   static String customerScreen = '/customer-screen';
   static String logInOTPScreen = '/login-otp-screen';
+  static String splashScreen = '/splash-screen';
+  static String introScreen = '/intro-screen';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -233,5 +237,7 @@ class Routes {
     GetPage(name: allOrders, page: () => const AllOrders()),
     GetPage(name: customerScreen, page: () => const CustomerScreen()),
     GetPage(name: logInOTPScreen, page: () => const LoginOtpScreen()),
+    GetPage(name: splashScreen, page: () => const SplashScreen()),
+    GetPage(name: introScreen, page: () => const IntroScreen()),
   ];
 }

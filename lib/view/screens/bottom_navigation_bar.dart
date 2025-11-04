@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:har_bhole/view/screens/home/home.dart';
 import 'package:har_bhole/view/screens/products/products.dart';
 
-import '../../controller/navigation_controller/navigation.dart';
+import '../../main.dart';
 import 'frenchies/frenchies.dart';
 
 class BottomNavigationBarScreen extends StatefulWidget {
@@ -15,13 +15,25 @@ class BottomNavigationBarScreen extends StatefulWidget {
 }
 
 class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
-  NavigationController navigationController = Get.put(NavigationController());
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
-        controller: navigationController.pageController,
+        controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
           navigationController.getIndex(index: index);
@@ -31,53 +43,38 @@ class _BottomNavigationBarScreenState extends State<BottomNavigationBarScreen> {
       bottomNavigationBar: Obx(() {
         return BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          backgroundColor: const Color(0xffFFFFFF),
-          selectedItemColor: Color(0xffF78520),
-          unselectedItemColor: Color(0xff9EA4B0),
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xffF78520),
+          unselectedItemColor: const Color(0xff9EA4B0),
           currentIndex: navigationController.bottomNavigationIndex.value,
-          selectedLabelStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: Get.width / 28,
-          ),
-          unselectedLabelStyle: const TextStyle(fontSize: 12),
           onTap: (value) {
             navigationController.getIndex(index: value);
-            navigationController.changePageView(index: value);
+            _pageController.animateToPage(
+              value,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+            );
           },
           items: [
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "asset/icons/home.png",
-                height: Get.width / 22,
-                color: navigationController.bottomNavigationIndex.value == 0
-                    ? Color(0xffF78520)
-                    : Color(0xff9EA4B0),
-              ),
-              label: "Home",
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "asset/icons/frenchie's.png",
-                height: Get.width / 22,
-                color: navigationController.bottomNavigationIndex.value == 1
-                    ? Color(0xffF78520)
-                    : Color(0xff9EA4B0),
-              ),
-              label: "Frenchie's",
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "asset/icons/products.png",
-                height: Get.width / 22,
-                color: navigationController.bottomNavigationIndex.value == 2
-                    ? Color(0xffF78520)
-                    : Color(0xff9EA4B0),
-              ),
-              label: "Products",
-            ),
+            _navItem("asset/icons/home.png", "Home", 0),
+            _navItem("asset/icons/frenchie's.png", "Frenchie's", 1),
+            _navItem("asset/icons/products.png", "Products", 2),
           ],
         );
       }),
+    );
+  }
+
+  BottomNavigationBarItem _navItem(String iconPath, String label, int index) {
+    return BottomNavigationBarItem(
+      icon: Image.asset(
+        iconPath,
+        height: Get.width / 22,
+        color: navigationController.bottomNavigationIndex.value == index
+            ? const Color(0xffF78520)
+            : const Color(0xff9EA4B0),
+      ),
+      label: label,
     );
   }
 }

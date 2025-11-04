@@ -85,7 +85,7 @@ class SemiFinishedMaterialModel {
 }
 
 class BomItem {
-  final String productionId;
+  final String? productionId;
   final String rawMaterialId;
   final String quantityRequired;
   final String unitOfMeasure;
@@ -95,7 +95,7 @@ class BomItem {
   final DateTime? updatedAt;
 
   BomItem({
-    required this.productionId,
+    this.productionId,
     required this.rawMaterialId,
     required this.quantityRequired,
     required this.unitOfMeasure,

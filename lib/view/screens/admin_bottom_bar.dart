@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:har_bhole/controller/navigation_controller/user_dashboard_navigation_controller.dart';
 import 'package:har_bhole/view/screens/b2b/b2b.dart';
@@ -69,34 +68,27 @@ class _AdminBottomBarScreenState extends State<AdminBottomBarScreen> {
           onPageChanged: (index) => controller.getIndex(index: index),
           children: pages,
         ),
-        bottomNavigationBar: Obx(() {
-          return BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: const Color(0xffFFFFFF),
-            selectedItemColor: const Color(0xffF78520),
-            unselectedItemColor: const Color(0xff9EA4B0),
-            currentIndex: controller.bottomNavigationIndex.value,
-            selectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: Get.width / 28,
-            ),
-            unselectedLabelStyle: const TextStyle(fontSize: 12),
-            onTap: (value) {
-              // 🚫 Restrict non-admin access
-              if (!isAdmin && value > 0) {
-                Fluttertoast.showToast(
-                  msg: "Access restricted to admin only",
-                  toastLength: Toast.LENGTH_SHORT,
+        bottomNavigationBar: isAdmin
+            ? Obx(() {
+                return BottomNavigationBar(
+                  type: BottomNavigationBarType.fixed,
+                  backgroundColor: const Color(0xffFFFFFF),
+                  selectedItemColor: const Color(0xffF78520),
+                  unselectedItemColor: const Color(0xff9EA4B0),
+                  currentIndex: controller.bottomNavigationIndex.value,
+                  selectedLabelStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: Get.width / 28,
+                  ),
+                  unselectedLabelStyle: const TextStyle(fontSize: 12),
+                  onTap: (value) {
+                    controller.getIndex(index: value);
+                    controller.changePageView(index: value);
+                  },
+                  items: items,
                 );
-                return;
-              }
-
-              controller.getIndex(index: value);
-              controller.changePageView(index: value);
-            },
-            items: items,
-          );
-        }),
+              })
+            : null, // 👈 hide bar if not admin
       );
     });
   }

@@ -1,4 +1,4 @@
-package com.example.har_bhole
+package com.harBhole.getHarBholeApp
 
 import io.flutter.embedding.android.FlutterActivity
 

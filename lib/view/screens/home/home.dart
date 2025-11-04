@@ -264,6 +264,14 @@ class _HomeState extends State<Home> {
                     //               Products(defaultType: category.categoryName),
                     //             );
                     //           },
+                    // onTap: () {
+                    //   // Navigate to Products screen with category name
+                    //   Get.to(
+                    //         () => Products(
+                    //       defaultType: collectionTypes[index],
+                    //     ),
+                    //   );
+                    // },
                     //           child: Padding(
                     //             padding: EdgeInsets.only(right: Get.width / 42),
                     //             child: Image.network(

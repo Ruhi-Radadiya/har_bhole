@@ -295,6 +295,7 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                 ),
               ),
             ),
+            SizedBox(height: Get.height / 20),
           ],
         ),
       ),
@@ -403,26 +404,29 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
 
     Get.defaultDialog(
       title: 'Add Item',
-      content: Column(
-        children: [
-          CustomTextField(
-            label: 'Item Name',
-            controller: itemNameController,
-            hint: '',
-          ),
-          CustomTextField(
-            label: 'Qty',
-            controller: qtyController,
-            keyboardType: TextInputType.number,
-            hint: '',
-          ),
-          CustomTextField(
-            label: 'Rate',
-            controller: rateController,
-            keyboardType: TextInputType.number,
-            hint: '',
-          ),
-        ],
+      content: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            CustomTextField(
+              label: 'Item Name',
+              controller: itemNameController,
+              hint: 'Enter Product Name',
+            ),
+            CustomTextField(
+              label: 'Qty',
+              controller: qtyController,
+              keyboardType: TextInputType.number,
+              hint: '0',
+            ),
+            CustomTextField(
+              label: 'Rate',
+              controller: rateController,
+              keyboardType: TextInputType.number,
+              hint: 'Enter Rate',
+            ),
+          ],
+        ),
       ),
       confirm: ElevatedButton(
         onPressed: () {
@@ -434,12 +438,12 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
             Get.back();
           }
         },
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-        child: const Text('Add'),
+        style: ElevatedButton.styleFrom(backgroundColor: mainOrange),
+        child: const Text('Add', style: TextStyle(color: Colors.white)),
       ),
       cancel: OutlinedButton(
         onPressed: () => Get.back(),
-        child: const Text('Cancel'),
+        child: const Text('Cancel', style: TextStyle(color: Colors.black)),
       ),
     );
   }

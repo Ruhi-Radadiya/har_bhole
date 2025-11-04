@@ -66,11 +66,11 @@ class _ViewAllSemiFinishedMaterialState
       } catch (e) {
         log('❌ Failed to parse productData for edit: $e');
         semiFinishedController.clearForm();
-        semiFinishedController.generateItemCode();
+        semiFinishedController.autoGenerateSemiFinishedCode();
       }
     } else {
       semiFinishedController.clearForm();
-      semiFinishedController.generateItemCode();
+      semiFinishedController.autoGenerateSemiFinishedCode();
     }
   }
 

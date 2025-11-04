@@ -28,10 +28,10 @@ import 'controller/category_controller/delete_category_controller.dart';
 import 'controller/customer_detail_controller/customer_detail_controller.dart';
 import 'controller/finished_goods_stock_controller/add_finished_goods_stock_controller.dart';
 import 'controller/login_controller.dart';
+import 'controller/navigation_controller/navigation.dart';
 import 'controller/navigation_controller/user_dashboard_navigation_controller.dart';
 import 'controller/orders_controller/orders_controller.dart';
 import 'controller/product_controller/add_product_controller.dart';
-import 'controller/raw_material_controller/add_raw_material_controller.dart';
 import 'controller/stock_movement_controller/stock_movement_controller.dart';
 import 'controller/supplier_controller/add_supplier_controller.dart';
 import 'controller/supplier_controller/supplier_controller.dart';
@@ -80,9 +80,7 @@ CreateB2BOrderController createB2BOrderController = Get.put(
 );
 CashEntryController cashEntryController = Get.put(CashEntryController());
 AddVoucherController addVoucherController = Get.put(AddVoucherController());
-AddRawMaterialController addRawMaterialController = Get.put(
-  AddRawMaterialController(),
-);
+
 AddFinishedGoodsStockController addFinishedGoodsStockController = Get.put(
   AddFinishedGoodsStockController(),
 );
@@ -107,6 +105,7 @@ UserDashboardController userDashboardController = Get.put(
   UserDashboardController(),
 );
 LocationController locationController = Get.put(LocationController());
+NavigationController navigationController = Get.put(NavigationController());
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -121,7 +120,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: Routes.loginScreen,
+      initialRoute: Routes.introScreen,
       getPages: Routes.myRoutes,
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),

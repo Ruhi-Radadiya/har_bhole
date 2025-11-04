@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/model/cart_model/cart_model.dart';
 
 import '../../../main.dart';
+import '../../../routes/routes.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -672,12 +673,8 @@ class OrderSuccessScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.check_circle_outline,
-                color: Colors.green,
-                size: 120,
-              ),
-              const SizedBox(height: 20),
+              Icon(Icons.check_circle_outline, color: Colors.green, size: 120),
+              SizedBox(height: Get.height / 40),
               Text(
                 "Order Placed!",
                 style: GoogleFonts.poppins(
@@ -685,6 +682,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: Get.height / 80),
               Text(
                 "Your order has been placed successfully.\nTotal: ₹${totalAmount.toStringAsFixed(0)}",
                 textAlign: TextAlign.center,
@@ -693,20 +691,22 @@ class OrderSuccessScreen extends StatelessWidget {
                   color: Colors.grey.shade800,
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: Get.height / 30),
               ElevatedButton(
-                onPressed: () => Get.back(),
+                onPressed: () {
+                  navigationController.getIndex(index: 0);
+                  navigationController.changePageView(index: 0);
+
+                  Get.offAllNamed(Routes.bottomNavigationBar);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xffF78520),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 12,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "Continue Shopping",
                   style: TextStyle(color: Colors.white),
                 ),

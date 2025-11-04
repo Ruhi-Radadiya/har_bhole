@@ -53,7 +53,13 @@ class _CreateNewSemiFinishedProductScreenState
       productId = editProductData?['stock_id']?.toString();
       _prefillFormData();
     } else {
-      semiFinishedController.generateItemCode();
+      // ✅ Ensure controller text updates *after build*
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        semiFinishedController.autoGenerateSemiFinishedCode();
+        // ✅ Manually set it into your text controller
+        itemCodeController.text = semiFinishedController.generatedCode.value;
+        setState(() {});
+      });
     }
   }
 
@@ -245,7 +251,6 @@ class _CreateNewSemiFinishedProductScreenState
                         onActionTap: () {},
                       ),
                       SizedBox(height: Get.height / 60),
-
                       Obx(() {
                         if (rawMaterialController.isLoading.value) {
                           return const Center(
@@ -288,9 +293,7 @@ class _CreateNewSemiFinishedProductScreenState
                           hint: 'Select Raw Material',
                         );
                       }),
-
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: 'Quantity Required',
                         hint: '0.00',
@@ -298,30 +301,19 @@ class _CreateNewSemiFinishedProductScreenState
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: 'Unit',
                         hint: 'kg',
                         controller: unitController,
                       ),
                       SizedBox(height: Get.height / 60),
-
-                      Text(
-                        'Wastage+',
-                        style: TextStyle(
-                          fontSize: Get.width / 26,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xff000000),
-                        ),
-                      ),
-                      SizedBox(height: Get.height / 150),
                       CustomTextField(
+                        label: 'Wastage+',
                         hint: '0.00',
                         controller: wastageController,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       Padding(
                         padding: EdgeInsets.only(bottom: Get.height / 50),
                         child: Text(
@@ -336,7 +328,6 @@ class _CreateNewSemiFinishedProductScreenState
                           ),
                         ),
                       ),
-
                       _buildSectionHeader(
                         'Production Output',
                         actionText: 'Edit',

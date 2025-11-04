@@ -33,6 +33,10 @@ class RawMaterialController extends GetxController {
   var materialImagePath = ''.obs;
   var stockId = ''.obs;
   var selectedSupplier = 0.obs;
+  var selectedSupplierName = ''.obs;
+  var selectedSupplierId = ''.obs;
+  var selectedCategoryName = ''.obs;
+  var selectedCategoryId = ''.obs;
 
   // ==========================================================
   // 🔹 FETCH RAW MATERIAL LIST
@@ -292,6 +296,30 @@ class RawMaterialController extends GetxController {
     descriptionController.text = m.description ?? '';
     selectedStatus.value = m.status ?? 'Active';
     materialImagePath.value = m.materialImage?.toString() ?? '';
+  }
+
+  void autoGenerateMaterialCode() {
+    try {
+      final materials = materialList; // your list from API
+
+      // Extract existing codes like "RM001", "RM018" etc.
+      final existingCodes = materials
+          .map((m) => m.materialCode ?? '') // avoid null
+          .where((code) => code.startsWith('RM'))
+          .toList();
+
+      int maxNumber = 0;
+      for (var code in existingCodes) {
+        final number =
+            int.tryParse(code.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+        if (number > maxNumber) maxNumber = number;
+      }
+
+      final nextCode = 'RM${(maxNumber + 1).toString().padLeft(3, '0')}';
+      materialCodeController.text = nextCode;
+    } catch (e) {
+      log('❌ Error generating material code: $e');
+    }
   }
 
   void clearAllFields() {

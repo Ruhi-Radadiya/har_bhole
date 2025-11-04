@@ -37,6 +37,8 @@ class SemiFinishedController extends GetxController {
   var selectedRawMaterial = ''.obs;
   var selectedOutputType = ''.obs;
   var selectedStockId = ''.obs;
+  var selectedMaterialName = ''.obs;
+  var selectedMaterialId = ''.obs;
 
   // Edit mode
   var isEditMode = false.obs;
@@ -116,46 +118,28 @@ class SemiFinishedController extends GetxController {
   }
 
   // --------------------- GENERATE ITEM CODE ---------------------
-  Future<void> generateItemCode() async {
+  var generatedCode = ''.obs;
+
+  void autoGenerateSemiFinishedCode() {
     try {
-      final response = await http.get(
-        Uri.parse(
-          'https://harbhole.eihlims.com/Api/semi_finished_stock_api.php?action=list',
-        ),
-      );
+      final items = materials;
+      final existingCodes = items
+          .map((item) => item.itemCode)
+          .where((code) => code != null && code.startsWith('SF'))
+          .toList();
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List<dynamic> items = (data["items"] ?? []) as List;
-
-        if (items.isEmpty) {
-          itemCodeController.text = "SF001";
-          return;
-        }
-
-        final codes = items
-            .map((e) => e["item_code"]?.toString() ?? "")
-            .where((code) => code.startsWith("SF"))
-            .toList();
-
-        if (codes.isEmpty) {
-          itemCodeController.text = "SF001";
-          return;
-        }
-
-        final numbers = codes.map((code) {
-          final numericPart = code.replaceAll(RegExp(r'[^0-9]'), '');
-          return int.tryParse(numericPart) ?? 0;
-        }).toList()..sort();
-
-        final next = (numbers.last + 1).toString().padLeft(3, '0');
-        itemCodeController.text = "SF$next";
-      } else {
-        itemCodeController.text = "SF001";
+      int maxNumber = 0;
+      for (var code in existingCodes) {
+        final number =
+            int.tryParse(code!.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+        if (number > maxNumber) maxNumber = number;
       }
+
+      final nextCode = 'SF${(maxNumber + 1).toString().padLeft(3, '0')}';
+      generatedCode.value = nextCode;
+      log('✅ Generated semi-finished code: $nextCode');
     } catch (e) {
-      log("❌ Error generating code: $e");
-      itemCodeController.text = "SF001";
+      log('❌ Error generating semi-finished code: $e');
     }
   }
 

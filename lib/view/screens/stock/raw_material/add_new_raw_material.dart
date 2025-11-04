@@ -33,6 +33,9 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
     } else {
       rawMaterialController.clearAllFields();
       setState(() => isEditMode = false);
+
+      // 👇 Add this line here:
+      rawMaterialController.autoGenerateMaterialCode();
     }
   }
 
@@ -111,7 +114,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         label: "Material Code",
                         controller:
                             rawMaterialController.materialCodeController,
-                        isReadOnly: isEditMode,
+                        isReadOnly: isEditMode, // keep read-only during edit
                         hint: '',
                       ),
                       Text(
@@ -155,20 +158,18 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         return CustomDropdownField<String>(
                           label: "Category",
                           value:
-                              createProductController
+                              rawMaterialController
                                   .selectedCategoryName
                                   .value
                                   .isEmpty
                               ? null
-                              : createProductController
+                              : rawMaterialController
                                     .selectedCategoryName
                                     .value,
                           items: categories,
                           onChanged: (val) {
                             if (val != null) {
-                              createProductController
-                                      .selectedCategoryName
-                                      .value =
+                              rawMaterialController.selectedCategoryName.value =
                                   val;
                               final selected = premiumCollectionController
                                   .premiumCollection
@@ -176,9 +177,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                                     (e) => e.categoryName == val,
                                   );
                               if (selected != null) {
-                                createProductController
-                                        .selectedCategoryId
-                                        .value =
+                                rawMaterialController.selectedCategoryId.value =
                                     selected.categoryId;
                               }
                             }
@@ -243,17 +242,57 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                       //                           getLabel: (item) => item,
                       //                         );
                       //                       }),
-                      Obx(
-                        () => CustomDropdownField<int>(
+                      Obx(() {
+                        if (supplierController.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (supplierController.errorMessage.isNotEmpty) {
+                          return Text(
+                            supplierController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          );
+                        }
+
+                        final suppliers = supplierController.suppliers;
+
+                        if (suppliers.isEmpty) {
+                          return const Text("No suppliers available");
+                        }
+
+                        return CustomDropdownField<String>(
                           label: "Supplier",
-                          items: [0, 1, 2, 3],
-                          value: rawMaterialController.selectedSupplier.value,
-                          getLabel: (val) => val.toString(),
-                          onChanged: (val) =>
-                              rawMaterialController.selectedSupplier.value =
-                                  val!,
-                        ),
-                      ),
+                          value:
+                              rawMaterialController
+                                  .selectedSupplierName
+                                  .value
+                                  .isEmpty
+                              ? null
+                              : rawMaterialController
+                                    .selectedSupplierName
+                                    .value,
+                          items: suppliers.map((s) => s.supplierName).toList(),
+                          getLabel: (item) => item,
+                          onChanged: (val) {
+                            if (val != null) {
+                              rawMaterialController.selectedSupplierName.value =
+                                  val;
+
+                              // find the selected supplier object
+                              final selected = suppliers.firstWhereOrNull(
+                                (s) => s.supplierName == val,
+                              );
+
+                              if (selected != null) {
+                                rawMaterialController.selectedSupplierId.value =
+                                    selected.supplierId;
+                              }
+                            }
+                          },
+                        );
+                      }),
                       SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: "Unit",
