@@ -108,9 +108,9 @@ class _FinishedGoodsScreenState extends State<FinishedGoodsScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          addFinishedGoodsStockController
+                          finishedGoodsStockController
                               .clearAllFields(); // make sure form is empty for add
-                          addFinishedGoodsStockController
+                          finishedGoodsStockController
                               .generateNextProductCode(); // generate new code
 
                           Get.toNamed(

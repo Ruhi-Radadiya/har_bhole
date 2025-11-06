@@ -39,6 +39,7 @@ class SemiFinishedController extends GetxController {
   var selectedStockId = ''.obs;
   var selectedMaterialName = ''.obs;
   var selectedMaterialId = ''.obs;
+  var selectedCategoryId = ''.obs;
 
   // Edit mode
   var isEditMode = false.obs;
@@ -49,6 +50,32 @@ class SemiFinishedController extends GetxController {
   var inStock = 0.obs;
   var lowStock = 0.obs;
   var outOfStock = 0.obs;
+
+  // --------------------- BOM ITEMS ---------------------
+  var bomItems = <Map<String, dynamic>>[].obs;
+
+  void addBomItem({
+    required String rawMaterialId,
+    required String quantityRequired,
+    required String unit,
+    required String wastage,
+  }) {
+    bomItems.add({
+      "raw_material_id": rawMaterialId,
+      "quantity_required": quantityRequired,
+      "unit_of_measure": unit,
+      "wastage_percentage": wastage,
+      "notes": "",
+    });
+  }
+
+  void removeBomItem(Map<String, dynamic> item) {
+    bomItems.remove(item);
+  }
+
+  void clearBomItems() {
+    bomItems.clear();
+  }
 
   // --------------------- INIT & DISPOSE ---------------------
   @override
@@ -75,11 +102,12 @@ class SemiFinishedController extends GetxController {
 
     isEditMode.value = false;
     editProductId.value = '';
+    clearBomItems();
   }
 
   void fillFormForEdit(SemiFinishedMaterialModel product) {
     isEditMode.value = true;
-    selectedStockId.value = product.stockId; // <-- This stores the stock ID
+    selectedStockId.value = product.stockId;
     itemCodeController.text = product.itemCode ?? '';
     itemNameController.text = product.itemName ?? '';
     selectedCategory.value = product.categoryId ?? '';
@@ -91,30 +119,6 @@ class SemiFinishedController extends GetxController {
     selectedOutputType.value = product.outputType ?? '';
     boxWeightController.text = product.boxWeight ?? '';
     boxDimensionsController.text = product.boxDimensions ?? '';
-  }
-
-  void setEditMode(SemiFinishedMaterialModel product) {
-    isEditMode.value = true;
-    editProductId.value = product.stockId;
-
-    // Prefill form data
-    itemCodeController.text = product.itemCode;
-    itemNameController.text = product.itemName;
-    descriptionController.text = product.description ?? '';
-    selectedCategory.value = product.categoryId;
-    selectedOutputType.value = product.outputType;
-    quantityCreatedController.text = product.currentQuantity;
-    unitController.text = product.unitOfMeasure;
-    boxWeightController.text = product.boxWeight;
-    boxDimensionsController.text = product.boxDimensions;
-
-    // Prefill BOM data if available
-    if (product.bomItems.isNotEmpty) {
-      final firstBom = product.bomItems.first;
-      quantityRequiredController.text = firstBom.quantityRequired;
-      wastageController.text = firstBom.wastagePercentage;
-      selectedRawMaterial.value = firstBom.rawMaterialId;
-    }
   }
 
   // --------------------- GENERATE ITEM CODE ---------------------
@@ -146,7 +150,6 @@ class SemiFinishedController extends GetxController {
   // --------------------- VALIDATION ---------------------
   bool validateForm() {
     if (!isEditMode.value) {
-      // Strict validation only for ADD mode
       if (itemNameController.text.isEmpty ||
           selectedCategory.value.isEmpty ||
           selectedOutputType.value.isEmpty) {
@@ -158,7 +161,6 @@ class SemiFinishedController extends GetxController {
         return false;
       }
     } else {
-      // Edit mode validation (only name required)
       if (itemNameController.text.isEmpty) {
         Fluttertoast.showToast(
           msg: "Item name is required",
@@ -175,26 +177,35 @@ class SemiFinishedController extends GetxController {
   Map<String, dynamic> _prepareAddPayload() {
     return {
       "item_name": itemNameController.text.trim(),
-      "category_id": selectedCategory.value,
-      "current_quantity": quantityCreatedController.text.isEmpty
-          ? 0
-          : double.parse(quantityCreatedController.text),
-      "unit_of_measure": unitController.text.isEmpty
-          ? "kg"
+      "category_id": int.tryParse(selectedCategoryId.value.toString()) ?? 0,
+      "current_quantity":
+          double.tryParse(quantityCreatedController.text.trim()) ?? 0,
+      "unit_of_measure": unitController.text.trim().isEmpty
+          ? "pcs"
           : unitController.text.trim(),
-      "reorder_point": 50,
-      "location": "Warehouse B",
-      "description": descriptionController.text.trim(),
-      "output_type": selectedOutputType.value,
-      "box_weight": boxWeightController.text.trim(),
-      "box_dimensions": boxDimensionsController.text.trim(),
       "created_by": 1,
+      "reorder_point": int.tryParse(reorderPointController.text.trim()) ?? 10,
+      "location": locationController.text.trim().isEmpty
+          ? "Shelf A"
+          : locationController.text.trim(),
+      "description": descriptionController.text.trim().isEmpty
+          ? "No description"
+          : descriptionController.text.trim(),
+      "output_type": selectedOutputType.value.isEmpty
+          ? "Box"
+          : selectedOutputType.value,
+      "box_weight": boxWeightController.text.trim().isEmpty
+          ? "1kg"
+          : boxWeightController.text.trim(),
+      "box_dimensions": boxDimensionsController.text.trim().isEmpty
+          ? "10x5x2 cm"
+          : boxDimensionsController.text.trim(),
     };
   }
 
   Map<String, dynamic> prepareEditPayload() {
     return {
-      "stock_id": selectedStockId.value, // REQUIRED
+      "stock_id": selectedStockId.value,
       "item_code": itemCodeController.text,
       "item_name": itemNameController.text,
       "category_id": selectedCategory.value,
@@ -206,16 +217,36 @@ class SemiFinishedController extends GetxController {
       "output_type": selectedOutputType.value,
       "box_weight": boxWeightController.text,
       "box_dimensions": boxDimensionsController.text,
-      "created_by": "Ruhi", // or your logged-in user variable
+      "created_by": "1",
+      "bom_items": bomItems
+          .map(
+            (e) => {
+              "raw_material_id": e["raw_material_id"],
+              "quantity_required": e["quantity_required"],
+              "unit_of_measure": e["unit_of_measure"],
+              "wastage_percentage": e["wastage_percentage"],
+              "notes": e["notes"] ?? "",
+            },
+          )
+          .toList(),
     };
   }
 
   // --------------------- ADD MATERIAL ---------------------
   Future<void> addSemiFinishedMaterial() async {
-    if (!validateForm()) return;
+    if (itemNameController.text.trim().isEmpty ||
+        unitController.text.trim().isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Please fill all required fields",
+        backgroundColor: Colors.red,
+      );
+      return;
+    }
 
     isLoading.value = true;
+
     final payload = _prepareAddPayload();
+    log("POST Payload: ${jsonEncode(payload)}");
 
     try {
       final response = await http.post(
@@ -223,35 +254,32 @@ class SemiFinishedController extends GetxController {
           "https://harbhole.eihlims.com/Api/semi_finished_stock_api.php?action=add",
         ),
         headers: {"Content-Type": "application/json"},
-        body: json.encode(payload),
+        body: jsonEncode(payload),
       );
 
-      final data = json.decode(response.body);
-      log("🧾 Add Response: $data");
+      log("Response: ${response.body}");
 
-      if (data["success"] == true) {
+      if (response.statusCode == 200) {
         Fluttertoast.showToast(
-          msg: "Semi-Finished Material Added Successfully!",
+          msg: "Item added successfully",
           backgroundColor: Colors.green,
-          textColor: Colors.white,
         );
+        log("✅ Item added successfully");
         clearForm();
-        fetchMaterials();
-        Get.back();
       } else {
         Fluttertoast.showToast(
-          msg: data["message"] ?? "Failed to add material!",
+          msg: "Failed: ${response.reasonPhrase}",
           backgroundColor: Colors.red,
-          textColor: Colors.white,
         );
+        log("❌ Failed: ${response.reasonPhrase}");
       }
     } catch (e) {
-      log("❌ Error adding material: $e");
+      log("Error: $e");
       Fluttertoast.showToast(
-        msg: "Error adding material: $e",
+        msg: "Something went wrong",
         backgroundColor: Colors.red,
-        textColor: Colors.white,
       );
+      log("❌ Something went wrong");
     } finally {
       isLoading.value = false;
     }
@@ -263,7 +291,7 @@ class SemiFinishedController extends GetxController {
     final payload = prepareEditPayload();
 
     try {
-      log("📤 Edit Payload: $payload");
+      log("📤 Edit Payload: ${jsonEncode(payload)}");
       final response = await http.post(
         Uri.parse(
           "https://harbhole.eihlims.com/Api/semi_finished_stock_api.php?action=edit",
@@ -280,9 +308,6 @@ class SemiFinishedController extends GetxController {
           msg: "Material Updated Successfully!",
           backgroundColor: Colors.green,
           textColor: Colors.white,
-        );
-        log(
-          "🟡 Update Request Body: ${{"stock_id": selectedStockId.value, "item_code": itemCodeController.text, "item_name": itemNameController.text, "category_id": selectedCategory.value, "current_quantity": currentQuantityController.text, "unit_of_measure": unitOfMeasureController.text, "reorder_point": reorderPointController.text, "location": locationController.text, "description": descriptionController.text, "output_type": selectedOutputType.value, "box_weight": boxWeightController.text, "box_dimensions": boxDimensionsController.text}}",
         );
 
         clearForm();
@@ -308,7 +333,7 @@ class SemiFinishedController extends GetxController {
     }
   }
 
-  // --------------------- SUBMIT FORM (AUTO DETECT MODE) ---------------------
+  // --------------------- SUBMIT FORM ---------------------
   Future<void> submitForm() async {
     if (isEditMode.value) {
       await editSemiFinishedMaterial();

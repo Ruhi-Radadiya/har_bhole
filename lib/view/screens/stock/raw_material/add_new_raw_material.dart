@@ -36,6 +36,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
 
       // 👇 Add this line here:
       rawMaterialController.autoGenerateMaterialCode();
+      supplierController.fetchSuppliers();
     }
   }
 
@@ -114,7 +115,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         label: "Material Code",
                         controller:
                             rawMaterialController.materialCodeController,
-                        isReadOnly: isEditMode, // keep read-only during edit
+                        isReadOnly: true, // keep read-only during edit
                         hint: '',
                       ),
                       Text(
@@ -138,6 +139,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                             child: CircularProgressIndicator(),
                           );
                         }
+
                         if (premiumCollectionController
                             .errorMessage
                             .isNotEmpty) {
@@ -146,43 +148,52 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                             style: const TextStyle(color: Colors.red),
                           );
                         }
-                        final categories = premiumCollectionController
-                            .premiumCollection
-                            .map((e) => e.categoryName)
-                            .where((name) => name.isNotEmpty)
-                            .toSet()
-                            .toList();
+
+                        final categories =
+                            premiumCollectionController.premiumCollection;
                         if (categories.isEmpty) {
                           return const Text("No categories available");
                         }
+
                         return CustomDropdownField<String>(
                           label: "Category",
+
+                          // ✅ Use selectedCategoryId as the value
                           value:
                               rawMaterialController
-                                  .selectedCategoryName
+                                  .selectedCategoryId
                                   .value
                                   .isEmpty
                               ? null
-                              : rawMaterialController
-                                    .selectedCategoryName
-                                    .value,
-                          items: categories,
+                              : rawMaterialController.selectedCategoryId.value,
+
+                          // ✅ Each dropdown item’s value = categoryId (unique)
+                          items: categories
+                              .map((e) => e.categoryId ?? '')
+                              .toList(),
+
                           onChanged: (val) {
                             if (val != null) {
+                              final selected = categories.firstWhere(
+                                (e) => e.categoryId == val,
+                                orElse: () => categories.first,
+                              );
+
+                              // ✅ Store both for display and backend use
+                              rawMaterialController.selectedCategoryId.value =
+                                  selected.categoryId ?? '';
                               rawMaterialController.selectedCategoryName.value =
-                                  val;
-                              final selected = premiumCollectionController
-                                  .premiumCollection
-                                  .firstWhereOrNull(
-                                    (e) => e.categoryName == val,
-                                  );
-                              if (selected != null) {
-                                rawMaterialController.selectedCategoryId.value =
-                                    selected.categoryId;
-                              }
+                                  selected.categoryName ?? '';
                             }
                           },
-                          getLabel: (item) => item,
+
+                          // ✅ Display the category name in dropdown text
+                          getLabel: (id) {
+                            final match = categories.firstWhereOrNull(
+                              (e) => e.categoryId == id,
+                            );
+                            return match?.categoryName ?? 'Unknown';
+                          },
                         );
                       }),
                       SizedBox(height: Get.height / 60),
@@ -345,12 +356,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                         controller: rawMaterialController.costPriceController,
                         keyboardType: TextInputType.number,
                       ),
-                      SizedBox(height: Get.height / 60),
-                      CustomTextField(
-                        label: "Location",
-                        hint: "Enter Location",
-                        controller: rawMaterialController.locationController,
-                      ),
+
                       SizedBox(height: Get.height / 60),
                       Obx(
                         () => CustomDropdownField<String>(

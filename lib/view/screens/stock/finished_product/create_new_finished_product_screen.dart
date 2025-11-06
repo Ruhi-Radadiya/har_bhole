@@ -21,14 +21,12 @@ class _CreateNewFinishedProductScreenState
 
   @override
   Widget build(BuildContext context) {
-    // 🔹 Check if screen is opened in edit mode
     final args = Get.arguments ?? {};
     final bool isEdit = args['isEdit'] ?? false;
     final productData = args['productData'];
-    String? _selectedCategory;
 
     if (isEdit && productData != null) {
-      addFinishedGoodsStockController.fillFormForEdit(productData);
+      finishedGoodsStockController.fillFormForEdit(productData);
     }
 
     return GestureDetector(
@@ -107,8 +105,8 @@ class _CreateNewFinishedProductScreenState
                         label: 'Product Code',
                         hint: '',
                         isReadOnly: true,
-                        controller: addFinishedGoodsStockController
-                            .productCodeController,
+                        controller:
+                            finishedGoodsStockController.productCodeController,
                       ),
                       SizedBox(height: Get.height / 60),
 
@@ -116,8 +114,8 @@ class _CreateNewFinishedProductScreenState
                       CustomTextField(
                         label: 'Product Name',
                         hint: 'Enter Product Name',
-                        controller: addFinishedGoodsStockController
-                            .productNameController,
+                        controller:
+                            finishedGoodsStockController.productNameController,
                       ),
                       SizedBox(height: Get.height / 60),
                       Obx(() {
@@ -126,7 +124,6 @@ class _CreateNewFinishedProductScreenState
                             child: CircularProgressIndicator(),
                           );
                         }
-
                         if (premiumCollectionController
                             .errorMessage
                             .isNotEmpty) {
@@ -135,38 +132,47 @@ class _CreateNewFinishedProductScreenState
                             style: const TextStyle(color: Colors.red),
                           );
                         }
-
-                        if (premiumCollectionController
-                            .filteredCategories
-                            .isEmpty) {
-                          return const Text('No categories available');
-                        }
-
-                        final uniqueCategories = premiumCollectionController
-                            .filteredCategories
+                        final categories = premiumCollectionController
+                            .premiumCollection
                             .map((e) => e.categoryName)
+                            .where((name) => name.isNotEmpty)
                             .toSet()
                             .toList();
-
+                        if (categories.isEmpty) {
+                          return const Text("No categories available");
+                        }
                         return CustomDropdownField<String>(
-                          label: 'Category',
-                          items: uniqueCategories,
+                          label: "Category",
                           value:
-                              premiumCollectionController
-                                  .selectedCategory
+                              finishedGoodsStockController
+                                  .selectedCategoryName
                                   .value
                                   .isEmpty
                               ? null
-                              : premiumCollectionController
-                                    .selectedCategory
+                              : finishedGoodsStockController
+                                    .selectedCategoryName
                                     .value,
-                          getLabel: (val) => val,
+                          items: categories,
                           onChanged: (val) {
-                            premiumCollectionController.selectedCategory.value =
-                                val ?? '';
-                            print("✅ Selected category: ${val}");
+                            if (val != null) {
+                              finishedGoodsStockController
+                                      .selectedCategoryName
+                                      .value =
+                                  val;
+                              final selected = premiumCollectionController
+                                  .premiumCollection
+                                  .firstWhereOrNull(
+                                    (e) => e.categoryName == val,
+                                  );
+                              if (selected != null) {
+                                finishedGoodsStockController
+                                        .selectedCategoryId
+                                        .value =
+                                    selected.categoryId;
+                              }
+                            }
                           },
-                          hint: 'Select Category',
+                          getLabel: (item) => item,
                         );
                       }),
                       SizedBox(height: Get.height / 60),
@@ -175,7 +181,7 @@ class _CreateNewFinishedProductScreenState
                       UploadFileField(
                         label: 'Product Image',
                         onFileSelected: (path) {
-                          addFinishedGoodsStockController.selectedImage.value =
+                          finishedGoodsStockController.selectedImage.value =
                               File(path);
                         },
                       ),
@@ -186,73 +192,182 @@ class _CreateNewFinishedProductScreenState
                         label: 'Description',
                         hint: 'Enter Product Description or note',
                         maxLines: 2,
-                        controller: addFinishedGoodsStockController
-                            .descriptionController,
+                        controller:
+                            finishedGoodsStockController.descriptionController,
                       ),
                       SizedBox(height: Get.height / 60),
 
                       _buildSectionHeader(
                         'Bill of Materials (BOM)',
                         actionText: 'Add',
-                        onActionTap: () {},
-                      ),
-                      SizedBox(height: Get.height / 60),
-
-                      // Semi-finished product dropdown
-                      CustomDropdownField<String>(
-                        label: 'Semi-Finished Product',
-                        items: const [
-                          'Semi-Finished Mat A',
-                          'Semi-Finished Mat B',
-                          'Semi-Finished Mat C',
-                        ],
-                        value:
-                            addFinishedGoodsStockController
-                                .selectedRawMaterial
-                                .value
-                                .isEmpty
-                            ? null
-                            : addFinishedGoodsStockController
+                        onActionTap: () {
+                          if (finishedGoodsStockController
+                                  .selectedRawMaterial
+                                  .value
+                                  .isNotEmpty &&
+                              finishedGoodsStockController
+                                  .quantityProducedController
+                                  .text
+                                  .isNotEmpty) {
+                            finishedGoodsStockController.addBomItem(
+                              semiFinishedProduct: finishedGoodsStockController
                                   .selectedRawMaterial
                                   .value,
-                        getLabel: (val) => val,
-                        onChanged: (val) {
-                          addFinishedGoodsStockController
-                                  .selectedRawMaterial
-                                  .value =
-                              val ?? '';
+                              quantityRequired: finishedGoodsStockController
+                                  .quantityProducedController
+                                  .text,
+                            );
+
+                            // ✅ Clear fields after adding
+                            finishedGoodsStockController
+                                    .selectedRawMaterial
+                                    .value =
+                                '';
+                            finishedGoodsStockController
+                                .quantityProducedController
+                                .clear();
+                            finishedGoodsStockController.unitController
+                                .clear(); // ✅ Clears unit field too
+                          } else {
+                            Get.snackbar(
+                              'Missing Info',
+                              'Please select a product and enter quantity.',
+                            );
+                          }
                         },
-                        hint: 'Select Semi-Finished Material',
                       ),
                       SizedBox(height: Get.height / 60),
 
+                      Obx(() {
+                        if (semiFinishedController.isLoading.value) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (semiFinishedController.errorMessage.isNotEmpty) {
+                          return Text(
+                            semiFinishedController.errorMessage.value,
+                            style: const TextStyle(color: Colors.red),
+                          );
+                        }
+
+                        final materials = semiFinishedController.materials
+                            .map((e) => e.itemName ?? '')
+                            .where((name) => name.isNotEmpty)
+                            .toSet()
+                            .toList();
+
+                        if (materials.isEmpty) {
+                          return const Text(
+                            "No semi-finished products available",
+                          );
+                        }
+
+                        return CustomDropdownField<String>(
+                          label: "Semi-Finished Product",
+                          value:
+                              finishedGoodsStockController
+                                  .selectedRawMaterial
+                                  .value
+                                  .isEmpty
+                              ? null
+                              : finishedGoodsStockController
+                                    .selectedRawMaterial
+                                    .value,
+                          items: materials,
+                          onChanged: (val) {
+                            if (val != null) {
+                              finishedGoodsStockController
+                                      .selectedRawMaterial
+                                      .value =
+                                  val;
+
+                              // ✅ Find the selected product from the semiFinished list
+                              final selected = semiFinishedController.materials
+                                  .firstWhereOrNull((e) => e.itemName == val);
+
+                              if (selected != null) {
+                                // ✅ Store ID if needed
+                                finishedGoodsStockController
+                                        .selectedRawMaterialId
+                                        .value =
+                                    selected.stockId ?? '';
+
+                                // ✅ Auto-fill the unit text field directly from semi-finished API
+                                finishedGoodsStockController
+                                        .unitController
+                                        .text =
+                                    selected.unitOfMeasure ?? '';
+                              }
+                            }
+                          },
+                          getLabel: (item) => item,
+                          hint: "Select Semi-Finished Product",
+                        );
+                      }),
+                      SizedBox(height: Get.height / 60),
                       CustomTextField(
                         label: 'Quantity Required',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
-                        controller: addFinishedGoodsStockController
+                        controller: finishedGoodsStockController
                             .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
-
                       CustomTextField(
                         label: 'Unit',
-                        hint: '0',
-                        keyboardType: TextInputType.number,
+                        controller: finishedGoodsStockController.unitController,
+                        isReadOnly: true, // so user can’t change it manually
+                        hint: 'Select product to auto-fill unit',
                       ),
                       SizedBox(height: Get.height / 60),
-
-                      Text(
-                        'No semi-finished products added yet. Add products to define the production recipe.',
-                        style: GoogleFonts.poppins(
-                          textStyle: TextStyle(
-                            fontSize: Get.width / 40,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ),
-
-                      // Stock management section
+                      Obx(() {
+                        if (finishedGoodsStockController.bomList.isEmpty) {
+                          return Text(
+                            'No semi-finished products added yet. Add products to define the production recipe.',
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                fontSize: Get.width / 40,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          );
+                        }
+                        return Column(
+                          children: finishedGoodsStockController.bomList
+                              .asMap()
+                              .entries
+                              .toList() // ✅ Convert first
+                              .reversed // ✅ Reverse order so newest goes bottom visually
+                              .map((entry) {
+                                final index = entry.key;
+                                final item = entry.value;
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: ListTile(
+                                    title: Text(item['semiFinishedProduct']),
+                                    subtitle: Text(
+                                      'Qty: ${item['quantityRequired']} ${item['unit']}',
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () =>
+                                          finishedGoodsStockController
+                                              .removeBomItem(index),
+                                    ),
+                                  ),
+                                );
+                              })
+                              .toList(),
+                        );
+                      }),
+                      SizedBox(height: Get.height / 60),
                       _buildSectionHeader(
                         'Stock Management',
                         actionText: 'Edit',
@@ -263,7 +378,7 @@ class _CreateNewFinishedProductScreenState
                       CustomTextField(
                         label: 'Unit of Measure',
                         hint: 'Enter Unit',
-                        controller: addFinishedGoodsStockController
+                        controller: finishedGoodsStockController
                             .unitOfMeasureController,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -272,7 +387,7 @@ class _CreateNewFinishedProductScreenState
                         label: 'Quantity Produced',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
-                        controller: addFinishedGoodsStockController
+                        controller: finishedGoodsStockController
                             .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -281,25 +396,55 @@ class _CreateNewFinishedProductScreenState
                         label: 'Total Weight (grams)',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
-                        controller: addFinishedGoodsStockController
-                            .totalWeightController,
-                        isReadOnly: true,
+                        controller:
+                            finishedGoodsStockController.totalWeightController,
                       ),
                       SizedBox(height: Get.height / 60),
 
                       _buildSectionHeader(
                         'Variants (Weight-wise)',
                         actionText: 'Add',
-                        onActionTap: () {},
+                        onActionTap: () {
+                          if (finishedGoodsStockController
+                                  .weightGramsController
+                                  .text
+                                  .isNotEmpty &&
+                              finishedGoodsStockController
+                                  .quantityProducedController
+                                  .text
+                                  .isNotEmpty) {
+                            finishedGoodsStockController.addVariant(
+                              weight: finishedGoodsStockController
+                                  .weightGramsController
+                                  .text,
+                              quantity: finishedGoodsStockController
+                                  .quantityProducedController
+                                  .text,
+                            );
+
+                            // ✅ Clear text fields after add
+                            finishedGoodsStockController.weightGramsController
+                                .clear();
+                            finishedGoodsStockController
+                                .quantityProducedController
+                                .clear();
+                          } else {
+                            Get.snackbar(
+                              'Missing Info',
+                              'Please enter both weight and quantity.',
+                            );
+                          }
+                        },
                       ),
+
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: 'Weight (grams)',
                         hint: 'e.g. 250',
                         keyboardType: TextInputType.number,
-                        controller: addFinishedGoodsStockController
-                            .weightGramsController,
+                        controller:
+                            finishedGoodsStockController.weightGramsController,
                       ),
                       SizedBox(height: Get.height / 60),
 
@@ -307,7 +452,7 @@ class _CreateNewFinishedProductScreenState
                         label: 'Quantity (units)',
                         hint: '0',
                         keyboardType: TextInputType.number,
-                        controller: addFinishedGoodsStockController
+                        controller: finishedGoodsStockController
                             .quantityProducedController,
                       ),
                       SizedBox(height: Get.height / 60),
@@ -316,25 +461,67 @@ class _CreateNewFinishedProductScreenState
                         label: 'Total Weight (grams)',
                         hint: '0.00',
                         keyboardType: TextInputType.number,
-                        controller: addFinishedGoodsStockController
-                            .totalWeightController,
+                        controller:
+                            finishedGoodsStockController.totalWeightController,
                         isReadOnly: true,
                       ),
                       SizedBox(height: Get.height / 60),
+                      Obx(() {
+                        if (finishedGoodsStockController.variantsList.isEmpty) {
+                          return Text(
+                            'No variants added yet.',
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                fontSize: Get.width / 40,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          );
+                        }
+                        return Column(
+                          children: finishedGoodsStockController.variantsList
+                              .asMap()
+                              .entries
+                              .toList()
+                              .reversed // ✅ new entries go to bottom
+                              .map((entry) {
+                                final index = entry.key;
+                                final item = entry.value;
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: ListTile(
+                                    title: Text('Weight: ${item['weight']} g'),
+                                    subtitle: Text(
+                                      'Quantity: ${item['quantity']}',
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () =>
+                                          finishedGoodsStockController
+                                              .removeVariant(index),
+                                    ),
+                                  ),
+                                );
+                              })
+                              .toList(),
+                        );
+                      }),
+                      SizedBox(height: Get.height / 60),
 
-                      _buildSectionHeader(
-                        'Ingredients',
-                        actionText: 'Add',
-                        onActionTap: () {},
-                      ),
+                      _buildSectionHeader('Ingredients'),
                       SizedBox(height: Get.height / 60),
 
                       CustomTextField(
                         label: 'Ingredients List',
                         hint: 'List all Ingredients....',
                         maxLines: 2,
-                        controller: addFinishedGoodsStockController
-                            .descriptionController,
+                        controller:
+                            finishedGoodsStockController.descriptionController,
                       ),
 
                       SizedBox(height: Get.height / 30),
@@ -352,19 +539,18 @@ class _CreateNewFinishedProductScreenState
                               ),
                             ),
                             onPressed:
-                                addFinishedGoodsStockController.isLoading.value
+                                finishedGoodsStockController.isLoading.value
                                 ? null
                                 : () {
                                     if (isEdit) {
-                                      addFinishedGoodsStockController
+                                      finishedGoodsStockController
                                           .editFinishedGood();
                                     } else {
-                                      addFinishedGoodsStockController
+                                      finishedGoodsStockController
                                           .addFinishedGood();
                                     }
                                   },
-                            child:
-                                addFinishedGoodsStockController.isLoading.value
+                            child: finishedGoodsStockController.isLoading.value
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )

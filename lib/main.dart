@@ -26,7 +26,6 @@ import 'controller/category_controller/category_controller.dart';
 import 'controller/category_controller/create_new_category_controller.dart';
 import 'controller/category_controller/delete_category_controller.dart';
 import 'controller/customer_detail_controller/customer_detail_controller.dart';
-import 'controller/finished_goods_stock_controller/add_finished_goods_stock_controller.dart';
 import 'controller/login_controller.dart';
 import 'controller/navigation_controller/navigation.dart';
 import 'controller/navigation_controller/user_dashboard_navigation_controller.dart';
@@ -81,9 +80,6 @@ CreateB2BOrderController createB2BOrderController = Get.put(
 CashEntryController cashEntryController = Get.put(CashEntryController());
 AddVoucherController addVoucherController = Get.put(AddVoucherController());
 
-AddFinishedGoodsStockController addFinishedGoodsStockController = Get.put(
-  AddFinishedGoodsStockController(),
-);
 AddSupplierController addSupplierController = Get.put(AddSupplierController());
 DeleteProductController deleteProductController = Get.put(
   DeleteProductController(),

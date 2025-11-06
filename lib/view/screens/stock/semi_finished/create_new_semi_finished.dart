@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/main.dart';
 
-import '../../../../model/semi_finished_material_model/semi_finished_material_model.dart';
 import '../../../component/textfield.dart';
 
 class CreateNewSemiFinishedProductScreen extends StatefulWidget {
@@ -39,7 +39,7 @@ class _CreateNewSemiFinishedProductScreenState
   String? productId;
 
   // For BOM items
-  List<BomItem> bomItems = [];
+  List<Map<String, dynamic>> bomItems = [];
 
   @override
   void initState() {
@@ -248,8 +248,44 @@ class _CreateNewSemiFinishedProductScreenState
                       _buildSectionHeader(
                         'Bill of Materials (BOM)',
                         actionText: 'Add',
-                        onActionTap: () {},
+                        onActionTap: () {
+                          if (_selectedRawMaterial == null ||
+                              quantityRequiredController.text.isEmpty ||
+                              unitController.text.isEmpty ||
+                              wastageController.text.isEmpty) {
+                            Fluttertoast.showToast(
+                              msg: "Please fill all BOM fields before adding",
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                            );
+                            return;
+                          }
+
+                          setState(() {
+                            bomItems.add({
+                              "raw_material": _selectedRawMaterial,
+                              "quantity_required": quantityRequiredController
+                                  .text
+                                  .trim(),
+                              "unit": unitController.text.trim(),
+                              "wastage": wastageController.text.trim(),
+                            });
+
+                            // clear input fields for next entry
+                            _selectedRawMaterial = null;
+                            quantityRequiredController.clear();
+                            unitController.clear();
+                            wastageController.clear();
+                          });
+
+                          Fluttertoast.showToast(
+                            msg: "BOM item added successfully!",
+                            backgroundColor: Colors.green,
+                            textColor: Colors.white,
+                          );
+                        },
                       ),
+
                       SizedBox(height: Get.height / 60),
                       Obx(() {
                         if (rawMaterialController.isLoading.value) {
@@ -314,6 +350,54 @@ class _CreateNewSemiFinishedProductScreenState
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: Get.height / 60),
+                      if (bomItems.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Divider(),
+                            Text(
+                              "Added BOM Items:",
+                              style: GoogleFonts.poppins(
+                                fontSize: Get.width / 35,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            ...bomItems.map(
+                              (item) => Card(
+                                margin: EdgeInsets.only(bottom: 8),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: ListTile(
+                                  title: Text(
+                                    item['raw_material'],
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    "Qty: ${item['quantity_required']} ${item['unit']} | Wastage: ${item['wastage']}%",
+                                    style: GoogleFonts.poppins(fontSize: 13),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        bomItems.remove(item);
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
                       Padding(
                         padding: EdgeInsets.only(bottom: Get.height / 50),
                         child: Text(

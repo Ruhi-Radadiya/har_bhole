@@ -154,6 +154,28 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                 ),
+                                // Obx(() {
+                                //   final userRole = loginController
+                                //       .userRole
+                                //       .value; // e.g. 'admin' or 'user'
+                                //
+                                //   if (userRole != 'admin') {
+                                //     // not admin → don't show anything
+                                //     return const SizedBox.shrink();
+                                //   }
+                                //
+                                //   // admin → show image
+                                //   return GestureDetector(
+                                //     onTap: () {
+                                //       // your tap logic
+                                //     },
+                                //     child: Image.asset(
+                                //       'assets/icons/admin_icon.png',
+                                //       height: 60,
+                                //       width: 60,
+                                //     ),
+                                //   );
+                                // }),
                               ],
                             ),
                             SizedBox(height: Get.height / 200),
@@ -241,11 +263,16 @@ class _HomeState extends State<Home> {
                     //   if (premiumCollectionController.isLoading.value) {
                     //     return SizedBox(
                     //       height: Get.height / 7,
-                    //       child: Center(child: CircularProgressIndicator()),
+                    //       child: const Center(
+                    //         child: CircularProgressIndicator(),
+                    //       ),
                     //     );
                     //   }
+                    //
                     //   return SizedBox(
-                    //     height: Get.height / 7,
+                    //     height:
+                    //         Get.height /
+                    //         5.5, // slightly increased height to fit text
                     //     child: ListView.builder(
                     //       scrollDirection: Axis.horizontal,
                     //       itemCount: premiumCollectionController
@@ -258,26 +285,40 @@ class _HomeState extends State<Home> {
                     //       itemBuilder: (context, index) {
                     //         final category = premiumCollectionController
                     //             .premiumCollection[index];
+                    //
                     //         return GestureDetector(
                     //           onTap: () {
                     //             Get.to(
-                    //               Products(defaultType: category.categoryName),
+                    //               () => Products(
+                    //                 defaultType: collectionTypes[index],
+                    //               ),
                     //             );
                     //           },
-                    // onTap: () {
-                    //   // Navigate to Products screen with category name
-                    //   Get.to(
-                    //         () => Products(
-                    //       defaultType: collectionTypes[index],
-                    //     ),
-                    //   );
-                    // },
                     //           child: Padding(
                     //             padding: EdgeInsets.only(right: Get.width / 42),
-                    //             child: Image.network(
-                    //               category.categoryImage,
-                    //               width: Get.width / 4,
-                    //               fit: BoxFit.cover,
+                    //             child: Column(
+                    //               children: [
+                    //                 Image.network(
+                    //                   category.categoryImage,
+                    //                   width: Get.width / 4,
+                    //                   height: Get.height / 9,
+                    //                   fit: BoxFit.cover,
+                    //                 ),
+                    //                 SizedBox(height: Get.height / 50),
+                    //                 SizedBox(
+                    //                   width: Get.width / 4,
+                    //                   child: Text(
+                    //                     category.categoryName ?? '',
+                    //                     textAlign: TextAlign.center,
+                    //                     style: TextStyle(
+                    //                       fontSize: 12,
+                    //                       fontWeight: FontWeight.w500,
+                    //                       color: Colors.black,
+                    //                     ),
+                    //                     overflow: TextOverflow.ellipsis,
+                    //                   ),
+                    //                 ),
+                    //               ],
                     //             ),
                     //           ),
                     //         );

@@ -26,7 +26,6 @@ class RawMaterialController extends GetxController {
   final minStockLevelController = TextEditingController();
   final maxStockLevelController = TextEditingController();
   final costPriceController = TextEditingController();
-  final locationController = TextEditingController();
   final descriptionController = TextEditingController();
   var selectedCategory = ''.obs;
   var selectedStatus = 'Active'.obs;
@@ -129,18 +128,19 @@ class RawMaterialController extends GetxController {
       request.fields.addAll({
         'material_code': materialCodeController.text,
         'material_name': materialNameController.text,
-        'category': selectedCategory.value,
+        'category_id': selectedCategoryId.value,
+        'current_quantity': currentQuantityController.text,
+        'unit_of_measure': unitOfMeasureController.text,
         'supplier': selectedSupplier.value.toString(),
         'unit': unitOfMeasureController.text,
         'current_stock': currentQuantityController.text,
         'min_stock_level': minStockLevelController.text,
         'max_stock_level': maxStockLevelController.text,
         'cost_price': costPriceController.text,
-        'location': locationController.text,
         'description': descriptionController.text,
         'status': selectedStatus.value,
+        'created_by': 1.toString(),
       });
-
       if (materialImagePath.value.isNotEmpty) {
         request.files.add(
           await http.MultipartFile.fromPath('image', materialImagePath.value),
@@ -190,7 +190,6 @@ class RawMaterialController extends GetxController {
         'max_stock_level': maxStockLevelController.text.trim(),
         'reorder_point': '30', // ⚠️ must be included as integer string
         'supplier_id': selectedSupplier.value.toString(),
-        'location': locationController.text.trim(),
         'description': descriptionController.text.trim(),
         'status': '1',
       });
@@ -292,7 +291,6 @@ class RawMaterialController extends GetxController {
     maxStockLevelController.text = m.maxStockLevel?.toString() ?? '';
     // costPrice in model is string, so keep text as string
     costPriceController.text = m.costPrice?.toString() ?? '';
-    locationController.text = m.location ?? '';
     descriptionController.text = m.description ?? '';
     selectedStatus.value = m.status ?? 'Active';
     materialImagePath.value = m.materialImage?.toString() ?? '';
@@ -331,7 +329,6 @@ class RawMaterialController extends GetxController {
     minStockLevelController.clear();
     maxStockLevelController.clear();
     costPriceController.clear();
-    locationController.clear();
     descriptionController.clear();
     selectedCategory.value = '';
     selectedSupplier.value = 0;
