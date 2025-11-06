@@ -569,7 +569,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               padding: EdgeInsets.only(
                 left: Get.width / 20,
                 right: Get.width / 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom, // keyboard height
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
                 top: Get.width / 25,
               ),
               child: Column(
