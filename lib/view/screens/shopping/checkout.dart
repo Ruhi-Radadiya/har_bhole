@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:har_bhole/model/cart_model/cart_model.dart';
@@ -16,6 +18,14 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   int _selectedPaymentMethod = 2; // default: Cash on Delivery
+  String? _selectedAddressText;
+  bool _isLoadingAddress = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentAddress();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +82,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                     const Divider(height: 20),
                     _buildPriceDetails(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: Get.height / 40),
                     _buildDeliveryInfo(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: Get.height / 40),
                     _buildPaymentMethods(context),
                   ],
                 );
@@ -96,7 +106,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Icon(Icons.location_on, color: Color(0xff67BF86), size: 28),
-        const SizedBox(width: 10),
+        SizedBox(width: Get.width / 40),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,23 +121,35 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
-                    'Change',
-                    style: GoogleFonts.poppins(
-                      fontSize: Get.width / 26,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.deepOrange,
+                  InkWell(
+                    onTap: _showAddressSelection,
+                    child: Text(
+                      'Change',
+                      style: GoogleFonts.poppins(
+                        fontSize: Get.width / 26,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xffF78520),
+                      ),
                     ),
                   ),
                 ],
               ),
-              Text(
-                'Rajesh Kumar\nA-304, Sunrise Apartments, Sector 15\nNoida, Uttar Pradesh - 201301\nPhone: +91 98765 43210',
-                style: TextStyle(
-                  fontSize: Get.width / 26,
-                  color: Colors.grey.shade600,
+              if (_isLoadingAddress)
+                Text(
+                  'Detecting current location...',
+                  style: TextStyle(
+                    fontSize: Get.width / 26,
+                    color: Colors.grey.shade600,
+                  ),
+                )
+              else
+                Text(
+                  '${_selectedAddressText ?? 'Address not available. Tap Change to set your address.'}\nPhone: +91 98765 43210',
+                  style: TextStyle(
+                    fontSize: Get.width / 26,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -202,7 +224,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Row(
       children: [
         const Icon(Icons.local_shipping, size: 24, color: Color(0xff67BF86)),
-        const SizedBox(width: 8),
+        SizedBox(width: Get.width / 50),
         Text(
           'Expected Delivery\n3-5 business days',
           style: GoogleFonts.poppins(
@@ -225,7 +247,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: Get.height / 80),
         _buildPaymentMethodTile(
           context: context,
           title: "Pay on delivery",
@@ -529,6 +551,175 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     });
   }
 
+  Future<void> _showAddressSelection() async {
+    final TextEditingController manualController = TextEditingController(
+      text: _selectedAddressText ?? '',
+    );
+
+    await showModalBottomSheet(
+      backgroundColor: Colors.white,
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return GestureDetector(
+          onTap: () => FocusScope.of(ctx).unfocus(),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: Get.width / 20,
+                right: Get.width / 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom, // keyboard height
+                top: Get.width / 25,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Select Address',
+                    style: GoogleFonts.poppins(
+                      fontSize: Get.width / 22,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: Get.height / 70),
+
+                  // Use current location button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        Navigator.of(ctx).pop();
+                        await _loadCurrentAddress();
+                      },
+                      icon: const Icon(Icons.my_location, color: Colors.white),
+                      label: const Text(
+                        'Use current location',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xffF78520),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(48),
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Get.height / 30),
+
+                  // Manual address input
+                  TextField(
+                    controller: manualController,
+                    maxLines: 3,
+                    cursorColor: Colors.black,
+                    autofocus: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Enter address manually',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Get.height / 70),
+
+                  // Save address button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey.shade100, // grey button
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _selectedAddressText =
+                              manualController.text.trim().isEmpty
+                              ? _selectedAddressText
+                              : manualController.text.trim();
+                        });
+                        Navigator.of(ctx).pop();
+                      },
+                      child: const Text(
+                        'Save address',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _loadCurrentAddress() async {
+    try {
+      setState(() {
+        _isLoadingAddress = true;
+      });
+      final hasPermission = await _ensureLocationPermission();
+      if (!hasPermission) {
+        setState(() {
+          _isLoadingAddress = false;
+        });
+        return;
+      }
+      final Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      final List<geocoding.Placemark> placemarks = await geocoding
+          .placemarkFromCoordinates(position.latitude, position.longitude);
+      if (placemarks.isNotEmpty) {
+        final geocoding.Placemark p = placemarks.first;
+        final String composed = [
+          p.name,
+          p.subLocality,
+          p.locality,
+          p.administrativeArea,
+          p.postalCode,
+          p.country,
+        ].where((e) => (e != null && e!.trim().isNotEmpty)).join(', ');
+        setState(() {
+          _selectedAddressText = composed;
+        });
+      }
+    } catch (_) {
+      // Ignore errors and keep previous/empty address
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingAddress = false;
+        });
+      }
+    }
+  }
+
+  Future<bool> _ensureLocationPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return false;
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.deniedForever ||
+        permission == LocationPermission.denied) {
+      return false;
+    }
+    return true;
+  }
+
   void _showPriceDetailsSheet(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
@@ -544,7 +735,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 12),
+            SizedBox(height: Get.height / 70),
             _buildSummaryRow(
               'Price (${orderCartController.totalItemsCount} items)',
               '₹${orderCartController.basePriceForItemsDisplay.toStringAsFixed(0)}',
@@ -585,7 +776,7 @@ class OrderSuccessScreen extends StatelessWidget {
                 color: Colors.green,
                 size: 120,
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: Get.height / 40),
               Text(
                 "Order Placed!",
                 style: GoogleFonts.poppins(
@@ -601,7 +792,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   color: Colors.grey.shade800,
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: Get.height / 25),
               ElevatedButton(
                 onPressed: () {
                   navigationController.getIndex(index: 0);

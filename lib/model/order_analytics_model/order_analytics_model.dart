@@ -11,7 +11,7 @@ class OrderAnalyticsModel {
   final String status;
   final String paymentStatus;
   final String paymentMethod;
-  final List<Product> products;
+  final List<OrderAnalyticsProduct> products;
   final String? notes;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -57,8 +57,8 @@ class OrderAnalyticsModel {
         paymentMethod: json["payment_method"] ?? '',
         products: json["products"] == null
             ? []
-            : List<Product>.from(
-                json["products"].map((x) => Product.fromJson(x)),
+            : List<OrderAnalyticsProduct>.from(
+                json["products"].map((x) => OrderAnalyticsProduct.fromJson(x)),
               ),
         notes: json["notes"],
         createdAt: DateTime.tryParse(json["created_at"] ?? ''),
@@ -91,7 +91,7 @@ class OrderAnalyticsModel {
   };
 }
 
-class Product {
+class OrderAnalyticsProduct {
   final int productId;
   final String productName;
   final num price;
@@ -100,7 +100,7 @@ class Product {
   final String imagePath;
   final String netWeight;
 
-  Product({
+  OrderAnalyticsProduct({
     required this.productId,
     required this.productName,
     required this.price,
@@ -110,17 +110,18 @@ class Product {
     required this.netWeight,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
-    productId: json["product_id"] is String
-        ? int.tryParse(json["product_id"]) ?? 0
-        : json["product_id"] ?? 0,
-    productName: json["product_name"] ?? '',
-    price: num.tryParse(json["price"].toString()) ?? 0,
-    quantity: json["quantity"] ?? 0,
-    subtotal: num.tryParse(json["subtotal"].toString()) ?? 0,
-    imagePath: json["image_path"] ?? '',
-    netWeight: json["net_weight"] ?? '',
-  );
+  factory OrderAnalyticsProduct.fromJson(Map<String, dynamic> json) =>
+      OrderAnalyticsProduct(
+        productId: json["product_id"] is String
+            ? int.tryParse(json["product_id"]) ?? 0
+            : json["product_id"] ?? 0,
+        productName: json["product_name"] ?? '',
+        price: num.tryParse(json["price"].toString()) ?? 0,
+        quantity: json["quantity"] ?? 0,
+        subtotal: num.tryParse(json["subtotal"].toString()) ?? 0,
+        imagePath: json["image_path"] ?? '',
+        netWeight: json["net_weight"] ?? '',
+      );
 
   Map<String, dynamic> toJson() => {
     "product_id": productId,

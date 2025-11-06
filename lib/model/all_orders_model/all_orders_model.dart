@@ -11,7 +11,7 @@ class AllOrdersModel {
   final String status;
   final String paymentStatus;
   final String paymentMethod;
-  final List<Product> products;
+  final List<AllProduct> products;
   final String? notes;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -56,7 +56,9 @@ class AllOrdersModel {
     paymentMethod: json["payment_method"] ?? '',
     products: json["products"] == null
         ? []
-        : List<Product>.from(json["products"].map((x) => Product.fromJson(x))),
+        : List<AllProduct>.from(
+            json["products"].map((x) => AllProduct.fromJson(x)),
+          ),
     notes: json["notes"],
     createdAt: DateTime.tryParse(json["created_at"] ?? ''),
     updatedAt: DateTime.tryParse(json["updated_at"] ?? ''),
@@ -88,7 +90,7 @@ class AllOrdersModel {
   };
 }
 
-class Product {
+class AllProduct {
   final int productId;
   final String productName;
   final num price;
@@ -97,7 +99,7 @@ class Product {
   final String imagePath;
   final String netWeight;
 
-  Product({
+  AllProduct({
     required this.productId,
     required this.productName,
     required this.price,
@@ -107,7 +109,7 @@ class Product {
     required this.netWeight,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
+  factory AllProduct.fromJson(Map<String, dynamic> json) => AllProduct(
     productId: json["product_id"] is String
         ? int.tryParse(json["product_id"]) ?? 0
         : json["product_id"] ?? 0,

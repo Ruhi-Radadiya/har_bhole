@@ -50,6 +50,14 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
 
     // ✅ Auto fill category name and ID
     ctrl.selectedCategoryName.value = p.categoryName ?? '';
+    // Find and set the category ID from the category name
+    if (p.categoryName.isNotEmpty) {
+      final selectedCategory = premiumCollectionController.premiumCollection
+          .firstWhereOrNull((e) => e.categoryName == p.categoryName);
+      if (selectedCategory != null) {
+        ctrl.selectedCategoryId.value = selectedCategory.categoryId;
+      }
+    }
 
     ctrl.energyController.text = p.nutritionalInfo.energyKcal.toString();
     ctrl.proteinController.text = p.nutritionalInfo.proteinG.toString();

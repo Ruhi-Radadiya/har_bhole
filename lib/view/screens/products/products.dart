@@ -21,7 +21,6 @@ class _ProductsState extends State<Products> {
   final Map<String, bool> expanded = {};
   final ScrollController _scrollController = ScrollController();
 
-  // Toggles dropdown open/close
   void toggleSection(String title) {
     setState(() {
       expanded[title] = !(expanded[title] ?? true);
@@ -157,6 +156,7 @@ class _ProductsState extends State<Products> {
                                   final qty =
                                       cart[product.productId.toString()] ?? 0;
                                   return FoodItemContainer(
+                                    productId: product.productId.toString(),
                                     title: product.productName,
                                     description: product.description,
                                     price: '₹ ${product.sellingPrice}',
@@ -297,6 +297,7 @@ class _ProductsState extends State<Products> {
                       ),
                       decoration: const InputDecoration(
                         hintText: 'Search products...',
+
                         border: InputBorder.none,
                       ),
                     ),

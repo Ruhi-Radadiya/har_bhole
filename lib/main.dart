@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -14,6 +18,8 @@ import 'package:har_bhole/controller/semi_finished_material_controller/semi_fini
 import 'package:har_bhole/controller/users_controller/create_user_controller.dart';
 import 'package:har_bhole/controller/voucher_controller/add_voucher_controller.dart';
 import 'package:har_bhole/routes/routes.dart';
+// import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 
 import 'controller/all_orders_controller/all_orders_controller.dart';
 import 'controller/b2b_order/create_b2b_order_controller.dart';
@@ -114,13 +120,84 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: Routes.introScreen,
-      getPages: Routes.myRoutes,
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+    return DeepLinkInitializer(
+      child: GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: Routes.introScreen,
+        getPages: Routes.myRoutes,
+        theme: ThemeData(
+          textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+        ),
       ),
     );
   }
+}
+
+class DeepLinkInitializer extends StatefulWidget {
+  final Widget child;
+  const DeepLinkInitializer({super.key, required this.child});
+
+  @override
+  State<DeepLinkInitializer> createState() => _DeepLinkInitializerState();
+}
+
+class _DeepLinkInitializerState extends State<DeepLinkInitializer> {
+  AppLinks? _appLinks;
+  @override
+  void initState() {
+    super.initState();
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      _initAppLinks();
+    }
+  }
+
+  Future<void> _initAppLinks() async {
+    try {
+      _appLinks = AppLinks();
+      final initialLink = await _appLinks!.getInitialLink();
+      if (initialLink != null) {
+        _handleUri(initialLink);
+      }
+      _appLinks!.uriLinkStream.listen((uri) {
+        if (uri != null) {
+          _handleUri(uri);
+        }
+      }, onError: (_) {});
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  void _handleUri(Uri uri) async {
+    // Expect: https://harbhole.eihlims.com/product?id=123
+    final host = uri.host.toLowerCase();
+    final path = uri.path.toLowerCase();
+    if ((host.contains('harbhole.eihlims.com') || host.contains('harbhole')) &&
+        path.contains('product')) {
+      final productId = uri.queryParameters['id'];
+      if (productId != null && productId.isNotEmpty) {
+        // Ensure products loaded
+        if (productController.productList.isEmpty) {
+          await productController.fetchProducts();
+        }
+        final product = productController.productList.firstWhereOrNull(
+          (p) => p.productId.toString() == productId,
+        );
+        if (product != null) {
+          Get.toNamed(Routes.productDetails, arguments: product);
+        } else {
+          // fallback: go to products list
+          Get.toNamed(Routes.products);
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

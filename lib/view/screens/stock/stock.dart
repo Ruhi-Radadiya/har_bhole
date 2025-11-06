@@ -209,7 +209,7 @@ class _StockState extends State<Stock> {
                   ),
                   _buildMenuItemTile(
                     image: "asset/icons/vouchers_icon.png",
-                    title: 'Suppiler',
+                    title: 'Supplier',
                     iconColor: Color(0xffF78520),
                     onTap: () {
                       Get.toNamed(Routes.supplierScreen);
