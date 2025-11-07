@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' as logger;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,8 +10,9 @@ import '../../model/cart_model/cart_model.dart';
 class OrderCartController extends GetxController {
   static OrderCartController get instance => Get.find();
 
-  RxList<CartModel> cartItems = <CartModel>[].obs;
-  RxBool isLoading = false.obs;
+  // Observable list for cart items
+  final RxList<CartModel> cartItems = <CartModel>[].obs;
+  final RxBool isLoading = false.obs;
 
   final String baseUrl = "https://harbhole.eihlims.com/Api/cart.php";
 
@@ -32,8 +33,8 @@ class OrderCartController extends GetxController {
 
       final response = await http.get(Uri.parse(url));
 
-      log("🟠 Cart List API Status: ${response.statusCode}");
-      log("🟢 Cart List API Response: ${response.body}");
+      logger.log("🟠 Cart List API Status: ${response.statusCode}");
+      logger.log("🟢 Cart List API Response: ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -43,13 +44,13 @@ class OrderCartController extends GetxController {
           cartItems.assignAll(data.map((e) => CartModel.fromJson(e)).toList());
         } else {
           cartItems.clear();
-          log("⚠️ No cart data found or returned false success");
+          logger.log("⚠️ No cart data found or returned false success");
         }
       } else {
-        log("❌ Server error when fetching cart: ${response.statusCode}");
+        logger.log("❌ Server error when fetching cart: ${response.statusCode}");
       }
     } catch (e) {
-      log("❌ Exception in fetchCartData: $e");
+      logger.log("❌ Exception in fetchCartData: $e");
     } finally {
       isLoading.value = false;
     }
@@ -65,6 +66,40 @@ class OrderCartController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Check if item already exists in cart
+      final existingItemIndex = cartItems.indexWhere(
+        (item) => item.productId == productId,
+      );
+
+      // If item exists, update quantity instead of adding new item
+      if (existingItemIndex != -1) {
+        final existingItem = cartItems[existingItemIndex];
+        final newQuantity = (int.tryParse(existingItem.qty) ?? 0) + quantity;
+
+        // Call update cart API instead of add to cart
+        final updateResponse = await http.post(
+          Uri.parse("https://harbhole.eihlims.com/Api/cart.php?action=update"),
+          body: {"id": existingItem.id, "quantity": newQuantity.toString()},
+        );
+
+        logger.log("🟢 Update Cart Response: ${updateResponse.body}");
+        final updateJson = jsonDecode(updateResponse.body);
+
+        if (updateJson["success"] == true) {
+          await fetchCartData(); // refresh cart
+          Get.snackbar(
+            "Success",
+            "Cart updated!",
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          throw Exception(updateJson["message"] ?? "Failed to update cart");
+        }
+        return;
+      }
+
+      // If item doesn't exist, add new item
       final response = await http.post(
         Uri.parse("https://harbhole.eihlims.com/Api/cart.php?action=add"),
         body: {
@@ -75,7 +110,7 @@ class OrderCartController extends GetxController {
         },
       );
 
-      debugPrint("🟢 Add to Cart Response: ${response.body}");
+      logger.log("🟢 Add to Cart Response: ${response.body}");
 
       final jsonResponse = jsonDecode(response.body);
 
@@ -88,18 +123,13 @@ class OrderCartController extends GetxController {
         );
         await fetchCartData(); // refresh cart
       } else {
-        Get.snackbar(
-          "Error",
-          jsonResponse["message"] ?? "Failed to add to cart",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        throw Exception(jsonResponse["message"] ?? "Failed to add to cart");
       }
     } catch (e) {
-      debugPrint("🔴 Add to Cart Error: $e");
+      logger.log("🔴 Add to Cart Error: $e");
       Get.snackbar(
         "Error",
-        "Something went wrong. Try again.",
+        e.toString().replaceAll("Exception: ", ""),
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -114,24 +144,82 @@ class OrderCartController extends GetxController {
     required String productId,
     required String userId,
   }) async {
-    final url = Uri.parse(
-      'https://harbhole.eihlims.com/Api/cart.php?action=delete',
-    );
+    try {
+      // Validate cartId
+      if (cartId.isEmpty) {
+        debugPrint("🔴 Error: Cart ID is empty");
+        Get.snackbar(
+          "Error",
+          "Invalid cart item. Please try again.",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
 
-    final response = await http.post(
-      url,
-      body: {'cart_id': cartId, 'product_id': productId, 'user_id': userId},
-    );
+      isLoading.value = true;
 
-    print("🟡 Remove from Cart URL: $url");
-    print("🟢 Remove from Cart Response: ${response.body}");
+      final url = Uri.parse(
+        'https://harbhole.eihlims.com/Api/cart.php?action=delete',
+      );
 
-    final data = jsonDecode(response.body);
-    if (data['success'] == true) {
-      cartItems.removeWhere((item) => item.id == cartId);
-      update(); // if using GetX
-    } else {
-      Get.snackbar("Error", data['message'] ?? "Failed to remove item");
+      final cartIdInt = int.tryParse(cartId) ?? 0;
+
+      debugPrint(
+        "🟡 Remove from Cart Request: cart_id=$cartIdInt, product_id=$productId, user_id=$userId",
+      );
+
+      final response = await http.post(
+        url,
+        body: jsonEncode({'id': cartIdInt}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      debugPrint(
+        "🟢 Remove from Cart Response: ${response.statusCode} - ${response.body}",
+      );
+
+      // Check if response is valid JSON
+      Map<String, dynamic> data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (e) {
+        debugPrint("🔴 Error parsing response: $e");
+        throw Exception("Invalid response from server");
+      }
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        // Remove the item from the local list
+        // This will automatically trigger UI updates
+        cartItems.removeWhere((item) => item.id == cartId);
+
+        Get.snackbar(
+          "Success",
+          "Item removed from cart",
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        String errorMessage = data['message'] ?? "Failed to remove item";
+        debugPrint("🔴 Remove from Cart Error: $errorMessage");
+
+        Get.snackbar(
+          "Error",
+          errorMessage,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("🔴 Remove from Cart Error: $e");
+      Get.snackbar(
+        "Error",
+        "Failed to remove item. Please try again.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 

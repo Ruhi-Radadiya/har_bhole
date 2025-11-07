@@ -19,21 +19,7 @@ class _AdminBottomBarScreenState extends State<AdminBottomBarScreen> {
   Widget build(BuildContext context) {
     final controller = Get.put(UserDashboardController());
 
-    // ✅ Pages to show
     final pages = const [AdminDashboard(), B2B(), Stock(), Order()];
-
-    // ✅ BottomNavigationBar items
-    final items = [
-      _bottomItem(
-        controller,
-        "asset/images/dashboard_image.png",
-        "Dashboard",
-        0,
-      ),
-      _bottomItem(controller, "asset/images/b2b_image.png", "B2B", 1),
-      _bottomItem(controller, "asset/images/stocks_image.png", "Stock", 2),
-      _bottomItem(controller, "asset/images/orders_image.png", "Order", 3),
-    ];
 
     return Scaffold(
       body: PageView(
@@ -43,6 +29,18 @@ class _AdminBottomBarScreenState extends State<AdminBottomBarScreen> {
         children: pages,
       ),
       bottomNavigationBar: Obx(() {
+        final items = [
+          _bottomItem(
+            controller,
+            "asset/images/dashboard_image.png",
+            "Dashboard",
+            0,
+          ),
+          _bottomItem(controller, "asset/images/b2b_image.png", "B2B", 1),
+          _bottomItem(controller, "asset/images/stocks_image.png", "Stock", 2),
+          _bottomItem(controller, "asset/images/orders_image.png", "Order", 3),
+        ];
+
         return BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: const Color(0xffFFFFFF),

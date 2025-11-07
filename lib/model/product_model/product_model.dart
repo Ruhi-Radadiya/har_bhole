@@ -145,4 +145,45 @@ class Product {
       variations: json['variations'] ?? [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product_id': productId,
+      'product_code': productCode,
+      'product_name': productName,
+      'variation_name': variationName,
+      'variation_value': variationValue,
+      'status': status,
+      'product_image': productImage,
+      'category_name': categoryName,
+      'selling_price': sellingPrice,
+      'net_weight': netWeight,
+      'mrp': mrp,
+      'stock_quantity': stockQuantity,
+      'manufacturing_date': manufacturingDate,
+      'expiry_date': expiryDate,
+      'ingredients': ingredients,
+      'description': description,
+      'sku': sku,
+      'price_adjustment': priceAdjustment,
+      'nutritional_info': {
+        'energy_kcal': nutritionalInfo.energyKcal,
+        'protein_g': nutritionalInfo.proteinG,
+        'total_fat_g': nutritionalInfo.totalFatG,
+        'carbohydrate_g': nutritionalInfo.carbohydrateG,
+        'total_sugar_g': nutritionalInfo.totalSugarG,
+        'saturated_fat_g': nutritionalInfo.saturatedFatG,
+        'monounsaturated_fat_g': nutritionalInfo.monounsaturatedFatG,
+        'polyunsaturated_fat_g': nutritionalInfo.polyunsaturatedFatG,
+        'sodium_mg': nutritionalInfo.sodiumMg,
+        'iron_mg': nutritionalInfo.ironMg,
+        'calcium_mg': nutritionalInfo.calciumMg,
+        'fiber_g': nutritionalInfo.fiberG,
+        'cholesterol_mg': nutritionalInfo.cholesterolMg,
+        'vitamin_c_mg': nutritionalInfo.vitaminCMg,
+        'vitamin_d_mcg': nutritionalInfo.vitaminDMcg,
+      },
+      'variations': variations,
+    };
+  }
 }

@@ -17,7 +17,7 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  int _selectedPaymentMethod = 2; // default: Cash on Delivery
+  int _selectedPaymentMethod = 2;
   String? _selectedAddressText;
   bool _isLoadingAddress = false;
 
@@ -79,8 +79,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       )
                     else
                       ...items.map((item) => _buildCheckoutCartItemCard(item)),
-
-                    const Divider(height: 20),
+                    Divider(height: 20),
                     _buildPriceDetails(),
                     SizedBox(height: Get.height / 40),
                     _buildDeliveryInfo(),
@@ -91,8 +90,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               }),
             ),
           ),
-
-          /// --- Bottom Total + Place Order Button ---
           _buildBottomBar(),
         ],
       ),
@@ -433,7 +430,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 isAdd: true,
                 onPressed: () async {
                   await orderCartController.addToCart(
-                    userId: "1", // replace with PrefManager userId
+                    userId: "1",
                     productId: item.productId ?? '',
                     productName: item.productName,
                   );
@@ -584,8 +581,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
                   SizedBox(height: Get.height / 70),
-
-                  // Use current location button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -610,8 +605,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
                   SizedBox(height: Get.height / 30),
-
-                  // Manual address input
                   TextField(
                     controller: manualController,
                     maxLines: 3,
@@ -630,8 +623,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
                   SizedBox(height: Get.height / 70),
-
-                  // Save address button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

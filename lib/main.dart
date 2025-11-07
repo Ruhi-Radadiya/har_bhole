@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
+// import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,8 +20,6 @@ import 'package:har_bhole/controller/semi_finished_material_controller/semi_fini
 import 'package:har_bhole/controller/users_controller/create_user_controller.dart';
 import 'package:har_bhole/controller/voucher_controller/add_voucher_controller.dart';
 import 'package:har_bhole/routes/routes.dart';
-// import 'package:uni_links/uni_links.dart';
-import 'package:app_links/app_links.dart';
 
 import 'controller/all_orders_controller/all_orders_controller.dart';
 import 'controller/b2b_order/create_b2b_order_controller.dart';

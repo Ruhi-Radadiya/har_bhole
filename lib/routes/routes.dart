@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:har_bhole/view/screens/save_screen/save_screen.dart';
 import 'package:har_bhole/view/screens/shopping/shopping_card.dart';
 
 import '../model/b2b_order/b2b_order_model.dart';
@@ -131,6 +132,7 @@ class Routes {
   static String logInOTPScreen = '/login-otp-screen';
   static String splashScreen = '/splash-screen';
   static String introScreen = '/intro-screen';
+  static String saveProductScreen = '/save-product-screen';
 
   static List<GetPage> myRoutes = [
     GetPage(name: loginScreen, page: () => const LoginScreen()),
@@ -239,5 +241,7 @@ class Routes {
     GetPage(name: logInOTPScreen, page: () => const LoginOtpScreen()),
     GetPage(name: splashScreen, page: () => const SplashScreen()),
     GetPage(name: introScreen, page: () => const IntroScreen()),
+
+    GetPage(name: saveProductScreen, page: () => const SavedProductsScreen()),
   ];
 }

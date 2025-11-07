@@ -8,17 +8,14 @@ class StorageService {
 
   final GetStorage _box = GetStorage();
 
-  // Initialize GetStorage
   Future<void> init() async {
     await GetStorage.init();
   }
 
-  // Save products
   Future<void> saveProducts(List<Map<String, dynamic>> products) async {
     await _box.write('products', products);
   }
 
-  // Load products
   List<Map<String, dynamic>>? loadProducts() {
     final products = _box.read<List<dynamic>>('products');
     if (products != null) {
@@ -27,7 +24,6 @@ class StorageService {
     return null;
   }
 
-  // Clear all data
   Future<void> clearAll() async {
     await _box.erase();
   }

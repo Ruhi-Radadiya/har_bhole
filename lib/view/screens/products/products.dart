@@ -27,23 +27,18 @@ class _ProductsState extends State<Products> {
     });
   }
 
-  // Add to cart
   void addToCart(String productId, String price, String productName) async {
-    // You can get userId from PrefManager later — hardcode for now
-    const userId = "1"; // replace with PrefManager later
-
+    const userId = "1";
     await orderCartController.addToCart(
       productId: productId,
       userId: userId,
       productName: productName,
     );
-
     setState(() {
       cart[productId] = (cart[productId] ?? 0) + 1;
     });
   }
 
-  // Remove from cart
   void removeFromCart(String title) {
     setState(() {
       if (cart.containsKey(title)) {
@@ -57,17 +52,22 @@ class _ProductsState extends State<Products> {
 
   int get totalItemsInCart =>
       cart.values.fold(0, (previous, current) => previous + current);
-
-  // Expand the category where search result is found
   void expandCategoryForSearch(List<String> matchedCategories) {
-    if (matchedCategories.isEmpty) return;
+    if (matchedCategories.isEmpty) {
+      setState(() {
+        for (var key in controller.groupedProducts.keys) {
+          expanded[key] = false;
+        }
+      });
+      return;
+    }
+
     setState(() {
-      for (var key in expanded.keys) {
+      for (var key in controller.groupedProducts.keys) {
         expanded[key] = matchedCategories.contains(key);
       }
     });
 
-    // Auto scroll to the first matched category
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -97,9 +97,10 @@ class _ProductsState extends State<Products> {
                 if (controller.errorMessage.isNotEmpty) {
                   return Center(child: Text(controller.errorMessage.value));
                 }
-
                 final grouped = controller.groupedProducts;
-
+                grouped.keys.forEach((key) {
+                  expanded.putIfAbsent(key, () => false);
+                });
                 return SingleChildScrollView(
                   controller: _scrollController,
                   padding: EdgeInsets.only(
@@ -113,7 +114,6 @@ class _ProductsState extends State<Products> {
                         final title = entry.key;
                         final products = entry.value;
                         final isExpanded = expanded[title] ?? false;
-
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -174,7 +174,6 @@ class _ProductsState extends State<Products> {
                                   );
                                 }).toList(),
                               ),
-
                               secondChild: const SizedBox.shrink(),
                             ),
                             Divider(height: Get.height / 200),
@@ -274,8 +273,6 @@ class _ProductsState extends State<Products> {
                     child: TextField(
                       onChanged: (query) {
                         controller.searchProducts(query);
-
-                        // Find which categories contain matches
                         final matchedCategories = controller
                             .groupedProducts
                             .keys
@@ -288,7 +285,6 @@ class _ProductsState extends State<Products> {
                                   ),
                             )
                             .toList();
-
                         expandCategoryForSearch(matchedCategories);
                       },
                       style: GoogleFonts.poppins(
@@ -297,7 +293,6 @@ class _ProductsState extends State<Products> {
                       ),
                       decoration: const InputDecoration(
                         hintText: 'Search products...',
-
                         border: InputBorder.none,
                       ),
                     ),
@@ -306,8 +301,14 @@ class _ProductsState extends State<Products> {
               ),
             ),
           ),
-          SizedBox(width: Get.width / 20),
-          Image.asset("asset/images/home/3_dot.png", height: Get.width / 15),
+          SizedBox(width: Get.width / 40),
+          IconButton(
+            color: const Color(0xffF78520),
+            onPressed: () {
+              Get.toNamed(Routes.saveProductScreen);
+            },
+            icon: Icon(Icons.bookmark),
+          ),
         ],
       ),
     );
