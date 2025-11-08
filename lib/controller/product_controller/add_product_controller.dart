@@ -119,6 +119,10 @@ class CreateProductController extends GetxController {
       showToast("Please select a product image");
       return false;
     }
+    if (selectedTags.isEmpty) {
+      showToast("Please select a tag");
+      return false;
+    }
     return true;
   }
 
@@ -127,6 +131,7 @@ class CreateProductController extends GetxController {
     if (selectedTags.contains(tag)) {
       selectedTags.remove(tag);
     } else {
+      selectedTags.clear(); // Clear any existing selection
       selectedTags.add(tag);
     }
   }

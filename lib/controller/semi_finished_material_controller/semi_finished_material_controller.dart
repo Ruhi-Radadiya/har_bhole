@@ -108,17 +108,17 @@ class SemiFinishedController extends GetxController {
   void fillFormForEdit(SemiFinishedMaterialModel product) {
     isEditMode.value = true;
     selectedStockId.value = product.stockId;
-    itemCodeController.text = product.itemCode ?? '';
-    itemNameController.text = product.itemName ?? '';
-    selectedCategory.value = product.categoryId ?? '';
-    currentQuantityController.text = product.currentQuantity ?? '';
-    unitOfMeasureController.text = product.unitOfMeasure ?? '';
-    reorderPointController.text = product.reorderPoint ?? '';
+    itemCodeController.text = product.itemCode;
+    itemNameController.text = product.itemName;
+    selectedCategory.value = product.categoryId;
+    currentQuantityController.text = product.currentQuantity;
+    unitOfMeasureController.text = product.unitOfMeasure;
+    reorderPointController.text = product.reorderPoint;
     locationController.text = product.location ?? '';
     descriptionController.text = product.description ?? '';
-    selectedOutputType.value = product.outputType ?? '';
-    boxWeightController.text = product.boxWeight ?? '';
-    boxDimensionsController.text = product.boxDimensions ?? '';
+    selectedOutputType.value = product.outputType;
+    boxWeightController.text = product.boxWeight;
+    boxDimensionsController.text = product.boxDimensions;
   }
 
   // --------------------- GENERATE ITEM CODE ---------------------
@@ -129,13 +129,13 @@ class SemiFinishedController extends GetxController {
       final items = materials;
       final existingCodes = items
           .map((item) => item.itemCode)
-          .where((code) => code != null && code.startsWith('SF'))
+          .where((code) => code.startsWith('SF'))
           .toList();
 
       int maxNumber = 0;
       for (var code in existingCodes) {
         final number =
-            int.tryParse(code!.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+            int.tryParse(code.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
         if (number > maxNumber) maxNumber = number;
       }
 

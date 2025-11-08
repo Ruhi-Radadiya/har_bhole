@@ -93,6 +93,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(
             productArg != null ? "Edit Product" : "Create New Product",
@@ -283,6 +284,84 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         controller:
                             createProductController.expiryDateController,
                         hint: "Select Date",
+                      ),
+                      SizedBox(height: Get.height / 60),
+                      Row(
+                        children: [
+                          _sectionTitle("Product Tags"),
+                          Text(
+                            " *",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: Get.width / 21,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: Get.height / 60),
+                      Obx(() {
+                        if (createProductController.selectedTags.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              "Please select a tag",
+                              style: TextStyle(
+                                color: Colors.red[700],
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                      Obx(
+                        () => Wrap(
+                          spacing: 8,
+                          children: createProductController.productTags.map((
+                            tag,
+                          ) {
+                            final isSelected = createProductController
+                                .selectedTags
+                                .contains(tag);
+                            return GestureDetector(
+                              onTap: () =>
+                                  createProductController.toggleTag(tag),
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                  right: 8,
+                                  bottom: 8,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xffF78520)
+                                      : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? const Color(0xffF78520)
+                                        : Colors.grey[300]!,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: GoogleFonts.poppins(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.black87,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       ),
                       SizedBox(height: Get.height / 60),
                       _sectionTitle("Ingredients"),

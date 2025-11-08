@@ -177,7 +177,6 @@ class RawMaterialController extends GetxController {
         ),
       );
 
-      // ✅ Required field mapping — all backend keys must match exactly
       request.fields.addAll({
         'stock_id': stockId.toString(),
         'material_code': materialCodeController.text.trim(),
@@ -188,13 +187,12 @@ class RawMaterialController extends GetxController {
         'cost_price': costPriceController.text.trim(),
         'min_stock_level': minStockLevelController.text.trim(),
         'max_stock_level': maxStockLevelController.text.trim(),
-        'reorder_point': '30', // ⚠️ must be included as integer string
+        'reorder_point': '30',
         'supplier_id': selectedSupplier.value.toString(),
         'description': descriptionController.text.trim(),
         'status': '1',
       });
 
-      // Optional image
       if (materialImagePath.value.isNotEmpty) {
         request.files.add(
           await http.MultipartFile.fromPath('image', materialImagePath.value),
@@ -216,7 +214,7 @@ class RawMaterialController extends GetxController {
             textColor: Colors.white,
             gravity: ToastGravity.BOTTOM,
           );
-          Get.back(); // go back to list
+          Get.back();
         } else {
           Fluttertoast.showToast(
             msg: "⚠️ Update failed: ${result['message'] ?? 'Unknown error'}",
@@ -277,19 +275,15 @@ class RawMaterialController extends GetxController {
   }
 
   void fillMaterialData(RawMaterialModel m) {
-    // store stock id for update
     stockId.value = m.stockId?.toString() ?? '';
-
     materialCodeController.text = m.materialCode ?? '';
     materialNameController.text = m.materialName ?? '';
     selectedCategory.value = m.categoryId?.toString() ?? '';
-    // supplier may be null or string; convert safely to int
     selectedSupplier.value = int.tryParse(m.supplierId?.toString() ?? '') ?? 0;
     unitOfMeasureController.text = m.unitOfMeasure ?? '';
     currentQuantityController.text = m.currentQuantity?.toString() ?? '';
     minStockLevelController.text = m.minStockLevel?.toString() ?? '';
     maxStockLevelController.text = m.maxStockLevel?.toString() ?? '';
-    // costPrice in model is string, so keep text as string
     costPriceController.text = m.costPrice?.toString() ?? '';
     descriptionController.text = m.description ?? '';
     selectedStatus.value = m.status ?? 'Active';
@@ -298,11 +292,10 @@ class RawMaterialController extends GetxController {
 
   void autoGenerateMaterialCode() {
     try {
-      final materials = materialList; // your list from API
+      final materials = materialList;
 
-      // Extract existing codes like "RM001", "RM018" etc.
       final existingCodes = materials
-          .map((m) => m.materialCode ?? '') // avoid null
+          .map((m) => m.materialCode ?? '')
           .where((code) => code.startsWith('RM'))
           .toList();
 
