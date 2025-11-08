@@ -30,8 +30,8 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
   }
 
   void _fillFormWithVoucher(Voucher voucher) {
-    addVoucherController.voucherDateController.text = voucher.voucherDate ?? '';
-    addVoucherController.amountController.text = voucher.amount ?? '';
+    addVoucherController.voucherDateController.text = voucher.voucherDate;
+    addVoucherController.amountController.text = voucher.amount;
     addVoucherController.voucherNoController.text = voucher.voucherNo ?? '';
     addVoucherController.referenceNoController.text = voucher.referenceNo ?? '';
     addVoucherController.bankNameController.text = voucher.bankName ?? '';
@@ -45,11 +45,11 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
     addVoucherController.billToController.text = voucher.billTo ?? '';
     addVoucherController.voucherCodeController.text = voucher.voucherCode ?? '';
     addVoucherController.selectedStatus.value = voucher.status ?? 'Pending';
-    selectedType = voucher.voucherType ?? 'Journal';
+    selectedType = voucher.voucherType;
     selectedPaymentMode = voucher.paymentMode ?? 'Cash';
 
-    if (voucher.itemsJson != null && voucher.itemsJson!.isNotEmpty) {
-      addVoucherController.items.assignAll(voucher.itemsJson!);
+    if (voucher.itemsJson.isNotEmpty) {
+      addVoucherController.items.assignAll(voucher.itemsJson);
     }
   }
 

@@ -52,12 +52,8 @@ class OrderAnalyticsController extends GetxController {
       filterOrders.assignAll(
         orderList.where(
           (item) =>
-              (item.customerName ?? '').toLowerCase().contains(
-                query.toLowerCase(),
-              ) ||
-              (item.customerName ?? '').toLowerCase().contains(
-                query.toLowerCase(),
-              ),
+              (item.customerName).toLowerCase().contains(query.toLowerCase()) ||
+              (item.customerName).toLowerCase().contains(query.toLowerCase()),
         ),
       );
     }

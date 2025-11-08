@@ -382,21 +382,18 @@ class _HomeState extends State<Home> {
                             child: GestureDetector(
                               onTap: () {
                                 Get.to(
-                                  Products(
-                                    defaultType: product.categoryName ?? 'All',
-                                  ),
+                                  Products(defaultType: product.categoryName),
                                 );
                               },
                               child: RestaurantFoodCard(
                                 imageUrl:
                                     // product.productImage ??
                                     'asset/images/home/samosa.png',
-                                title: product.productName ?? 'Unknown Product',
-                                subDetails: product.categoryName ?? '',
+                                title: product.productName,
+                                subDetails: product.categoryName,
                                 offerText: '',
                                 rating: '4.0',
-                                costPerOne:
-                                    '₹${product.sellingPrice ?? '0'} for one',
+                                costPerOne: '₹${product.sellingPrice} for one',
                               ),
                             ),
                           );

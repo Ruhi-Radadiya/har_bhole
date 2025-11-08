@@ -375,7 +375,7 @@ class CustomerScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.name ?? '',
+                        item.name,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 24,
@@ -387,7 +387,7 @@ class CustomerScreen extends StatelessWidget {
                         maxLines: 1,
                       ),
                       Text(
-                        item.mobile ?? '',
+                        item.mobile,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 34.5,

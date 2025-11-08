@@ -80,56 +80,56 @@ class ViewAllOrders extends StatelessWidget {
                 children: [
                   CustomTextField(
                     label: 'Order Number',
-                    hint: order.orderNumber ?? '-',
+                    hint: order.orderNumber,
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),
 
                   CustomTextField(
                     label: 'Customer',
-                    hint: order.customerName ?? '-',
+                    hint: order.customerName,
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),
 
                   CustomTextField(
                     label: 'Mobile',
-                    hint: order.customerMobile ?? '-',
+                    hint: order.customerMobile,
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),
 
                   CustomTextField(
                     label: 'Address',
-                    hint: order.customerAddress ?? '-',
+                    hint: order.customerAddress,
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),
 
                   CustomTextField(
                     label: 'Amount',
-                    hint: '₹${order.totalAmount ?? '0'}',
+                    hint: '₹${order.totalAmount}',
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),
 
                   CustomTextField(
                     label: 'Status',
-                    hint: _capitalize(order.status ?? '-'),
+                    hint: _capitalize(order.status),
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),
 
                   CustomTextField(
                     label: 'Payment Status',
-                    hint: _capitalize(order.paymentStatus ?? '-'),
+                    hint: _capitalize(order.paymentStatus),
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),
 
                   CustomTextField(
                     label: 'Payment Method',
-                    hint: order.paymentMethod ?? '-',
+                    hint: order.paymentMethod,
                     isReadOnly: true,
                   ),
                   SizedBox(height: Get.height / 60),

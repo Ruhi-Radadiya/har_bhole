@@ -113,8 +113,8 @@ class StockMovementController extends GetxController {
     } else {
       filteredMaterials.assignAll(
         materials.where((item) {
-          final name = item.referenceType?.toLowerCase() ?? '';
-          final note = item.notes?.toLowerCase() ?? '';
+          final name = item.referenceType.toLowerCase();
+          final note = item.notes.toLowerCase();
           return name.contains(query.toLowerCase()) ||
               note.contains(query.toLowerCase());
         }).toList(),

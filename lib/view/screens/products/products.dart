@@ -160,9 +160,7 @@ class _ProductsState extends State<Products> {
                                     title: product.productName,
                                     description: product.description,
                                     price: '₹ ${product.sellingPrice}',
-                                    imageUrl:
-                                        product.productImage ??
-                                        'asset/images/home/khaman.png',
+                                    imageUrl: product.productImage,
                                     quantity: qty,
                                     onAdd: () => addToCart(
                                       product.productId.toString(),

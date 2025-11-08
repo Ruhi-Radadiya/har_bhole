@@ -81,8 +81,7 @@ class VouchersController extends GetxController {
       results = results
           .where(
             (v) =>
-                v.voucherType?.toLowerCase() ==
-                selectedType.value.toLowerCase(),
+                v.voucherType.toLowerCase() == selectedType.value.toLowerCase(),
           )
           .toList();
     }
@@ -104,8 +103,7 @@ class VouchersController extends GetxController {
         DateTime end = DateTime.parse(toDate.value);
 
         results = results.where((v) {
-          if (v.voucherDate == null) return false;
-          final d = DateTime.parse(v.voucherDate!);
+          final d = DateTime.parse(v.voucherDate);
           return d.isAfter(start.subtract(const Duration(days: 1))) &&
               d.isBefore(end.add(const Duration(days: 1)));
         }).toList();

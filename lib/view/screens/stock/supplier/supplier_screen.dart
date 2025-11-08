@@ -312,7 +312,7 @@ class _SupplierScreenState extends State<SupplierScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.supplierName ?? '',
+                        item.supplierName,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 24,
@@ -324,7 +324,7 @@ class _SupplierScreenState extends State<SupplierScreen> {
                         maxLines: 1,
                       ),
                       Text(
-                        item.notes ?? '',
+                        item.notes,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 34.5,

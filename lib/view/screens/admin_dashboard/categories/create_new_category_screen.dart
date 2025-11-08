@@ -45,7 +45,7 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
       showOnHome.value = widget.existingCategory!.showOnHome == "1"
           ? "Yes"
           : "No";
-      categoryImage = widget.existingCategory!.categoryImage ?? "default.png";
+      categoryImage = widget.existingCategory!.categoryImage;
       selectedCategoryType.value = widget.existingCategory!.parentId == null
           ? "Main"
           : "Sub";

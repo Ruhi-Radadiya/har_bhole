@@ -31,22 +31,22 @@ class AddSupplierController extends GetxController {
 
   void fillSupplierData(Supplier supplier) {
     supplierCodeController.text = supplier.supplierCode ?? '';
-    supplierNameController.text = supplier.supplierName ?? '';
-    contactPersonController.text = supplier.contactPerson ?? '';
-    phoneController.text = supplier.phone ?? '';
-    emailController.text = supplier.email ?? '';
+    supplierNameController.text = supplier.supplierName;
+    contactPersonController.text = supplier.contactPerson;
+    phoneController.text = supplier.phone;
+    emailController.text = supplier.email;
     websiteController.text = supplier.website ?? '';
-    addressController.text = supplier.address ?? '';
-    cityController.text = supplier.city ?? '';
-    stateController.text = supplier.state ?? '';
-    pinCodeController.text = supplier.pinCode ?? '';
-    countryController.text = supplier.country ?? '';
+    addressController.text = supplier.address;
+    cityController.text = supplier.city;
+    stateController.text = supplier.state;
+    pinCodeController.text = supplier.pinCode;
+    countryController.text = supplier.country;
     gstNumberController.text = supplier.gstNumber ?? '';
     panNumberController.text = supplier.panNumber ?? '';
-    paymentTermsController.text = supplier.paymentTerms ?? '';
-    creditLimitController.text = supplier.creditLimit ?? '';
-    notesController.text = supplier.notes ?? '';
-    statusController.text = supplier.status ?? 'Active';
+    paymentTermsController.text = supplier.paymentTerms;
+    creditLimitController.text = supplier.creditLimit;
+    notesController.text = supplier.notes;
+    statusController.text = supplier.status;
   }
 
   /// Loading state

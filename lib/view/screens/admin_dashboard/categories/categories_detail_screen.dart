@@ -175,7 +175,7 @@ class CategoryDetailsScreen extends StatelessWidget {
 
                             label: "Created Date",
                             controller: TextEditingController(
-                              text: category.createdAt ?? '',
+                              text: category.createdAt,
                             ),
                             isReadOnly: true,
                           ),

@@ -46,10 +46,10 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     ctrl.expiryDateController.text = p.expiryDate;
     ctrl.ingredientsListController.text = p.ingredients;
     ctrl.isActive.value = p.status == '1';
-    ctrl.descriptionController.text = p.description ?? "";
+    ctrl.descriptionController.text = p.description;
 
     // ✅ Auto fill category name and ID
-    ctrl.selectedCategoryName.value = p.categoryName ?? '';
+    ctrl.selectedCategoryName.value = p.categoryName;
     // Find and set the category ID from the category name
     if (p.categoryName.isNotEmpty) {
       final selectedCategory = premiumCollectionController.premiumCollection
@@ -120,7 +120,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),

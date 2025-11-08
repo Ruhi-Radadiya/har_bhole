@@ -362,7 +362,7 @@ class CustomerOrder extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.customerName ?? '',
+                        item.customerName,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 24,
@@ -374,7 +374,7 @@ class CustomerOrder extends StatelessWidget {
                         maxLines: 1,
                       ),
                       Text(
-                        item.customerMobile ?? '',
+                        item.customerMobile,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 34.5,

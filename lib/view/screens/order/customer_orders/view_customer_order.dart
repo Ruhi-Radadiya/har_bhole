@@ -72,25 +72,25 @@ class ViewCustomerOrder extends StatelessWidget {
                       children: [
                         CustomTextField(
                           label: 'Order Number',
-                          hint: order.orderNumber ?? '-',
+                          hint: order.orderNumber,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Amount',
-                          hint: '₹${order.totalAmount ?? '0.00'}',
+                          hint: '₹${order.totalAmount}',
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Status',
-                          hint: order.status ?? '-',
+                          hint: order.status,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Payment Status',
-                          hint: order.paymentStatus ?? '-',
+                          hint: order.paymentStatus,
                           isReadOnly: true,
                         ),
                         SizedBox(height: Get.height / 60),

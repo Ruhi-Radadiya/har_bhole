@@ -62,7 +62,7 @@ class ProductController extends GetxController {
   Map<String, List<Product>> get groupedProducts {
     final Map<String, List<Product>> grouped = {};
     for (var product in filteredProducts) {
-      final category = product.categoryName ?? 'Uncategorized';
+      final category = product.categoryName;
       grouped.putIfAbsent(category, () => []).add(product);
     }
     return grouped;

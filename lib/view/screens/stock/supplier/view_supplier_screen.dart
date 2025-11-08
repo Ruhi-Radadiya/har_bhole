@@ -110,35 +110,30 @@ class ViewSupplierScreen extends StatelessWidget {
                       SizedBox(height: Get.height / 50),
                       CustomTextField(
                         label: "Supplier Name",
-                        hint: supplier.supplierName ?? "-",
+                        hint: supplier.supplierName,
                       ),
                       SizedBox(height: Get.height / 50),
                       CustomTextField(
                         label: "Phone Number",
-                        hint: supplier.phone ?? "-",
+                        hint: supplier.phone,
                       ),
                       SizedBox(height: Get.height / 50),
-                      CustomTextField(
-                        label: "Email ID",
-                        hint: supplier.email ?? "-",
-                      ),
+                      CustomTextField(label: "Email ID", hint: supplier.email),
                       SizedBox(height: Get.height / 50),
                       CustomTextField(
                         label: "Location",
                         hint:
-                            "${supplier.address ?? '-'}, ${supplier.city ?? '-'}, ${supplier.state ?? '-'}",
+                            "${supplier.address}, ${supplier.city}, ${supplier.state}",
                       ),
                       SizedBox(height: Get.height / 50),
                       CustomTextField(
                         label: "Payment Terms",
-                        hint: supplier.paymentTerms ?? "-",
+                        hint: supplier.paymentTerms,
                       ),
                       SizedBox(height: Get.height / 50),
                       CustomTextField(
                         label: "Credit Limit",
-                        hint: supplier.creditLimit != null
-                            ? "₹${supplier.creditLimit}"
-                            : "-",
+                        hint: "₹${supplier.creditLimit}",
                       ),
                       SizedBox(height: Get.height / 50),
                       SizedBox(

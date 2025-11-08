@@ -168,9 +168,7 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                               : rawMaterialController.selectedCategoryId.value,
 
                           // ✅ Each dropdown item’s value = categoryId (unique)
-                          items: categories
-                              .map((e) => e.categoryId ?? '')
-                              .toList(),
+                          items: categories.map((e) => e.categoryId).toList(),
 
                           onChanged: (val) {
                             if (val != null) {
@@ -181,9 +179,9 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
 
                               // ✅ Store both for display and backend use
                               rawMaterialController.selectedCategoryId.value =
-                                  selected.categoryId ?? '';
+                                  selected.categoryId;
                               rawMaterialController.selectedCategoryName.value =
-                                  selected.categoryName ?? '';
+                                  selected.categoryName;
                             }
                           },
 

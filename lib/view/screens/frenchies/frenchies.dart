@@ -220,7 +220,7 @@ class Frenchies extends StatelessWidget {
                               imageUrl:
                                   // product.productImage ??
                                   'asset/images/home/samosa.png',
-                              title: product.productName ?? 'Unnamed Product',
+                              title: product.productName,
                               timeDistance:
                                   '20 - 25 mins', // you can replace with dynamic data later
                               offerBadgeText: 'FLAT ₹50 OFF',
@@ -285,21 +285,18 @@ class Frenchies extends StatelessWidget {
                           child: GestureDetector(
                             onTap: () {
                               Get.to(
-                                Products(
-                                  defaultType: product.categoryName ?? 'All',
-                                ),
+                                Products(defaultType: product.categoryName),
                               );
                             },
                             child: RestaurantFoodCard(
                               imageUrl:
                                   // product.productImage ??
                                   'asset/images/home/samosa.png',
-                              title: product.productName ?? 'Unknown Product',
-                              subDetails: product.categoryName ?? '',
+                              title: product.productName,
+                              subDetails: product.categoryName,
                               offerText: '',
                               rating: '4.0',
-                              costPerOne:
-                                  '₹${product.sellingPrice ?? '0'} for one',
+                              costPerOne: '₹${product.sellingPrice} for one',
                             ),
                           ),
                         );

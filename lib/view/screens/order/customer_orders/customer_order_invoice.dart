@@ -19,8 +19,8 @@ class CustomerOrderInvoice extends StatelessWidget {
     // ✅ Calculate subtotal
     double subtotal = 0.0;
     for (var item in products) {
-      double price = double.tryParse(item.price.toString() ?? '0') ?? 0;
-      double qty = double.tryParse(item.quantity.toString() ?? '0') ?? 0;
+      double price = double.tryParse(item.price.toString()) ?? 0;
+      double qty = double.tryParse(item.quantity.toString()) ?? 0;
       subtotal += price * qty;
     }
 
@@ -138,7 +138,7 @@ class CustomerOrderInvoice extends StatelessWidget {
                         children: [
                           _buildPriceRow(
                             'Mode:',
-                            order.paymentMethod.toUpperCase() ?? '-',
+                            order.paymentMethod.toUpperCase(),
                             isTotal: false,
                           ),
                           _buildPriceRow(

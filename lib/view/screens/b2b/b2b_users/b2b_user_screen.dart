@@ -169,7 +169,7 @@ class B2BUserScreen extends StatelessWidget {
                       name: user.name,
                       email: user.email,
                       mobile: user.phone,
-                      address: user.address ?? "No address", // provide address
+                      address: user.address, // provide address
                       status: user.status,
                       statusColor: user.status.toLowerCase() == "active"
                           ? const Color(0xff4E6B37)

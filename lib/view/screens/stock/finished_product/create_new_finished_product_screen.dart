@@ -253,7 +253,7 @@ class _CreateNewFinishedProductScreenState
                         }
 
                         final materials = semiFinishedController.materials
-                            .map((e) => e.itemName ?? '')
+                            .map((e) => e.itemName)
                             .where((name) => name.isNotEmpty)
                             .toSet()
                             .toList();
@@ -292,13 +292,13 @@ class _CreateNewFinishedProductScreenState
                                 finishedGoodsStockController
                                         .selectedRawMaterialId
                                         .value =
-                                    selected.stockId ?? '';
+                                    selected.stockId;
 
                                 // ✅ Auto-fill the unit text field directly from semi-finished API
                                 finishedGoodsStockController
                                         .unitController
                                         .text =
-                                    selected.unitOfMeasure ?? '';
+                                    selected.unitOfMeasure;
                               }
                             }
                           },

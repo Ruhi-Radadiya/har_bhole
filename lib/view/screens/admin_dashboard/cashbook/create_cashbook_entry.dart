@@ -235,7 +235,7 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                       UploadFileField(
                         label: "Attachment (image/pdf)",
                         onFileSelected: (path) {
-                          if (path != null && path.isNotEmpty) {
+                          if (path.isNotEmpty) {
                             cashEntryController.attachmentFile.value = File(
                               path,
                             );

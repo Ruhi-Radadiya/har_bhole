@@ -32,19 +32,19 @@ class ViewVouchersScreen extends StatelessWidget {
     final Voucher voucher = Get.arguments as Voucher;
 
     // Initialize controllers with voucher data
-    dateController.text = voucher.voucherDate ?? '';
-    amountController.text = voucher.amount ?? '';
+    dateController.text = voucher.voucherDate;
+    amountController.text = voucher.amount;
     voucherNoController.text = voucher.voucherNo ?? '';
     refNoController.text = voucher.referenceNo ?? '';
     bankNameController.text = voucher.bankName ?? '';
     accountNoController.text = voucher.accountNumber ?? '';
     transactionNoController.text = voucher.transactionNumber ?? '';
     descriptionController.text = voucher.description ?? '';
-    priceController.text = voucher.amount ?? '';
+    priceController.text = voucher.amount;
     // lineTotalController.text = voucher. ?? '';
     billToController.text = voucher.billTo ?? '';
 
-    String selectedType = voucher.voucherType ?? 'Journal';
+    String selectedType = voucher.voucherType;
     String selectedPaymentMode = voucher.paymentMode ?? 'UPI';
     final selectedStatus =
         ((voucher.status ?? 'Pending').capitalizeFirst!.trim()).obs;

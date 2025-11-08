@@ -159,9 +159,7 @@ class _DeepLinkInitializerState extends State<DeepLinkInitializer> {
         _handleUri(initialLink);
       }
       _appLinks!.uriLinkStream.listen((uri) {
-        if (uri != null) {
-          _handleUri(uri);
-        }
+        _handleUri(uri);
       }, onError: (_) {});
     } catch (_) {
       // ignore

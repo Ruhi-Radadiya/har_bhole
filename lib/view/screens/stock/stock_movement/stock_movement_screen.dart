@@ -142,9 +142,7 @@ class StockMovementScreen extends StatelessWidget {
                           'Stock IN:',
                           stockMovementController.materials
                               .where(
-                                (e) =>
-                                    (e.movementType ?? '').toLowerCase() ==
-                                    'in',
+                                (e) => (e.movementType).toLowerCase() == 'in',
                               )
                               .length
                               .toString(),
@@ -155,9 +153,7 @@ class StockMovementScreen extends StatelessWidget {
                           'Stock Out:',
                           stockMovementController.materials
                               .where(
-                                (e) =>
-                                    (e.movementType ?? '').toLowerCase() ==
-                                    'out',
+                                (e) => (e.movementType).toLowerCase() == 'out',
                               )
                               .length
                               .toString(),
@@ -169,7 +165,7 @@ class StockMovementScreen extends StatelessWidget {
                           stockMovementController.materials
                               .where(
                                 (e) =>
-                                    (e.movementType ?? '').toLowerCase() ==
+                                    (e.movementType).toLowerCase() ==
                                     'adjustment',
                               )
                               .length
@@ -454,7 +450,7 @@ class StockMovementScreen extends StatelessWidget {
   }
 
   Widget _buildCategoryTile(StockMovementModel item) {
-    double qty = double.tryParse(item.quantity ?? "0") ?? 0;
+    double qty = double.tryParse(item.quantity) ?? 0;
     bool inStock = qty > 0;
 
     return Padding(
@@ -484,7 +480,7 @@ class StockMovementScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.referenceType ?? '',
+                        item.referenceType,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 24,
@@ -496,7 +492,7 @@ class StockMovementScreen extends StatelessWidget {
                         maxLines: 1,
                       ),
                       Text(
-                        item.notes ?? '',
+                        item.notes,
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                             fontSize: Get.width / 34.5,
