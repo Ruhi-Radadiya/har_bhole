@@ -679,7 +679,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           p.administrativeArea,
           p.postalCode,
           p.country,
-        ].where((e) => (e != null && e!.trim().isNotEmpty)).join(', ');
+        ].where((e) => (e != null && e.trim().isNotEmpty)).join(', ');
         setState(() {
           _selectedAddressText = composed;
         });

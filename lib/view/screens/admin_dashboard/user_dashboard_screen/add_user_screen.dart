@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -105,7 +107,7 @@ class _CreateNewUserScreenState extends State<CreateNewUserScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         spreadRadius: 2,
                         blurRadius: 8,
                         offset: const Offset(0, 3),
@@ -226,21 +228,21 @@ class _CreateNewUserScreenState extends State<CreateNewUserScreen> {
                               createUserController.aadharNumberController,
                           keyboardType: TextInputType.number,
                         ),
-                        // SizedBox(height: Get.height / 60),
-                        // UploadFileField(
-                        //   label: 'User Image',
-                        //   onFileSelected: (file) {
-                        //     createUserController.userImage.value =
-                        //         file as File?;
-                        //   },
-                        // ),
-                        // UploadFileField(
-                        //   label: 'Chequebook Image',
-                        //   onFileSelected: (file) {
-                        //     createUserController.chequebookImage.value =
-                        //         file as File?;
-                        //   },
-                        // ),
+                        SizedBox(height: Get.height / 60),
+                        UploadFileField(
+                          label: 'User Image',
+                          onFileSelected: (file) {
+                            createUserController.userImage.value =
+                                file as File?;
+                          },
+                        ),
+                        UploadFileField(
+                          label: 'Chequebook Image',
+                          onFileSelected: (file) {
+                            createUserController.chequebookImage.value =
+                                file as File?;
+                          },
+                        ),
                         SizedBox(height: Get.height / 40),
                         SizedBox(
                           width: double.infinity,
