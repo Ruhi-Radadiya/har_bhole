@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -232,15 +230,14 @@ class _CreateNewUserScreenState extends State<CreateNewUserScreen> {
                         UploadFileField(
                           label: 'User Image',
                           onFileSelected: (file) {
-                            createUserController.userImage.value =
-                                file as File?;
+                            createUserController.userImage.value = file;
                           },
                         ),
+                        SizedBox(height: Get.height / 60),
                         UploadFileField(
                           label: 'Chequebook Image',
                           onFileSelected: (file) {
-                            createUserController.chequebookImage.value =
-                                file as File?;
+                            createUserController.chequebookImage.value = file;
                           },
                         ),
                         SizedBox(height: Get.height / 40),

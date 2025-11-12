@@ -12,7 +12,7 @@ class DashboardUsersController extends GetxController {
 
   var allUsers = <DashboardUserModel>[].obs;
   var recentUsers = <DashboardUserModel>[].obs;
-  final userImage = Rxn<dynamic>(); // can be File, XFile, or URL
+  final userImage = Rxn<dynamic>();
   final chequebookImage = Rxn<dynamic>();
   var totalUsersCount = 0.obs;
   var activeUsersCount = 0.obs;
@@ -58,7 +58,6 @@ class DashboardUsersController extends GetxController {
     fetchUsers();
   }
 
-  // ---------------- FETCH USERS ----------------
   Future<void> fetchUsers() async {
     isLoading(true);
     try {
@@ -101,7 +100,6 @@ class DashboardUsersController extends GetxController {
     }
   }
 
-  // ---------------- SEARCH USERS ----------------
   void searchUsers(String query) {
     if (query.isEmpty) {
       recentUsers.value = allUsers.reversed.take(3).toList();
@@ -165,7 +163,6 @@ class DashboardUsersController extends GetxController {
     }
   }
 
-  // --- Clear all form fields for "Add" mode ---
   void clearFields() {
     editingUserId = null;
 
@@ -184,6 +181,4 @@ class DashboardUsersController extends GetxController {
     userImage.value = null;
     chequebookImage.value = null;
   }
-
-  // --- Update user method updated to use editingUserId if passed empty ---
 }

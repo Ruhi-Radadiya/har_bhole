@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -288,7 +286,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                                     statusBgColour: (user.userEmail != null)
                                         ? const Color(0xffDCE1D7)
                                         : const Color(0xffEFCFD2),
-                                    userImagePath: null,
+                                    userImagePath: user.userImage,
                                     userCode: user.userCode ?? '-',
                                   );
                                 },
@@ -424,6 +422,9 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     String? userImagePath,
     required String userCode,
   }) {
+    // Get the actual user image URL from the user object
+    String? userImageUrl = user.userImage?.toString();
+
     return Column(
       children: [
         Padding(
@@ -433,8 +434,10 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             children: [
               CircleAvatar(
                 radius: Get.width / 16,
-                backgroundImage: userImagePath != null
-                    ? FileImage(File(userImagePath))
+                backgroundImage: userImageUrl != null && userImageUrl.isNotEmpty
+                    ? NetworkImage(
+                        userImageUrl,
+                      ) // Use NetworkImage for URLs from API
                     : const AssetImage('asset/images/person_image.jpg')
                           as ImageProvider,
                 backgroundColor: Colors.grey.shade200,
@@ -523,7 +526,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             ],
           ),
         ),
-        if (dashboardUsersController.recentUsers.last.userCode != userCode)
+        if (dashboardUsersController.allUsers.last != user)
           const Divider(height: 1, color: Colors.grey),
       ],
     );

@@ -17,8 +17,8 @@ class CreateCashbookEntryScreen extends StatefulWidget {
 }
 
 class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
-  String selectedInOut = "Income"; // default
-  String selectedPayment = "UPI"; // default
+  String selectedInOut = "Income";
+  String selectedPayment = "UPI";
   final List<String> paymentMethods = ["UPI", "Cash", "NetBanking", "Card"];
 
   bool isEditMode = false;
@@ -235,13 +235,9 @@ class _CreateCashbookEntryScreenState extends State<CreateCashbookEntryScreen> {
                       UploadFileField(
                         label: "Attachment (image/pdf)",
                         onFileSelected: (path) {
-                          if (path.isNotEmpty) {
-                            cashEntryController.attachmentFile.value = File(
-                              path,
-                            );
-                          } else {
-                            cashEntryController.attachmentFile.value = null;
-                          }
+                          cashEntryController.attachmentFile.value = File(
+                            path as String,
+                          );
                         },
                       ),
                       SizedBox(height: Get.height / 30),

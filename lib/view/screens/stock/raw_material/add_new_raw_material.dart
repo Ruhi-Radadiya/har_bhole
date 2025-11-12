@@ -376,7 +376,8 @@ class _AddNewRawMaterialState extends State<AddNewRawMaterial> {
                       UploadFileField(
                         label: "Material Image",
                         onFileSelected: (val) =>
-                            rawMaterialController.materialImagePath.value = val,
+                            rawMaterialController.materialImagePath.value =
+                                val as String,
                       ),
                       Text(
                         "Upload an image of the material (optional)",

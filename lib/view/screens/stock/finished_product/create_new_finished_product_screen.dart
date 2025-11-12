@@ -182,7 +182,7 @@ class _CreateNewFinishedProductScreenState
                         label: 'Product Image',
                         onFileSelected: (path) {
                           finishedGoodsStockController.selectedImage.value =
-                              File(path);
+                              File(path as String);
                         },
                       ),
                       SizedBox(height: Get.height / 60),

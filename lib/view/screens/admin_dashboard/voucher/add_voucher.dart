@@ -225,7 +225,7 @@ class _AddVouchersScreenState extends State<AddVouchersScreen> {
                         label: 'Reference Document (image/pdf)',
                         onFileSelected: (path) {
                           addVoucherController.referenceDocController.text =
-                              path;
+                              path as String;
                         },
                       ),
                       SizedBox(height: Get.height / 50),

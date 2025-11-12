@@ -324,7 +324,7 @@ class _CreateNewCategoryScreenState extends State<CreateNewCategoryScreen> {
                       UploadFileField(
                         label: "Category Image",
                         onFileSelected: (file) {
-                          categoryImage = file.split("/").last;
+                          categoryImage = file as String;
                         },
                       ),
                       SizedBox(height: Get.height / 50),

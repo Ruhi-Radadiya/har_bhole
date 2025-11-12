@@ -181,7 +181,8 @@ class FieldValidator {
 
 class UploadFileField extends StatefulWidget {
   final String label;
-  final Function(String) onFileSelected;
+  final Function(File?)
+  onFileSelected; // Change to accept File? instead of String
 
   const UploadFileField({
     super.key,
@@ -224,11 +225,12 @@ class _UploadFileFieldState extends State<UploadFileField> {
                   imageQuality: 80,
                 );
                 if (image != null) {
+                  final file = File(image.path);
                   setState(() {
-                    _selectedFile = File(image.path);
+                    _selectedFile = file;
                     _fileName = image.name;
                   });
-                  widget.onFileSelected(image.path);
+                  widget.onFileSelected(file);
                   Get.snackbar(
                     'Success',
                     '${widget.label} selected',
@@ -249,11 +251,12 @@ class _UploadFileFieldState extends State<UploadFileField> {
                   imageQuality: 80,
                 );
                 if (image != null) {
+                  final file = File(image.path);
                   setState(() {
-                    _selectedFile = File(image.path);
+                    _selectedFile = file;
                     _fileName = image.name;
                   });
-                  widget.onFileSelected(image.path);
+                  widget.onFileSelected(file);
                   Get.snackbar(
                     'Success',
                     '${widget.label} selected',
@@ -274,7 +277,6 @@ class _UploadFileFieldState extends State<UploadFileField> {
     final screenWidth = Get.width;
     final screenHeight = Get.height;
 
-    // The label remains the same
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -297,7 +299,6 @@ class _UploadFileFieldState extends State<UploadFileField> {
               borderRadius: BorderRadius.circular(8.0),
             ),
             clipBehavior: Clip.antiAlias,
-
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -319,7 +320,6 @@ class _UploadFileFieldState extends State<UploadFileField> {
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     alignment: Alignment.centerLeft,
                     color: const Color(0xffF2F1F0),
-
                     child: Text(
                       _fileName ?? "No File Chosen",
                       style: TextStyle(

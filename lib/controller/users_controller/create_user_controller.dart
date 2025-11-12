@@ -17,6 +17,8 @@ class CreateUserController extends GetxController {
   var userImage = Rx<File?>(null);
   var chequebookImage = Rx<File?>(null);
 
+  String? existingUserImageUrl;
+  String? existingChequebookImageUrl;
   // For edit mode
   String? editingUserId;
 
@@ -140,52 +142,65 @@ class CreateUserController extends GetxController {
   }
 
   Future<void> submitForm() async {
+    if (!validateForm()) return;
+
     isLoading.value = true;
 
     final uri = Uri.parse(
       'https://harbhole.eihlims.com/Api/user_api.php?action=add',
     );
 
-    final request = http.MultipartRequest('POST', uri);
-
-    // --- Fields ---
-    request.fields.addAll({
-      "user_code": userCodeController.text,
-      "user_name": nameController.text,
-      "user_email": emailController.text,
-      "user_password": passwordController.text,
-      "user_phone": contactController.text,
-      "user_address": addressController.text,
-      "designation": selectedDesignation.value,
-      "joining_date": joiningDateController.text,
-      "salary": salaryController.text,
-      "bank_name": bankNameController.text,
-      "account_number": accountNumberController.text,
-      "ifsc_code": ifscCodeController.text,
-      "aadhar_number": aadharNumberController.text,
-      "ui_prefs": jsonEncode({"appTheme": "dark", "colorTheme": "blue"}),
-    });
-
-    // --- Upload images if any ---
-    if (userImage.value != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('user_image', userImage.value!.path),
-      );
-    }
-
-    if (chequebookImage.value != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'chequebook_image',
-          chequebookImage.value!.path,
-        ),
-      );
-    }
-
-    log("🟠 Sending multipart request to: $uri");
-    log("🟠 Fields: ${request.fields}");
-
     try {
+      final request = http.MultipartRequest('POST', uri);
+
+      // --- 🧠 Fields ---
+      request.fields.addAll({
+        "user_code": userCodeController.text.trim(),
+        "user_name": nameController.text.trim(),
+        "user_email": emailController.text.trim(),
+        "user_password": passwordController.text.trim(),
+        "user_phone": contactController.text.trim(),
+        "user_address": addressController.text.trim(),
+        "designation": selectedDesignation.value,
+        "joining_date": joiningDateController.text.trim(),
+        "salary": salaryController.text.trim(),
+        "bank_name": bankNameController.text.trim(),
+        "account_number": accountNumberController.text.trim(),
+        "ifsc_code": ifscCodeController.text.trim(),
+        "aadhar_number": aadharNumberController.text.trim(),
+        "ui_prefs": jsonEncode({"appTheme": "dark", "colorTheme": "blue"}),
+      });
+
+      // --- 📸 Upload images (if any selected) ---
+      if (userImage.value != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'user_image', // This must match your backend field name
+            userImage.value!.path,
+          ),
+        );
+        log("🖼 user_image added: ${userImage.value!.path}");
+      } else {
+        log("⚠️ No user_image selected");
+      }
+
+      if (chequebookImage.value != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'chequebook_image', // This must match your backend field name
+            chequebookImage.value!.path,
+          ),
+        );
+        log("🖼 chequebook_image added: ${chequebookImage.value!.path}");
+      } else {
+        log("⚠️ No chequebook_image selected");
+      }
+
+      log("🟠 Sending multipart request to: $uri");
+      log("🟠 Fields: ${request.fields}");
+      log("🟠 Files count: ${request.files.length}");
+
+      // --- 📨 Send request ---
       final response = await request.send();
       final respStr = await response.stream.bytesToString();
 
@@ -197,18 +212,19 @@ class CreateUserController extends GetxController {
       final jsonResponse = jsonDecode(respStr);
 
       if (jsonResponse['success'] == true) {
-        Fluttertoast.showToast(msg: 'User added successfully!');
+        Fluttertoast.showToast(msg: '✅ User added successfully!');
         Get.back();
-        dashboardUsersController.fetchUsers(); // refresh list after add
+        dashboardUsersController.fetchUsers(); // Refresh user list
+        clearForm();
       } else {
         Fluttertoast.showToast(
-          msg: jsonResponse['message'] ?? 'Failed to add user',
+          msg: jsonResponse['message'] ?? '❌ Failed to add user',
         );
       }
     } catch (e) {
       isLoading.value = false;
       log("❌ Error submitting user: $e");
-      Fluttertoast.showToast(msg: 'Server error');
+      Fluttertoast.showToast(msg: 'Server error: $e');
     }
   }
 
@@ -265,17 +281,20 @@ class CreateUserController extends GetxController {
     }
 
     isLoading(true);
+
     try {
-      final url = Uri.parse(
+      final uri = Uri.parse(
         "https://harbhole.eihlims.com/Api/user_api.php?action=edit",
       );
 
-      final body = {
+      final request = http.MultipartRequest('POST', uri);
+
+      // --- Text fields ---
+      request.fields.addAll({
         "user_id": idToUse,
         "user_code": userCodeController.text.trim(),
         "user_name": nameController.text.trim(),
         "user_email": emailController.text.trim(),
-        "user_password": passwordController.text.trim(),
         "user_phone": contactController.text.trim(),
         "designation": selectedDesignation.value,
         "user_address": addressController.text.trim(),
@@ -286,19 +305,47 @@ class CreateUserController extends GetxController {
         "ifsc_code": ifscCodeController.text.trim(),
         "aadhar_number": aadharNumberController.text.trim(),
         "ui_prefs": jsonEncode({"appTheme": "dark", "colorTheme": "blue"}),
-      };
+      });
 
-      log("🟠 Update body: $body");
+      // Only add password if it's not empty (for updates)
+      if (passwordController.text.isNotEmpty) {
+        request.fields['user_password'] = passwordController.text.trim();
+      }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: body,
-      );
+      // --- Files (only add if user selected new ones) ---
+      if (userImage.value != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'user_image',
+            userImage.value!.path,
+          ),
+        );
+        log("📤 Adding new user image for update");
+      }
 
-      log("🟣 Update response: ${response.body}");
+      if (chequebookImage.value != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'chequebook_image',
+            chequebookImage.value!.path,
+          ),
+        );
+        log("📤 Adding new chequebook image for update");
+      }
 
-      final data = jsonDecode(response.body);
+      log("🟠 Update fields: ${request.fields}");
+      log("🟠 Update files count: ${request.files.length}");
+
+      // --- Send request ---
+      final response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      log("🟣 Update status: ${response.statusCode}");
+      log("🟣 Update response: $respStr");
+
+      isLoading(false);
+
+      final data = jsonDecode(respStr);
 
       if (response.statusCode == 200 && data["success"] == true) {
         Fluttertoast.showToast(msg: "✅ User updated successfully");
@@ -365,6 +412,8 @@ class CreateUserController extends GetxController {
     editingUserId = null;
     userImage.value = null;
     chequebookImage.value = null;
+    existingUserImageUrl = null;
+    existingChequebookImageUrl = null;
     userCodeController.clear();
     nameController.clear();
     emailController.clear();
@@ -395,6 +444,13 @@ class CreateUserController extends GetxController {
     ifscCodeController.text = user.ifscCode ?? '';
     aadharNumberController.text = user.aadharNumber ?? '';
     selectedDesignation.value = user.designation ?? '';
+
+    // Store existing image URLs for reference
+    existingUserImageUrl = user.userImage;
+    existingChequebookImageUrl = user.chequebookImage;
+
     log("✏️ Editing user ID: $editingUserId");
+    log("📷 Existing user image: $existingUserImageUrl");
+    log("📷 Existing chequebook image: $existingChequebookImageUrl");
   }
 }
