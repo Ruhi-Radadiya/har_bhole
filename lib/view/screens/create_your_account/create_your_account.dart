@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../main.dart';
 import '../../../routes/routes.dart';
 import '../../component/textfield.dart';
 
@@ -13,50 +14,14 @@ class CreateYourAccount extends StatefulWidget {
 }
 
 class _CreateYourAccountState extends State<CreateYourAccount> {
-  // Controllers
-  final usernameController = TextEditingController();
-  final emailController = TextEditingController();
-  final mobileController = TextEditingController();
-  final addressController = TextEditingController();
-  final cityController = TextEditingController();
-  final pincodeController = TextEditingController();
-
   @override
   void dispose() {
-    usernameController.dispose();
-    emailController.dispose();
-    mobileController.dispose();
-    addressController.dispose();
-    cityController.dispose();
-    pincodeController.dispose();
+    // Don't dispose controllers here as they are managed by GetX
     super.dispose();
   }
 
   void _onCreateAccount() {
-    bool isValid = FieldValidator.validateRequired({
-      "Username": usernameController,
-      "Email": emailController,
-      "Mobile No": mobileController,
-      "Address": addressController,
-      "City": cityController,
-      "PIN Code": pincodeController,
-    });
-
-    if (!isValid) return;
-
-    // ✅ Save mobile number to controller
-    // loginController.setSignupMobile(mobileController.text.trim());
-
-    Get.snackbar(
-      "Success",
-      "Account Created Successfully!",
-      backgroundColor: Colors.green.withOpacity(0.8),
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(12),
-    );
-
-    Get.toNamed(Routes.bottomNavigationBar);
+    registrationController.registerUser();
   }
 
   @override
@@ -64,7 +29,6 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        // 👇 Important: allows screen to resize when keyboard appears
         resizeToAvoidBottomInset: true,
         backgroundColor: Colors.transparent,
         body: Container(
@@ -81,7 +45,6 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
             ),
           ),
           child: SafeArea(
-            // 👇 SingleChildScrollView ensures full scroll when keyboard opens
             child: SingleChildScrollView(
               padding: EdgeInsets.only(
                 left: Get.width / 25,
@@ -151,7 +114,7 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                           hint: 'Enter your name',
                           image: "asset/images/loginscreen/user_icon.png",
                           keyboardType: TextInputType.name,
-                          controller: usernameController,
+                          controller: registrationController.usernameController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
@@ -159,14 +122,14 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                           hint: 'Enter your Email',
                           icon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
-                          controller: emailController,
+                          controller: registrationController.emailController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'Address',
                           hint: 'Enter your Address',
                           icon: Icons.location_on,
-                          controller: addressController,
+                          controller: registrationController.addressController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
@@ -174,14 +137,14 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                           hint: 'Enter your Mobile Number',
                           icon: Icons.phone,
                           keyboardType: TextInputType.phone,
-                          controller: mobileController,
+                          controller: registrationController.mobileController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
                           label: 'City',
                           hint: 'Enter your City',
                           icon: Icons.location_city,
-                          controller: cityController,
+                          controller: registrationController.cityController,
                         ),
                         SizedBox(height: Get.height / 60),
                         CustomTextField(
@@ -189,7 +152,7 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                           hint: 'Enter your PIN Code',
                           icon: Icons.pin,
                           keyboardType: TextInputType.number,
-                          controller: pincodeController,
+                          controller: registrationController.pincodeController,
                         ),
                         SizedBox(height: Get.height / 60),
 
@@ -214,9 +177,14 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
                         ),
 
                         SizedBox(height: Get.height / 100),
-                        _buildPrimaryButton(
-                          text: 'Create Account',
-                          onPressed: _onCreateAccount,
+                        Obx(
+                          () => _buildPrimaryButton(
+                            text: 'Create Account',
+                            onPressed: registrationController.isLoading.value
+                                ? null
+                                : _onCreateAccount,
+                            isLoading: registrationController.isLoading.value,
+                          ),
                         ),
                         SizedBox(height: Get.height / 25),
 
@@ -257,7 +225,8 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
 
   Widget _buildPrimaryButton({
     required String text,
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
+    required bool isLoading,
   }) {
     return SizedBox(
       width: Get.width,
@@ -271,14 +240,23 @@ class _CreateYourAccountState extends State<CreateYourAccount> {
           ),
           elevation: 5,
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: Get.width / 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        child: isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : Text(
+                text,
+                style: TextStyle(
+                  fontSize: Get.width / 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }

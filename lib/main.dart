@@ -37,6 +37,7 @@ import 'controller/navigation_controller/navigation.dart';
 import 'controller/navigation_controller/user_dashboard_navigation_controller.dart';
 import 'controller/orders_controller/orders_controller.dart';
 import 'controller/product_controller/add_product_controller.dart';
+import 'controller/registration_controller.dart';
 import 'controller/stock_movement_controller/stock_movement_controller.dart';
 import 'controller/supplier_controller/add_supplier_controller.dart';
 import 'controller/supplier_controller/supplier_controller.dart';
@@ -108,6 +109,9 @@ UserDashboardController userDashboardController = Get.put(
 );
 LocationController locationController = Get.put(LocationController());
 NavigationController navigationController = Get.put(NavigationController());
+RegistrationController registrationController = Get.put(
+  RegistrationController(),
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

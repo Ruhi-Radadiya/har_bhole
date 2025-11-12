@@ -23,7 +23,6 @@ class _IntroScreenState extends State<IntroScreen> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 🔶 Top container where you'll add your own image
             Container(
               width: Get.width,
               height: Get.height * 0.55,

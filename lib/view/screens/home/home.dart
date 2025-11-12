@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../controller/login_controller.dart';
 import '../../../main.dart';
 import '../../../model/product_model/product_model.dart';
 import '../../../routes/routes.dart';
@@ -133,49 +134,55 @@ class _HomeState extends State<Home> {
                                   ],
                                 ),
                                 Spacer(),
-                                GestureDetector(
-                                  onTap: () {
-                                    Get.toNamed(Routes.adminBottomBar);
-                                  },
-                                  child: Container(
-                                    height: Get.width / 9.3,
-                                    width: Get.width / 9.3,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(
-                                        Get.width / 25,
-                                      ),
-                                      image: DecorationImage(
-                                        image: AssetImage(
-                                          "asset/images/person_image.jpg",
+                                // GestureDetector(
+                                //   onTap: () {
+                                //     Get.toNamed(Routes.adminBottomBar);
+                                //   },
+                                //   child: Container(
+                                //     height: Get.width / 9.3,
+                                //     width: Get.width / 9.3,
+                                //     decoration: BoxDecoration(
+                                //       color: Colors.white,
+                                //       borderRadius: BorderRadius.circular(
+                                //         Get.width / 25,
+                                //       ),
+                                //       image: DecorationImage(
+                                //         image: AssetImage(
+                                //           "asset/images/person_image.jpg",
+                                //         ),
+                                //         fit: BoxFit.cover,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
+                                Obx(() {
+                                  final userRole =
+                                      loginController.userRole.value;
+                                  if (userRole != UserRole.admin) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Get.toNamed(Routes.adminBottomBar);
+                                    },
+                                    child: Container(
+                                      height: Get.width / 9.3,
+                                      width: Get.width / 9.3,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(
+                                          Get.width / 25,
                                         ),
-                                        fit: BoxFit.cover,
+                                        image: DecorationImage(
+                                          image: AssetImage(
+                                            "asset/images/person_image.jpg",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                // Obx(() {
-                                //   final userRole = loginController
-                                //       .userRole
-                                //       .value; // e.g. 'admin' or 'user'
-                                //
-                                //   if (userRole != 'admin') {
-                                //     // not admin → don't show anything
-                                //     return const SizedBox.shrink();
-                                //   }
-                                //
-                                //   // admin → show image
-                                //   return GestureDetector(
-                                //     onTap: () {
-                                //       // your tap logic
-                                //     },
-                                //     child: Image.asset(
-                                //       'assets/icons/admin_icon.png',
-                                //       height: 60,
-                                //       width: 60,
-                                //     ),
-                                //   );
-                                // }),
+                                  );
+                                }),
                               ],
                             ),
                             SizedBox(height: Get.height / 200),
