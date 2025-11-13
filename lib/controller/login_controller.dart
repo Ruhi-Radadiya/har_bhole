@@ -3,10 +3,10 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:har_bhole/view/screens/splash_screen/splash_screen.dart';
 import 'package:http/http.dart' as http;
 
 import '../routes/routes.dart';
-import '../view/screens/bottom_navigation_bar.dart';
 
 enum UserRole { admin, customer, guest }
 
@@ -23,7 +23,7 @@ class LoginController extends GetxController {
   var mobileNumber = "".obs;
   var userRole = UserRole.guest.obs;
 
-  /// ✅ Check if mobile number exists and send OTP
+  /// ✅ Step 1: Send OTP to mobile number
   Future<void> requestOtp(String mobile) async {
     try {
       if (mobile.isEmpty || mobile.length != 10) {
@@ -33,46 +33,35 @@ class LoginController extends GetxController {
 
       isLoading(true);
 
+      log("📤 Sending OTP to: $mobile");
+
       final response = await http.post(
-        Uri.parse("http://192.168.0.118/har_bhole_farsan/api/login_api.php"),
-        body: {
-          "mobile": mobile,
-          "otp": "", // Send empty string for OTP request
-        },
+        Uri.parse("http://192.168.0.118/har_bhole_farsan/api/send_otp_api.php"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"mobile_number": mobile}),
       );
 
-      log("📩 OTP Request Response: ${response.body}");
+      log("📩 Send OTP Response: ${response.body}");
       final data = jsonDecode(response.body);
 
-      // ✅ Check if mobile exists (success response)
-      if (data["status"] == "success" ||
-          (data["message"]?.toString().toLowerCase().contains("otp") ??
-              false) ||
-          (data["message"]?.toString().toLowerCase().contains("sent") ??
-              false)) {
+      if (data["status"] == "success") {
         mobileNumber.value = mobile;
-        Get.snackbar("Success", "OTP sent successfully!");
+        final otp = data["otp"] ?? "123456";
+        log("✅ OTP sent successfully: $otp");
+        Get.snackbar("Success", "OTP sent successfully! OTP: $otp");
         Get.toNamed(Routes.logInOTPScreen);
-      } else if (data["message"]?.toString().toLowerCase().contains(
-            "not found",
-          ) ??
-          false) {
-        Get.snackbar(
-          "Not Found",
-          "Mobile number not registered. Please sign up first.",
-        );
       } else {
         Get.snackbar("Error", data["message"] ?? "Failed to send OTP");
       }
     } catch (e) {
-      log("❌ Error requesting OTP: $e");
-      Get.snackbar("Error", "Network error: Please check your connection");
+      log("❌ Error sending OTP: $e");
+      Get.snackbar("Error", "Failed to send OTP. Please try again.");
     } finally {
       isLoading(false);
     }
   }
 
-  /// ✅ Verify OTP and Login
+  /// ✅ Step 2: Verify OTP and Login
   Future<void> verifyOtp(String otp) async {
     try {
       if (otp.isEmpty || otp.length != 6) {
@@ -84,28 +73,24 @@ class LoginController extends GetxController {
 
       log("🔐 Verifying OTP: $otp for mobile: ${mobileNumber.value}");
 
-      // ✅ Fixed OTP for testing (you can remove this in production)
-      if (otp == "123456") {
-        log("🎯 Using fixed OTP flow");
-        await _handleFixedOtpLogin();
-        return;
-      }
-
       final response = await http.post(
-        Uri.parse("http://192.168.0.118/har_bhole_farsan/api/login_api.php"),
-        body: {"mobile": mobileNumber.value, "otp": otp},
+        Uri.parse(
+          "http://192.168.0.118/har_bhole_farsan/api/verify_otp_api.php",
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"mobile_number": mobileNumber.value, "otp": otp}),
       );
 
-      log("🔹 Login Response Status: ${response.statusCode}");
-      log("🔹 Login Response Body: ${response.body}");
+      log("🔹 Verify OTP Response Status: ${response.statusCode}");
+      log("🔹 Verify OTP Response Body: ${response.body}");
 
       final data = jsonDecode(response.body);
 
       if (data["status"] == "success") {
-        log("✅ API Login Success - Processing user data...");
+        log("✅ OTP Verification Success");
         await _handleSuccessfulLogin(data);
       } else {
-        log("❌ API Login Failed: ${data["message"]}");
+        log("❌ OTP Verification Failed: ${data["message"]}");
         Get.snackbar("Invalid", data["message"] ?? "Invalid OTP");
       }
     } catch (e) {
@@ -119,17 +104,21 @@ class LoginController extends GetxController {
   /// ✅ Handle successful login
   Future<void> _handleSuccessfulLogin(Map<String, dynamic> data) async {
     try {
-      final user = data["user"];
-
-      // Extract user data
+      // Extract data from verify OTP response
       token.value = data["token"] ?? "";
+
+      final user = data["user"];
       userId.value = int.tryParse(user["user_id"]?.toString() ?? "0") ?? 0;
       name.value = user["name"] ?? "";
       email.value = user["email"] ?? "";
       mobileNumber.value = user["mobile_number"] ?? mobileNumber.value;
 
-      // ✅ Determine user role based on user_id or email
-      userRole.value = _determineUserRole(userId.value, email.value);
+      // ✅ Determine user role
+      userRole.value = _determineUserRole(
+        userId.value,
+        email.value,
+        mobileNumber.value,
+      );
 
       // Save user data
       _saveUserToStorage();
@@ -142,7 +131,7 @@ class LoginController extends GetxController {
       // Wait a bit for snackbar to show
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // Try navigation with multiple approaches
+      // Navigate to home
       await _navigateToHome();
     } catch (e) {
       log("❌ Error in successful login handler: $e");
@@ -150,46 +139,11 @@ class LoginController extends GetxController {
     }
   }
 
-  /// ✅ Navigate to home screen with multiple fallbacks
-  Future<void> _navigateToHome() async {
-    try {
-      log("📍 Attempting Method 1: Get.offAll with widget");
-      Get.offAll(() => const BottomNavigationBarScreen());
-      log("🎉 Navigation Method 1 Successful!");
-      return;
-    } catch (e) {
-      log("❌ Method 1 failed: $e");
-    }
-
-    try {
-      log("📍 Attempting Method 2: Get.offAllNamed");
-      Get.offAllNamed(Routes.bottomNavigationBar);
-      log("🎉 Navigation Method 2 Successful!");
-      return;
-    } catch (e) {
-      log("❌ Method 2 failed: $e");
-    }
-
-    try {
-      log("📍 Attempting Method 3: Get.offUntil");
-      Get.offUntil(
-        GetPageRoute(page: () => const BottomNavigationBarScreen()),
-        (route) => false,
-      );
-      log("🎉 Navigation Method 3 Successful!");
-      return;
-    } catch (e) {
-      log("❌ Method 3 failed: $e");
-    }
-
-    // Final fallback
-    log("⚠️ All navigation methods failed, using basic navigation");
-    Get.offAll(() => const BottomNavigationBarScreen());
-  }
-
   /// ✅ Determine if user is admin or customer
-  UserRole _determineUserRole(int userId, String email) {
-    log("🔍 Determining user role - UserID: $userId, Email: $email");
+  UserRole _determineUserRole(int userId, String email, String mobile) {
+    log(
+      "🔍 Determining user role - UserID: $userId, Email: $email, Mobile: $mobile",
+    );
 
     // Method 1: Check by user_id (admin usually has ID 1)
     if (userId == 1) {
@@ -203,8 +157,8 @@ class LoginController extends GetxController {
       return UserRole.admin;
     }
 
-    // Method 3: Check by mobile number (if you have specific admin numbers)
-    if (mobileNumber.value == "1234567891") {
+    // Method 3: Check by mobile number
+    if (mobile == "1234567891") {
       log("👑 User determined as ADMIN by Mobile");
       return UserRole.admin;
     }
@@ -214,62 +168,16 @@ class LoginController extends GetxController {
     return UserRole.customer;
   }
 
-  /// ✅ Handle fixed OTP login (for testing)
-  Future<void> _handleFixedOtpLogin() async {
-    log("🔧 Handling fixed OTP login for mobile: ${mobileNumber.value}");
-
-    // For fixed OTP "123456", we need to determine if it's admin or customer
-    if (mobileNumber.value == "1234567891") {
-      // Admin login with fixed OTP
-      userId.value = 1;
-      name.value = "Admin";
-      email.value = "admin@gmail.com";
-      mobileNumber.value = "1234567891";
-      token.value = "admin_fixed_token_123";
-      userRole.value = UserRole.admin;
-
-      _saveUserToStorage();
-
-      log("👑 Fixed OTP Admin Login Successful");
-      Get.snackbar("Success", "Logged in as Admin (Fixed OTP)");
-
-      await Future.delayed(const Duration(milliseconds: 500));
-      await _navigateToHome();
-    } else {
-      // Customer login with fixed OTP - we need to verify with API
-      log("🔧 Attempting API verification for fixed OTP customer");
-
-      final response = await http.post(
-        Uri.parse("http://192.168.0.118/har_bhole_farsan/api/login_api.php"),
-        body: {
-          "mobile": mobileNumber.value,
-          "otp": "123456", // Send the fixed OTP to API
-        },
-      );
-
-      log("🔹 Fixed OTP API Response: ${response.body}");
-      final data = jsonDecode(response.body);
-
-      if (data["status"] == "success") {
-        await _handleSuccessfulLogin(data);
-      } else {
-        // If API fails with fixed OTP, treat as test customer
-        log("🔧 Creating test customer for fixed OTP");
-
-        userId.value = 2;
-        name.value = "Test Customer";
-        email.value = "customer@test.com";
-        token.value = "customer_fixed_token_123";
-        userRole.value = UserRole.customer;
-
-        _saveUserToStorage();
-
-        log("👤 Fixed OTP Customer Login Successful (Test Mode)");
-        Get.snackbar("Success", "Logged in as Customer (Test Mode)");
-
-        await Future.delayed(const Duration(milliseconds: 500));
-        await _navigateToHome();
-      }
+  /// ✅ Navigate to home screen
+  Future<void> _navigateToHome() async {
+    try {
+      log("📍 Navigating to BottomNavigationBarScreen");
+      Get.offAll(() => const SplashScreen());
+      log("🎉 Navigation Successful!");
+    } catch (e) {
+      log("❌ Navigation failed: $e");
+      // Fallback to named route
+      Get.offAllNamed(Routes.splashScreen);
     }
   }
 

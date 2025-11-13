@@ -27,12 +27,17 @@ class _ProductsState extends State<Products> {
     });
   }
 
-  void addToCart(String productId, String price, String productName) async {
+  void addToCart({
+    required String productId,
+    required String price,
+    required String productName,
+  }) async {
     const userId = "1";
     await orderCartController.addToCart(
       productId: productId,
       userId: userId,
       productName: productName,
+      price: price,
     );
     setState(() {
       cart[productId] = (cart[productId] ?? 0) + 1;
@@ -81,162 +86,158 @@ class _ProductsState extends State<Products> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
-          backgroundColor: const Color(0xfffefefe),
-          body: Stack(
-            children: [
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xffF78520)),
-                  );
-                }
-                if (controller.errorMessage.isNotEmpty) {
-                  return Center(child: Text(controller.errorMessage.value));
-                }
-                final grouped = controller.groupedProducts;
-                grouped.keys.forEach((key) {
-                  expanded.putIfAbsent(key, () => false);
-                });
-                return SingleChildScrollView(
-                  controller: _scrollController,
-                  padding: EdgeInsets.only(
-                    bottom: totalItemsInCart > 0 ? 80 : 0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSearchBar(),
-                      ...grouped.entries.map((entry) {
-                        final title = entry.key;
-                        final products = entry.value;
-                        final isExpanded = expanded[title] ?? false;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            GestureDetector(
-                              onTap: () => toggleSection(title),
-                              child: Container(
-                                color: Colors.grey.shade100,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: Get.width / 30,
-                                  vertical: Get.height / 70,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      title,
-                                      style: TextStyle(
-                                        fontSize: Get.width / 22,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: const Color(0xfffefefe),
+        body: Stack(
+          children: [
+            Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xffF78520)),
+                );
+              }
+              if (controller.errorMessage.isNotEmpty) {
+                return Center(child: Text(controller.errorMessage.value));
+              }
+              final grouped = controller.groupedProducts;
+              grouped.keys.forEach((key) {
+                expanded.putIfAbsent(key, () => false);
+              });
+              return SingleChildScrollView(
+                controller: _scrollController,
+                padding: EdgeInsets.only(bottom: totalItemsInCart > 0 ? 80 : 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: Get.height / 30),
+                    _buildSearchBar(),
+                    ...grouped.entries.map((entry) {
+                      final title = entry.key;
+                      final products = entry.value;
+                      final isExpanded = expanded[title] ?? false;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () => toggleSection(title),
+                            child: Container(
+                              color: Colors.grey.shade100,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: Get.width / 30,
+                                vertical: Get.height / 70,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    title,
+                                    style: TextStyle(
+                                      fontSize: Get.width / 22,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    Icon(
-                                      isExpanded
-                                          ? Icons.keyboard_arrow_up
-                                          : Icons.keyboard_arrow_down,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  Icon(
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                  ),
+                                ],
                               ),
                             ),
-                            AnimatedCrossFade(
-                              duration: const Duration(milliseconds: 300),
-                              sizeCurve: Curves.easeInOut,
-                              crossFadeState: isExpanded
-                                  ? CrossFadeState.showFirst
-                                  : CrossFadeState.showSecond,
-                              firstChild: Column(
-                                children: products.map((product) {
-                                  final qty =
-                                      cart[product.productId.toString()] ?? 0;
-                                  return FoodItemContainer(
+                          ),
+                          AnimatedCrossFade(
+                            duration: const Duration(milliseconds: 300),
+                            sizeCurve: Curves.easeInOut,
+                            crossFadeState: isExpanded
+                                ? CrossFadeState.showFirst
+                                : CrossFadeState.showSecond,
+                            firstChild: Column(
+                              children: products.map((product) {
+                                final qty =
+                                    cart[product.productId.toString()] ?? 0;
+                                return FoodItemContainer(
+                                  productId: product.productId.toString(),
+                                  title: product.productName,
+                                  description: product.description,
+                                  price: '₹ ${product.sellingPrice}',
+                                  imageUrl: product.productImage,
+                                  quantity: qty,
+                                  onAdd: () => addToCart(
                                     productId: product.productId.toString(),
-                                    title: product.productName,
-                                    description: product.description,
-                                    price: '₹ ${product.sellingPrice}',
-                                    imageUrl: product.productImage,
-                                    quantity: qty,
-                                    onAdd: () => addToCart(
-                                      product.productId.toString(),
-                                      product.sellingPrice.toString(),
-                                      product.productName,
-                                    ),
-                                    onRemove: () =>
-                                        removeFromCart(product.productName),
-                                  );
-                                }).toList(),
-                              ),
-                              secondChild: const SizedBox.shrink(),
+                                    price: product.sellingPrice.toString(),
+                                    productName: product.productName,
+                                  ),
+                                  onRemove: () =>
+                                      removeFromCart(product.productName),
+                                );
+                              }).toList(),
                             ),
-                            Divider(height: Get.height / 200),
-                          ],
-                        );
-                      }),
+                            secondChild: const SizedBox.shrink(),
+                          ),
+                          Divider(height: Get.height / 200),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
+              );
+            }),
+
+            if (totalItemsInCart > 0)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: Get.height / 12,
+                  margin: EdgeInsets.all(Get.width / 25),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffF78520),
+                    borderRadius: BorderRadius.circular(Get.width / 25),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Get.width / 25,
+                        ),
+                        child: Text(
+                          "$totalItemsInCart item${totalItemsInCart > 1 ? 's' : ''} added",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: Get.width / 26,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Get.toNamed(Routes.checkOut),
+                        child: Padding(
+                          padding: EdgeInsets.only(right: Get.width / 25),
+                          child: Row(
+                            children: [
+                              Text(
+                                "View cart",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.keyboard_arrow_right_outlined,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                );
-              }),
-
-              // 🛒 Bottom Cart Summary
-              if (totalItemsInCart > 0)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: Get.height / 12,
-                    margin: EdgeInsets.all(Get.width / 25),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffF78520),
-                      borderRadius: BorderRadius.circular(Get.width / 25),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Get.width / 25,
-                          ),
-                          child: Text(
-                            "$totalItemsInCart item${totalItemsInCart > 1 ? 's' : ''} added",
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: Get.width / 26,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Get.toNamed(Routes.checkOut),
-                          child: Padding(
-                            padding: EdgeInsets.only(right: Get.width / 25),
-                            child: Row(
-                              children: [
-                                Text(
-                                  "View cart",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Icon(
-                                  Icons.keyboard_arrow_right_outlined,
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

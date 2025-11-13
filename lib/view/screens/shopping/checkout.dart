@@ -385,15 +385,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                 ),
                 Text(
-                  item.grams,
+                  'Qty: ${item.qty}',
                   style: TextStyle(
-                    fontSize: Get.width / 30,
-                    color: Colors.grey,
+                    fontSize: Get.width / 28,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Total: ₹${(double.tryParse(item.total) ?? 0.0).toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: Get.width / 25,
+                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 SizedBox(height: Get.height / 50),
                 Text(
-                  '₹${item.price}',
+                  '₹${(double.tryParse(item.price) ?? 0.0).toStringAsFixed(2)}',
                   style: GoogleFonts.poppins(
                     fontSize: Get.width / 20,
                     fontWeight: FontWeight.w600,

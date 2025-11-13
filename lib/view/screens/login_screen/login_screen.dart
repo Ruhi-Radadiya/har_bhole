@@ -181,7 +181,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       loginController.requestOtp(mobile);
                                     },
                                   ),
-
                                   // onPressed: () async {
                                   //   bool isValid =
                                   //       FieldValidator.validateRequired({

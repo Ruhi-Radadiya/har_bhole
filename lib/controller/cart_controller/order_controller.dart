@@ -61,6 +61,7 @@ class OrderCartController extends GetxController {
     required String userId,
     required String productId,
     required String productName,
+    String price = '0',
     int quantity = 1,
   }) async {
     try {
@@ -79,7 +80,11 @@ class OrderCartController extends GetxController {
         // Call update cart API instead of add to cart
         final updateResponse = await http.post(
           Uri.parse("https://harbhole.eihlims.com/Api/cart.php?action=update"),
-          body: {"id": existingItem.id, "quantity": newQuantity.toString()},
+          body: {
+            "id": existingItem.id, 
+            "quantity": newQuantity.toString(),
+            "price": price, // Make sure to update price if it changes
+          },
         );
 
         logger.log("🟢 Update Cart Response: ${updateResponse.body}");
@@ -89,7 +94,7 @@ class OrderCartController extends GetxController {
           await fetchCartData(); // refresh cart
           Get.snackbar(
             "Success",
-            "Cart updated!",
+            "Quantity updated!",
             backgroundColor: Colors.green,
             colorText: Colors.white,
           );
@@ -106,6 +111,7 @@ class OrderCartController extends GetxController {
           "user_id": userId,
           "product_id": productId,
           "product_name": productName,
+          "price": price,
           "quantity": quantity.toString(),
         },
       );
